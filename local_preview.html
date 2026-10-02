@@ -1,0 +1,3545 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ระบบกรอกข้อมูล (KSA) ปรับปรุงหลักสูตร 2571 - คณะศึกษาศาสตร์ ม.อ.</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- FontAwesome 6 Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <!-- SweetAlert2 -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <!-- Google Fonts: Prompt & Sarabun -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&family=Sarabun:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Prompt', 'Sarabun', 'sans-serif'],
+            body: ['Sarabun', 'sans-serif'],
+          },
+          colors: {
+            psu: {
+              50: '#f0f7ff',
+              100: '#e0effe',
+              600: '#0056b3',
+              700: '#004085',
+              800: '#002b5c',
+              900: '#001a38',
+              gold: '#e6a100'
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body {
+      font-family: 'Prompt', 'Sarabun', sans-serif;
+      background-color: #f8fafc;
+    }
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: #f1f5f9;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 4px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+    .badge-plo {
+      transition: all 0.2s ease;
+    }
+    .badge-plo:hover {
+      transform: translateY(-1px);
+    }
+    /* Modal smooth animation */
+    .modal-enter {
+      opacity: 0;
+      transform: scale(0.96);
+    }
+    .modal-enter-active {
+      opacity: 1;
+      transform: scale(1);
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    /* Print & PDF Export Styles */
+    .print-only {
+      display: none;
+    }
+    @media print {
+      body {
+        background-color: #ffffff !important;
+        font-family: 'Sarabun', 'Prompt', sans-serif !important;
+      }
+      header, footer, nav, #loading-overlay, #course-modal, #add-course-modal,
+      .no-print, #tab-content-1, #tab-content-3, .swal2-container, #summary-stats-section {
+        display: none !important;
+      }
+      #tab-content-2, #tab-content-4 {
+        display: none !important;
+      }
+      body.print-tab2 #tab-content-2,
+      body:not(.print-tab4) #tab-content-2:not(.hidden) {
+        display: block !important;
+        padding: 0 !important;
+        margin: 0 !important;
+      }
+      body.print-tab4 #tab-content-4,
+      body:not(.print-tab2) #tab-content-4:not(.hidden) {
+        display: block !important;
+        padding: 0 !important;
+        margin: 0 !important;
+      }
+      #tab2-printable-area, #tab4-printable-area {
+        border: none !important;
+        box-shadow: none !important;
+        padding: 0 !important;
+        width: 100% !important;
+      }
+      .print-only {
+        display: block !important;
+      }
+      table {
+        width: 100% !important;
+        border-collapse: collapse !important;
+      }
+      th, td {
+        border: 1px solid #333333 !important;
+        padding: 5px 6px !important;
+      }
+      thead {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+      @page {
+        size: landscape;
+        margin: 8mm;
+      }
+    }
+  </style>
+
+<script>
+  window.MOCK_DATA = {
+  "courses": [
+    {
+      "rowIndex": 101,
+      "order": "01",
+      "code": "260-302",
+      "name": "กฎหมายและการประกันคุณภาพ",
+      "credit": "2((2)-0-4)",
+      "instructor": "อาจารย์ผู้สอนหมวดวิชาชีพครู",
+      "plos": "PLO1",
+      "cloTh": "มีความรู้ความเข้าใจเกี่ยวกับกฎหมายการศึกษาและระบบประกันคุณภาพ",
+      "cloEn": "Understand educational laws and quality assurance systems.",
+      "k": "K28 K29 K30",
+      "s": "S02 S15 S16 S17 S20 S22",
+      "a": "A05 A06 A07 A08"
+    },
+    {
+      "rowIndex": 102,
+      "order": "02",
+      "code": "261-101",
+      "name": "วิชาชีพและความเป็นครู",
+      "credit": "2((1)-2-3)",
+      "instructor": "อาจารย์ผู้สอนหมวดวิชาชีพครู",
+      "plos": "PLO1, PLO2",
+      "cloTh": "เข้าใจปรัชญาการศึกษา จรรยาบรรณ และความเป็นครูมืออาชีพ",
+      "cloEn": "Understand educational philosophy, ethics, and professional teaching.",
+      "k": "K01 K02 K03 K05 K06 K07 K08 K09 K16",
+      "s": "S01 S10 S11 S12 S13 S14 S15 S16 S17 S18 S19",
+      "a": "A01 A02 A03 A04 A05 A06 A07 A08 A10 A11 A12 A13 A14"
+    },
+    {
+      "rowIndex": 103,
+      "order": "03",
+      "code": "261-201",
+      "name": "ภาษาเพื่อการสื่อสารสำหรับครู",
+      "credit": "3((2)-2-5)",
+      "instructor": "อาจารย์ผู้สอนหมวดวิชาชีพครู",
+      "plos": "PLO2, PLO5",
+      "cloTh": "สื่อสารภาษาไทยและภาษาอังกฤษเพื่อการจัดการเรียนรู้ได้อย่างมีประสิทธิภาพ",
+      "cloEn": "Communicate in Thai and English for effective learning management.",
+      "k": "A04 K07 K08 K09 K21 K26 K27 K33",
+      "s": "S05 S09 S10 S11 S13 S14 S15 S16 S19 S20 S22",
+      "a": "A01 A04 A05 A06 A07 A08 A09 A10 A11 A12 A13 A14"
+    },
+    {
+      "rowIndex": 104,
+      "order": "04",
+      "code": "261-301",
+      "name": "การพัฒนาหลักสูตร",
+      "credit": "3((2)-2-5)",
+      "instructor": "อาจารย์ผู้สอนหมวดวิชาชีพครู",
+      "plos": "PLO1, PLO2, PLO3, PLO5",
+      "cloTh": "วิเคราะห์ ออกแบบ และพัฒนาหลักสูตรสถานศึกษาได้",
+      "cloEn": "Analyze, design, and develop school curricula.",
+      "k": "K04 K14 K15 K33",
+      "s": "S14 S15 S16 S17 S19 S20 S22",
+      "a": "A07 A08 A10 A11 A12 A13"
+    },
+    {
+      "rowIndex": 105,
+      "order": "05",
+      "code": "261-203",
+      "name": "วิทยาการการจัดการเรียนรู้",
+      "credit": "2((1)-2-3)",
+      "instructor": "อาจารย์ผู้สอนหมวดวิชาชีพครู",
+      "plos": "PLO1, PLO2",
+      "cloTh": "ประยุกต์ใช้ศาสตร์การสอนในการจัดการเรียนรู้ในชั้นเรียนได้",
+      "cloEn": "Apply pedagogical science to classroom learning management.",
+      "k": "K06 K08 K13 K16 K17 K18 K34",
+      "s": "S01 S02 S03 S04 S05 S09 S11 S13 S14 S15 S16 S17",
+      "a": "A01 A02 A03 A07 A08 A10 A11"
+    },
+    {
+      "rowIndex": 2,
+      "order": "1",
+      "code": "263-202 ",
+      "name": "การถ่ายภาพดิจิทัลเพื่อสื่อสารการศึกษา",
+      "credit": "",
+      "instructor": "ดร. ชไมพร อินทร์แก้ว",
+      "plos": "PLO1",
+      "cloTh": "สามารถอธิบายหลักการถ่ายภาพดิจิทัลและนำไปประยุกต์ใช้เพื่อการศึกษาได้",
+      "cloEn": "Able to explain digital photography principles and apply them to education.",
+      "k": "PLO1: 1. อธิบายทฤษฎีเทคโนโลยีได้, 2. บอกองค์ประกอบของเทคโนโลยี",
+      "s": "PLO1: 1. ทำงานร่วมกับชุมชน, 2. สื่อสารในทีมได้",
+      "a": "PLO1: 1. มีจิตสาธารณะ, 2. มีความรับผิดชอบ"
+    },
+    {
+      "rowIndex": 3,
+      "order": "2",
+      "code": "263-206 ",
+      "name": "การออกแบบระบบการเรียนการสอนและการพัฒนาสื่อการสอนเพื่อสื่อสารการศึกษา",
+      "credit": "",
+      "instructor": "ดร. ชไมพร อินทร์แก้ว",
+      "plos": "PLO1, PLO2",
+      "cloTh": "สามารถออกแบบและพัฒนาสื่อการเรียนรู้ดิจิทัลได้อย่างปลอดภัยและสร้างสรรค์",
+      "cloEn": "Able to design and develop digital learning media safely and creatively.",
+      "k": "PLO1: 1. เข้าใจหลักการออกแบบสื่อสารการศึกษา\nPLO2: 1. อธิบายกฎหมายและจริยธรรมดิจิทัล, 2. ตระหนักถึงความปลอดภัยทางไซเบอร์",
+      "s": "PLO1: 1. ร่วมมือกับผู้อื่นในการผลิตสื่อ\nPLO2: 1. ป้องกันภัยคุกคามทางไซเบอร์ในสถานศึกษา, 2. ปกป้องข้อมูลส่วนบุคคล",
+      "a": "PLO1: 1. รับฟังความคิดเห็นของผู้ร่วมงาน\nPLO2: 1. มีวินัยและความซื่อสัตย์ในการใช้สารสนเทศ"
+    },
+    {
+      "rowIndex": 4,
+      "order": "3",
+      "code": "263-305 ",
+      "name": "การฝึกอบรมและสัมมนาเพื่อพัฒนาทรัพยากรมนุษย์ในยุคเทคโนโลยีดิจิทัล",
+      "credit": "",
+      "instructor": "ดร. ชไมพร อินทร์แก้ว",
+      "plos": "PLO4",
+      "cloTh": "สามารถสร้างนวัตกรรมทางการศึกษาโดยประยุกต์ใช้ Generative AI ในชั้นเรียนได้",
+      "cloEn": "Able to create educational innovations using Generative AI in the classroom.",
+      "k": "PLO4: 1. อธิบายหลักการทำงานของ AI ทางการศึกษา, 2. รู้วิธีการเขียน Prompt สำหรับการจัดการเรียนรู้",
+      "s": "PLO4: 1. พัฒนานวัตกรรมการสอนด้วย Generative AI, 2. วิจัยในชั้นเรียนเพื่อพัฒนานวัตกรรม",
+      "a": "PLO4: 1. มีความคิดริเริ่มสร้างสรรค์, 2. มุ่งมั่นพัฒนาการจัดการเรียนรู้"
+    },
+    {
+      "rowIndex": 5,
+      "order": "4",
+      "code": "263-213 ",
+      "name": "การประชาสัมพันธ์เชิงรุกยุคดิจิทัลเพื่อสื่อสารการศึกษา",
+      "credit": "",
+      "instructor": "ดร. ชไมพร อินทร์แก้ว",
+      "plos": "",
+      "cloTh": "",
+      "cloEn": "",
+      "k": "",
+      "s": "",
+      "a": ""
+    },
+    {
+      "rowIndex": 6,
+      "order": "5",
+      "code": "263-312 ",
+      "name": "โปรแกรมคอมพิวเตอร์เพื่อศิลปะการออกแบบภาพถ่ายดิจิทัลในการสื่อสารการศึกษา",
+      "credit": "",
+      "instructor": "ดร. ชไมพร อินทร์แก้ว",
+      "plos": "",
+      "cloTh": "",
+      "cloEn": "",
+      "k": "",
+      "s": "",
+      "a": ""
+    },
+    {
+      "rowIndex": 7,
+      "order": "6",
+      "code": "263-403 ",
+      "name": "วิทยาการการจัดการเรียนรู้ทางเทคโนโลยีดิจิทัลและสื่อสารการศึกษา",
+      "credit": "",
+      "instructor": "ดร. ชไมพร อินทร์แก้ว",
+      "plos": "",
+      "cloTh": "",
+      "cloEn": "",
+      "k": "",
+      "s": "",
+      "a": ""
+    },
+    {
+      "rowIndex": 8,
+      "order": "7",
+      "code": "263-323 ",
+      "name": "ชุดวิชาศิลปะการถ่ายภาพเชิงธุรกิจในยุคเทคโนโลยีดิจิทัล",
+      "credit": "",
+      "instructor": "ดร. ชไมพร อินทร์แก้ว",
+      "plos": "",
+      "cloTh": "",
+      "cloEn": "",
+      "k": "",
+      "s": "",
+      "a": ""
+    },
+    {
+      "rowIndex": 9,
+      "order": "8",
+      "code": "263-204 ",
+      "name": "เทคโนโลยีดิจิทัลและคอมพิวเตอร์เพื่อสื่อสารการศึกษา",
+      "credit": "",
+      "instructor": "อาจารย์มณฑล ผลบุญ",
+      "plos": "",
+      "cloTh": "",
+      "cloEn": "",
+      "k": "",
+      "s": "",
+      "a": ""
+    },
+    {
+      "rowIndex": 10,
+      "order": "9",
+      "code": "263-207 ",
+      "name": "การออกแบบและการจัดการระบบสารสนเทศบนเว็บเพื่อสื่อสารการศึกษา",
+      "credit": "",
+      "instructor": "อาจารย์มณฑล ผลบุญ",
+      "plos": "",
+      "cloTh": "",
+      "cloEn": "",
+      "k": "",
+      "s": "",
+      "a": ""
+    },
+    {
+      "rowIndex": 11,
+      "order": "10",
+      "code": "263-303 ",
+      "name": "ระบบเครือข่ายเพื่อสื่อสารการศึกษา",
+      "credit": "",
+      "instructor": "อาจารย์มณฑล ผลบุญ",
+      "plos": "",
+      "cloTh": "",
+      "cloEn": "",
+      "k": "",
+      "s": "",
+      "a": ""
+    },
+    {
+      "rowIndex": 12,
+      "order": "11",
+      "code": "263-402 ",
+      "name": "การวางแผนและปฏิบัติการทางเทคโนโลยีดิจิทัลและสื่อสารการศึกษา",
+      "credit": "",
+      "instructor": "อาจารย์มณฑล ผลบุญ",
+      "plos": "",
+      "cloTh": "",
+      "cloEn": "",
+      "k": "",
+      "s": "",
+      "a": ""
+    },
+    {
+      "rowIndex": 13,
+      "order": "12",
+      "code": "263-311 ",
+      "name": "การพัฒนาเกมและแอปพลิเคชันเพื่อสื่อสารการศึกษา",
+      "credit": "",
+      "instructor": "อาจารย์มณฑล ผลบุญ",
+      "plos": "",
+      "cloTh": "",
+      "cloEn": "",
+      "k": "",
+      "s": "",
+      "a": ""
+    },
+    {
+      "rowIndex": 14,
+      "order": "13",
+      "code": "263-319 ",
+      "name": "โปรแกรมหุ่นยนต์เพื่อการศึกษาเบื้องต้น",
+      "credit": "",
+      "instructor": "อาจารย์มณฑล ผลบุญ",
+      "plos": "",
+      "cloTh": "",
+      "cloEn": "",
+      "k": "",
+      "s": "",
+      "a": ""
+    },
+    {
+      "rowIndex": 15,
+      "order": "14",
+      "code": "263-321 ",
+      "name": "เทคโนโลยีดิจิทัลและอินเทอร์เน็ตของสรรพสิ่งเพื่อสื่อสารการศึกษา",
+      "credit": "",
+      "instructor": "อาจารย์มณฑล ผลบุญ",
+      "plos": "",
+      "cloTh": "",
+      "cloEn": "",
+      "k": "",
+      "s": "",
+      "a": ""
+    },
+    {
+      "rowIndex": 16,
+      "order": "15",
+      "code": "263-314 ",
+      "name": "โปรแกรมคอมพิวเตอร์ประยุกต์เพื่อสื่อสารการศึกษา",
+      "credit": "",
+      "instructor": "อาจารย์มณฑล ผลบุญ",
+      "plos": "",
+      "cloTh": "",
+      "cloEn": "",
+      "k": "",
+      "s": "",
+      "a": ""
+    },
+    {
+      "rowIndex": 17,
+      "order": "16",
+      "code": "263-201 ",
+      "name": "นวัตกรรมและเทคโนโลยีดิจิทัลเพื่อสื่อสารการศึกษา",
+      "credit": "",
+      "instructor": "ผู้ช่วยศาสตราจารย์รุศดา ณัฐภาสวิรตา",
+      "plos": "",
+      "cloTh": "",
+      "cloEn": "",
+      "k": "",
+      "s": "",
+      "a": ""
+    },
+    {
+      "rowIndex": 18,
+      "order": "17",
+      "code": "263-302 ",
+      "name": "การจัดการฐานข้อมูลเพื่อสื่อสารการศึกษา",
+      "credit": "",
+      "instructor": "ผู้ช่วยศาสตราจารย์รุศดา ณัฐภาสวิรตา",
+      "plos": "",
+      "cloTh": "",
+      "cloEn": "",
+      "k": "",
+      "s": "",
+      "a": ""
+    },
+    {
+      "rowIndex": 19,
+      "order": "18",
+      "code": "263-304 ",
+      "name": "การพัฒนาโปรแกรมบนอุปกรณ์เคลื่อนที่เพื่อการศึกษา",
+      "credit": "",
+      "instructor": "ผู้ช่วยศาสตราจารย์รุศดา ณัฐภาสวิรตา",
+      "plos": "",
+      "cloTh": "",
+      "cloEn": "",
+      "k": "",
+      "s": "",
+      "a": ""
+    },
+    {
+      "rowIndex": 20,
+      "order": "19",
+      "code": "263-306 ",
+      "name": "สัมมนาทางโครงงาน เทคโนโลยีและการสื่อสารการศึกษา",
+      "credit": "",
+      "instructor": "ผู้ช่วยศาสตราจารย์รุศดา ณัฐภาสวิรตา",
+      "plos": "",
+      "cloTh": "",
+      "cloEn": "",
+      "k": "",
+      "s": "",
+      "a": ""
+    },
+    {
+      "rowIndex": 21,
+      "order": "20",
+      "code": "263-310 ",
+      "name": "ภาวะผู้นาที่มีวิสัยทัศน์ทางนวัตกรรมเทคโนโลยีเพื่อการศึกษาและการพัฒนาทรัพยากรมนุษย์",
+      "credit": "",
+      "instructor": "ผู้ช่วยศาสตราจารย์รุศดา ณัฐภาสวิรตา",
+      "plos": "",
+      "cloTh": "",
+      "cloEn": "",
+      "k": "",
+      "s": "",
+      "a": ""
+    },
+    {
+      "rowIndex": 22,
+      "order": "21",
+      "code": "263-317 ",
+      "name": "การแพร่กระจายนวัตกรรมการศึกษา",
+      "credit": "",
+      "instructor": "ผู้ช่วยศาสตราจารย์รุศดา ณัฐภาสวิรตา",
+      "plos": "",
+      "cloTh": "",
+      "cloEn": "",
+      "k": "",
+      "s": "",
+      "a": ""
+    },
+    {
+      "rowIndex": 23,
+      "order": "22",
+      "code": "263-401 ",
+      "name": "โครงงานและวิจัยทางนวัตกรรมเทคโนโลยีและการสื่อสารการศึกษา",
+      "credit": "",
+      "instructor": "ผู้ช่วยศาสตราจารย์รุศดา ณัฐภาสวิรตา",
+      "plos": "",
+      "cloTh": "",
+      "cloEn": "",
+      "k": "",
+      "s": "",
+      "a": ""
+    },
+    {
+      "rowIndex": 24,
+      "order": "23",
+      "code": "263-203 ",
+      "name": "คณิตศาสตร์สาหรับวิทยาการคอมพิวเตอร์",
+      "credit": "",
+      "instructor": "ผู้ช่วยศาสตราจารย์รุศดา ณัฐภาสวิรตา",
+      "plos": "",
+      "cloTh": "",
+      "cloEn": "",
+      "k": "",
+      "s": "",
+      "a": ""
+    },
+    {
+      "rowIndex": 25,
+      "order": "24",
+      "code": "263-208 ",
+      "name": "การเขียนโปรแกรมคอมพิวเตอร์เพื่อสื่อสารการศึกษา 1",
+      "credit": "",
+      "instructor": "ผู้ช่วยศาสตราจารย์รุศดา ณัฐภาสวิรตา",
+      "plos": "",
+      "cloTh": "",
+      "cloEn": "",
+      "k": "",
+      "s": "",
+      "a": ""
+    },
+    {
+      "rowIndex": 26,
+      "order": "25",
+      "code": "263-102 ",
+      "name": "ดิจิทัลกราฟิกเพื่อสื่อสารการศึกษา",
+      "credit": "",
+      "instructor": "ดร. องค์อร วิทยธาดา",
+      "plos": "",
+      "cloTh": "",
+      "cloEn": "",
+      "k": "",
+      "s": "",
+      "a": ""
+    },
+    {
+      "rowIndex": 27,
+      "order": "26",
+      "code": "263-205 ",
+      "name": "ดิจิทัลมีเดียและแอนิเมชันเพื่อสื่อสารการศึกษา",
+      "credit": "",
+      "instructor": "ดร. องค์อร วิทยธาดา",
+      "plos": "",
+      "cloTh": "",
+      "cloEn": "",
+      "k": "",
+      "s": "",
+      "a": ""
+    },
+    {
+      "rowIndex": 28,
+      "order": "27",
+      "code": "263-212 ",
+      "name": "การออกแบบสื่อนำเสนอและแฟ้มสะสมงานดิจิทัลเพื่อสื่อสารการศึกษา",
+      "credit": "",
+      "instructor": "ดร. องค์อร วิทยธาดา",
+      "plos": "",
+      "cloTh": "",
+      "cloEn": "",
+      "k": "",
+      "s": "",
+      "a": ""
+    },
+    {
+      "rowIndex": 29,
+      "order": "28",
+      "code": "263-307 ",
+      "name": "การศึกษานอกสถานที่ทางนวัตกรรมเทคโนโลยีดิจิทัลและสื่อสารการศึกษา",
+      "credit": "",
+      "instructor": "ดร. องค์อร วิทยธาดา",
+      "plos": "",
+      "cloTh": "",
+      "cloEn": "",
+      "k": "",
+      "s": "",
+      "a": ""
+    },
+    {
+      "rowIndex": 30,
+      "order": "29",
+      "code": "263-215 ",
+      "name": "เทคโนโลยีความจริงเสมือน",
+      "credit": "",
+      "instructor": "ดร. องค์อร วิทยธาดา",
+      "plos": "",
+      "cloTh": "",
+      "cloEn": "",
+      "k": "",
+      "s": "",
+      "a": ""
+    },
+    {
+      "rowIndex": 31,
+      "order": "30",
+      "code": "263-318 ",
+      "name": "คอมพิวเตอร์แอนิเมชัน 3 มิติเพื่อสื่อสารการศึกษา",
+      "credit": "",
+      "instructor": "ดร. องค์อร วิทยธาดา",
+      "plos": "",
+      "cloTh": "",
+      "cloEn": "",
+      "k": "",
+      "s": "",
+      "a": ""
+    },
+    {
+      "rowIndex": 32,
+      "order": "31",
+      "code": "263-214 ",
+      "name": "ภาษาอังกฤษสาหรับเทคโนโลยีดิจิทัลและคอมพิวเตอร์",
+      "credit": "",
+      "instructor": "ดร. องค์อร วิทยธาดา",
+      "plos": "",
+      "cloTh": "",
+      "cloEn": "",
+      "k": "",
+      "s": "",
+      "a": ""
+    },
+    {
+      "rowIndex": 33,
+      "order": "32",
+      "code": "263-101 ",
+      "name": "ไฟฟ้าและอิเล็กทรอนิกส์เพื่อการใช้และบารุงรักษาอุปกรณ์ดิจิทัลและคอมพิวเตอร์",
+      "credit": "",
+      "instructor": "อาจารญนาบาวี สือปา",
+      "plos": "",
+      "cloTh": "",
+      "cloEn": "",
+      "k": "",
+      "s": "",
+      "a": ""
+    },
+    {
+      "rowIndex": 34,
+      "order": "33",
+      "code": "263-201 ",
+      "name": "นวัตกรรมและเทคโนโลยีดิจิทัลเพื่อสื่อสารการศึกษา",
+      "credit": "",
+      "instructor": "อาจารญนาบาวี สือปา",
+      "plos": "",
+      "cloTh": "",
+      "cloEn": "",
+      "k": "",
+      "s": "",
+      "a": ""
+    },
+    {
+      "rowIndex": 35,
+      "order": "34",
+      "code": "263-211 ",
+      "name": "การผลิตสิ่งพิมพ์เพื่อสื่อสารการศึกษา",
+      "credit": "",
+      "instructor": "อาจารญนาบาวี สือปา",
+      "plos": "",
+      "cloTh": "",
+      "cloEn": "",
+      "k": "",
+      "s": "",
+      "a": ""
+    },
+    {
+      "rowIndex": 36,
+      "order": "35",
+      "code": "263-301 ",
+      "name": "การผลิตรายการวิทยุกระจายเสียงและวิทยุโทรทัศน์เพื่อการสื่อสารการศึกษาด้วยระบบดิจิทัล",
+      "credit": "",
+      "instructor": "อาจารญนาบาวี สือปา",
+      "plos": "",
+      "cloTh": "",
+      "cloEn": "",
+      "k": "",
+      "s": "",
+      "a": ""
+    },
+    {
+      "rowIndex": 37,
+      "order": "36",
+      "code": "263-313 ",
+      "name": "โปรแกรมคอมพิวเตอร์เพื่อจัดการเสียงและภาพเคลื่อนไหวเพื่อสื่อสารการศึกษา",
+      "credit": "",
+      "instructor": "อาจารญนาบาวี สือปา",
+      "plos": "",
+      "cloTh": "",
+      "cloEn": "",
+      "k": "",
+      "s": "",
+      "a": ""
+    },
+    {
+      "rowIndex": 38,
+      "order": "37",
+      "code": "263-316 ",
+      "name": "การแสดงและการกากับการแสดงสาหรับวีดิทัศน์เพื่อสื่อสารการศึกษา",
+      "credit": "",
+      "instructor": "อาจารญนาบาวี สือปา",
+      "plos": "",
+      "cloTh": "",
+      "cloEn": "",
+      "k": "",
+      "s": "",
+      "a": ""
+    },
+    {
+      "rowIndex": 39,
+      "order": "38",
+      "code": "263-320 ",
+      "name": "ดิจิทัลและการออกแบบตรรกะ",
+      "credit": "",
+      "instructor": "อาจารญนาบาวี สือปา",
+      "plos": "",
+      "cloTh": "",
+      "cloEn": "",
+      "k": "",
+      "s": "",
+      "a": ""
+    },
+    {
+      "rowIndex": 40,
+      "order": "39",
+      "code": "263-322 ",
+      "name": "การเขียนโปรแกรมคอมพิวเตอร์เพื่อสื่อสารการศึกษา 2",
+      "credit": "",
+      "instructor": "อาจารญนาบาวี สือปา",
+      "plos": "",
+      "cloTh": "",
+      "cloEn": "",
+      "k": "",
+      "s": "",
+      "a": ""
+    }
+  ],
+  "instructors": [
+    "ดร. ชไมพร อินทร์แก้ว",
+    "ดร. องค์อร วิทยธาดา",
+    "ผู้ช่วยศาสตราจารย์รุศดา ณัฐภาสวิรตา",
+    "อาจารญนาบาวี สือปา",
+    "อาจารย์มณฑล ผลบุญ"
+  ],
+  "tab2Data": [
+    {
+      "plos": "PLO1",
+      "k": "K28 K29 K30",
+      "s": "S02 S15 S16 S17 S20 S22",
+      "a": "A05 A06 A07 A08",
+      "savedBy": "อาจารย์ผู้สอนหมวดวิชาชีพครู",
+      "timestamp": "2/10/2569 09:03:37"
+    }
+  ],
+  "tab3Data": [
+    {
+      "k": "K01 จรรยาบรรณของวิชาชีพครู ค่านิยมของ\r\nครู คุณธรรม จริยธรรม จิตวิญญาณครู \r\nK02 ความสำคัญของครู การปฏิบัติหน้าที่ครู \r\nและความก้าวหน้าของงานครู \r\nK03 องค์กรวิชาชีพและมาตรฐานวิชาชีพครู  \r\nK04 ปรัชญาการศึกษา \r\nK05 แนวคิดการพัฒนาที่ยั่งยืน \r\nK06 ทักษะในศตวรรษที่ 21 \r\nK07 การเปลี่ยนแปลงบริบท โลกและสังคม \r\nK08 พหุวัฒนธรรมศึกษา \r\nK09แนวคิดของปรัชญาเศรษฐกิจพอเพียง \r\nK10 การวิเคราะห์ ออกแบบ จัดทำ ใช้ และ \r\nประเมินและการพัฒนาหลักสูตร \r\nK11 หลักสูตรสถานศึกษา",
+      "s": "S01 ประพฤติตนเป็นแบบอย่างที่ดี มีจริยธรรม \r\nและจรรยาบรรณวิชาชีพครู \r\nS02 ใช้ภาษาไทยเพื่อการสื่อสาร \r\nS03 ทักษะการใช้ภาษาอังกฤษเพื่อการสื่อสาร \r\nS04 ทักษะการสื่อสารกับผู้เรียน ผู้ปกครอง \r\nและ สื่อสารในที่สาธารณะ ด้วยเทคโนโลยีและ \r\nรูปแบบอื่นๆ \r\nS05 ประเมินข้อมูล สื่อสารสนเทศจากแหล่งที่ \r\nหลากหลาย \r\nS06 ใช้เทคโนโลยีสารสนเทศและแอปพลิเคชัน \r\nS07 ทักษะการปฏิบัติงานวิชาชีพครู \r\nS08 ทำงานร่วมกับผู้อื่นอย่างสร้างสรรค์ \r\nS09 สังเกตและวิเคราะห์ผู้เรียนเป็นรายบุคคล \r\nS10 แก้ปัญหาอย่างสร้างสรรค์ \r\nS11 ทักษะการเรียนรู้ในศตวรรษที่ 21",
+      "a": "A01 ยึดมั่นในคุณธรรม จริยธรรม \r\nA02 รัก ศรัทธา และภูมิใจในวิชาชีพ ครู \r\nA03 เห็นประโยชน์ของเพื่อนมนุษย์เป็นกิจ\r\nที่หนึ่ง \r\nA04 เห็นประโยชน์ของเพื่อมนุษย์เป็น กิจ\r\nที่หนึ่ง  \r\nA05 ยึดมั่นในเหตุผลและความถูกต้อง \r\nA06 รับผิดชอบต่อตนเอง ผู้อื่น และสังคม \r\nA07 รัก ศรัทธา และภูมิใจในวิชาชีพ\r\nเทคโนโลยีการศึกษา \r\nA08 มีวินัย"
+    },
+    {
+      "k": "K12 ทฤษฎี วิธีการและทักษะการจัดการ\r\nเรียนรู้ \r\nK13 การทำแผนการจัดการเรียนรู้และการ \r\nจัดการเรียนรู้เชิงรุกและยึดผู้เรียนเป็นสำคัญ \r\nK14 การบริหารจัดการชั้นเรียน \r\nK15  นวัตกรรมและเทคโนโลยีดิจิทัลเพื่อ \r\nการศึกษาและการจัดการเรียนรู้ \r\nK16 การใช้ภาษาไทยเพื่อการสื่อสารสำหรับครู \r\nK17 การใช้ภาษาอังกฤษเพื่อการสื่อสาร\r\nสำหรับครู \r\nK18 วัฒนธรรม ภูมิปัญญา ชุมชน และท้องถิ่น  \r\nK19 กฎหมายการศึกษา \r\nK20 การออกแบบ และการดำเนินการเกี่ยวกับ \r\nงานประกันคุณภาพการศึกษา \r\nK21 ความเป็นผู้นำทางวิชาชีพครู  \r\nK22 การบูรณาการองค์ความรู้ทางวิชาชีพ\r\nเทคโนโลยีการศึกษาและศาสตร์อื่น ๆ เพื่อการ\r\nจัดการเรียนรู้",
+      "s": "S12 การแสดงความคิดเห็นและวิพากษ์อย่าง\r\nสร้างสรรค์ \r\nS13 การวางแผนอย่างเป็นระบบ \r\nS14 เรียนรู้ตลอดชีวิต \r\nS15 จัดการความขัดแย้งอย่างสันติ \r\nS16 การ coaching \r\nS17 Data visualizing \r\nS18 ประพฤติปฏิบัติตนตามจรรยาบรรณ\r\nวิชาชีพเทคโนโลยีการศึกษาเป็นแบบอย่างที่ดี \r\nS19 ปฏิบัติงานวิชาชีพเทคโนโลยีการศึกษา \r\nS20 เป็นผู้นำและผู้ตามทางวิชาการและ\r\nวิชาชีพ \r\nS21 แสดงความคิดเห็นและวิพากษ์อย่าง\r\nสร้างสรรค์  \r\nS22 ทักษะทางวัฒนธรรม \r\nS23 มีมนุษยสัมพันธ์ \r\nS24 ทักษะการรู้เท่าทันดิจิทัล  \r\n        (Digital Literacy)",
+      "a": "A09 ใฝ่เรียนรู้และกระตือรือร้น \r\nA10 มุ่งมั่นเพื่อความสำเร็จ (Grit) \r\nA11 ยืดหยุ่นทางความคิดและอารมณ์ \r\n(Resilience) \r\nA12 ตระหนักและเคารพในคุณค่าของ\r\nตนเองและผู้อื่น"
+    },
+    {
+      "k": "K23 จรรยาบรรณของวิชาชีพเทคโนโลยี\r\nการศึกษา คุณธรรมจริยธรรม ค่านิยมและเจต\r\nคติต่อวิชาชีพ  \r\nK24 ความสำคัญของวิชาชีพการปฏิบัติหน้าที่\r\nและความก้าวหน้าของงานวิชาชีพเทคโนโลยี\r\nการศึกษา \r\nK25 องค์กรวิชาชีพและมาตรฐานวิชาชีพ\r\nเทคโนโลยีการศึกษา \r\nK26 กฎหมายเกี่ยวกับคอมพิวเตอร์ \r\nK27 ข้อตกลง ข้อกำหนด ลิขสิทธิ์ในการใช้สื่อ \r\nแหล่งข้อมูล \r\nK28 การรู้เท่าทันดิจิทัล (Digital Literacy)",
+      "s": "S25 ทักษะการคิดวิเคราะห์ \r\nS26 ทักษะการใช้เทคโนโลยีอย่างปลอดภัย",
+      "a": "A13 มีวุฒิภาวะทางอารมณ์และสังคม \r\nA14 เข้าใจและเห็นอกเห็นใจผู้อื่น \r\nA15 มีความไวทางวัฒนธรรม (Cultural \r\nsensitivity) \r\nA16 ตระหนักในการปรับตัวกับการ\r\nเปลี่ยนแปลงสภาพแวดการเรียนรู้ใหม่ \r\nA17 เข้าใจผู้เรียนเป็นรายบุคคลหรือความ\r\nแตกต่างระหว่างบุคคล ในการออกแบบ\r\nการเรียนรู้"
+    },
+    {
+      "k": "K29 ปรัชญา ทฤษฎี หลักการ แนวคิด ระบบ \r\nรูปแบบและกระบวนการจัดการเรียนรู้ \r\nK30 วิเคราะห์ปัจจัยเพื่อการออกแบบระบบ\r\nและจัดการเรียนรู้ \r\nK31 การออกแบบระบบและการจัด \r\nการเรียนรู้ในรูปแบบต่าง ๆ",
+      "s": "S27 บริหารและปฏิบัติการจัดการเรียนรู้ \nS28 เลือกการประเมินและวิเคราะห์ผู้เรียน\nเป็นรายบุคคล \nS29 แสวงหาความรู้ด้วยวิธีการที่หลากหลาย \nS30 ออกแบบการเรียนรู้ และการสอนเชิงรุก \n(Active learning, AL) ที่สอดล้องกับความสนใจและความต่างระหว่างบุคคล ในสังคมพหุ\r\nวัฒนธรรม",
+      "a": "A18 มีความเป็นพลเมืองโลก \r\nA19 เห็นคุณค่าของการนำองค์ประกอบ\r\nศิลป์และหลักการจัดองค์ประกอบศิลป์มา\r\nสร้างภาพที่เหมาะสมสวยงาม \r\nA20 จรรยาบรรณของวิชาชีพ \r\nA21 มีแรงบันดาลใจ สร้างแรงจูงใจและ\r\nบรรยากาศในการปฏิบัติงาน \r\nA22 มุ่งมั่นในการพัฒนาสื่อและนวัตกรรม \r\nA23 มีความสนใจในการเป็นนวัตกร"
+    },
+    {
+      "k": "K32 การทำแผนการจัดการเรียนรู้และการ\r\nจัดการเรียนรู้เชิงรุกและยึดผู้เรียนเป็นสำคัญ \r\nสอดคล้องกับผู้เรียนในสังคมพหุวัฒนธรรม \r\nK33 ออกแบบพัฒนาสื่อ และนวัตกรรมเพื่อ\r\nการเรียนรู้ของผู้เรียน \r\nK34 การประยุกต์ใช้ หรือพัฒนาสื่อ และ\r\nนวัตกรรม เทคโนโลยีที่ทันสมัยเพื่อการเรียนรู้\r\nของผู้เรียนแต่ละสาขาวิชาเอก \r\nK35 การจัดสภาพแวดล้อมจริง สภาพแวดล้อม\r\nเสมือน แบบผสม และแหล่งเรียนรู้เพื่อการ\r\nเรียนรู้  \r\nK36 การวัดและประเมินผลการศึกษาและการ\r\nเรียนรู้ของผู้เรียน \r\nK37 กระบวนการจัดการเรียนรู้ทางเทคโนโลยี\r\nการศึกษาเพื่อพัฒนาผู้เรียนแบบองค์รวม  \r\nK38 การออกแบบจัดการเรียนรู้ในสาขา\r\nวิชาชีพในบริบทที่หลากหลาย",
+      "s": "S31 พัฒนากระบวนการจัดการเรียนการสอน\r\nให้สอดคล้องกับสภาพแวดล้อม \r\nจริง สภาพแวดล้อมเสมือน แบบผสม เพื่อการ\r\nเรียนรู้  \r\nS32 ประยุกต์องค์ความรู้ที่ได้รับมาปฏิบัติได้\r\nจริง \r\nS33 พัฒนาแนวทางการสอนที่ทันสมัยเพื่อให้\r\nเหมาะสมกับบริบทของผู้เรียน",
+      "a": "A24 รู้เท่าทันดิจิทัล (Digital Literacy) \r\nA25 ตระหนักรู้ด้านลิขสิทธ"
+    },
+    {
+      "k": "K39 การประยุกต์แนวคิดและทฤษฎีเทคโนโลยี\r\nทางการศึกษา ให้เท่ากันการเปลี่ยนแปลงของ\r\nโลก",
+      "s": "S34 ออกแบบ ประกอบ ติดตั้ง ควบคุม ใช้ \r\nและบำรุงรักษาระบบการให้บริการอุปกรณ์\r\nดิจิทัลและคอมพิวเตอร์ \r\nS35 ทักษะการใช้เครื่องมืออุปกรณ์และการ\r\nดูแลบำรุงรักษาเครื่องมืออุปกรณ์ในการผลิต\r\nชิ้นงาน \r\nS36 ทักษะออกแบบ ผลิตสื่อและปฏิบัติ\r\nถ่ายภาพเพื่อการศึกษา \r\nS37 ทักษะการประยุกต์การถ่ายภาพเพื่อการ\r\nผลิตสื่อการศึกษาและสื่อทางธุรกิจ \r\nS38 ปฏิบัติการวาดเส้นการจัดองค์ประกอบ\r\nทางทัศนศิลป์ สี ความสมดุล การออกแบบ \r\nและการผลิตสื่อพื้นฐานเพื่อใช้ในการสื่อสาร\r\nทางการศึกษา",
+      "a": "A26 เป็นผู้นำและผู้ตามที่ดีทาง วิชาการ\r\nและวิชาชีพ และมีมนุษยสัมพันธ์ที่ดี \r\nA27 ตระหนักรู้ถึงเผยแพร่ความรู้และ\r\nนวัตกรรมทางเทคโนโลยีดิจิทัลและสื่อสาร\r\nการศึกษาได้ \r\nA28 การคิดเชิงบวก"
+    },
+    {
+      "k": "K40 ทฤษฎี หลักการแนวคิดของการพัฒนาสื่อ\r\nนวัตกรรมเทคโนโลยี \r\nK41 การออกแบบและการประยุกต์วงจร\r\nอิเล็กทรอนิกส์เพื่อผลิตสื่อการสอนได้ \r\nK42 เข้าใจและวิเคราะห์เทคโนโลยีการ\r\nถ่ายภาพเพื่อการศึกษาเบื้องต้น \r\nK43 ประยุกต์ความรู้และออกแบบทาง\r\nเทคโนโลยีการถ่ายภาพเพื่อการศึกษาขั้นสูง \r\nK44 การออกแบบกราฟิกเพื่อสื่อสารการศึกษา \r\nK45 การพัฒนากราฟิกเพื่อสื่อสารการศึกษา \r\nK46 การออกแบบและการสร้างสรรค์สิ่งพิมพ์\r\nอิเล็กทรอนิกส์และประเภท \r\nต่าง ๆ เพื่อการสื่อสารการศึกษา \r\nK47 การสร้างสรรค์สื่อนำเสนอ และแฟ้ม\r\nสะสมงานอิเล็กทรอนิกส์",
+      "s": "S39 ผลิตสิ่งพิมพ์อิเล็กทรอนิกส์และประเภท\r\nต่าง ๆ เพื่อการสื่อสารการศึกษา \r\nS40 ทักษะออกแบบและผลิตสื่อเพื่อการ\r\nประชาสัมพันธ์ \r\nS41 ทักษะการนำเสนอในรูปแบบต่าง ๆ \r\nS42 ปฏิบัติการสร้างสื่อความจริงเสมือน เพื่อ\r\nสร้างสภาพแวดล้อมใหม่ในการเรียนรู้ \r\nS43 ทักษะออกแบบและการฝึกอบรม สัมมนา\r\nและการพัฒนาทรัพยากรมนุษย์ทางเทคโนโลยี\r\nดิจิทัลและสื่อสารการศึกษา \r\nS44 ทักษะประสานงานและทำงานเป็นทีมใน\r\nการจัดอบรมและสัมมนาทางเทคโนโลยีดิจิทัล\r\nเพื่อการศึกษา  \r\nS45 ทักษะการจัดการ วางแผน และบูรณา\r\nการนวัตกรรมเทคโนโลยีในการพัฒนาการ\r\nสื่อสารการศึกษา \r\nS46 ทักษะการวิจัยทางเทคโนโลยีดิจิทัลและ\r\nสื่อสารการศึกษา",
+      "a": ""
+    },
+    {
+      "k": "K48 การออกแบบสารเพื่อพัฒนางานใน\r\nรูปแบบต่างๆ หรือรณรงค์และประชาสัมพันธ์\r\nทางการศึกษา  \r\nK49 การบริหารการจัดการงานประชาสัมพันธ์ \r\nและการประยุกต์กับการสื่อสารทางการศึกษา \r\nK50 การสร้างความจริงเสมือน และการ\r\nออกแบบสภาพแวดล้อมเสมือนจริง      \r\nK51 การออกแบบและพัฒนา\r\nวิทยุกระจายเสียงทั้งระบบแอนาล็อกและ\r\nดิจิทัล  \r\nK52 การออกแบบและพัฒนาวิทยุ \r\nโทรทัศน์ในการศึกษา \r\nK53 เทคนิคการจัดรายการ การเขียนบท\r\nรายการ การผลิตรายการวิทยุกระจายเสียง\r\nและวิทยุโทรทัศน์เพื่อการสื่อสารการศึกษา \r\nK54 การออกแบบและพัฒนาดิจิทัลมีเดียและ\r\nแอนิเมชันเพื่อการศึกษา",
+      "s": "S47 ทักษะการทำแผนกลยุทธ์เพื่อพัฒนา\r\nนวัตกรรมและเทคโนโลยี \r\nS48 ทักษะการเป็นผู้นำ \r\nS49 ฝึกปฏิบัติการการจัดตั้งบริษัทจำลอง\r\nดำเนินธุรกิจด้านเทคโนโลยีการศึกษา \r\nS50 ทักษะกำกับการแสดง \r\nS51 ทักษะการมองภาพ \r\nS52 ทักษะการปฏิบัติงานทางเทคโนโลยีดิจิทัล\r\nและสื่อสารการศึกษา \r\nS53 สร้างนวัตกรรมส่งเสริมการเรียนรู้ที่\r\nสอดคล้องกับท้องถิ่น และบริบทสังคมพหุ\r\nวัฒนธรรม \r\nS54 ทักษะการเห็นเป็น 3 มิติ \r\nS55 ทักษะออกแบบผลิตสื่อละปฏิบัติการ\r\nทางการสร้างภาพเคลื่อนไหว \r\nS56 ทักษะการใช้เทคโนโลยีอย่างปลอดภัย \r\nS57 ทักษะการสื่อสาร",
+      "a": ""
+    },
+    {
+      "k": "K55  เทคนิคและกลยุทธ์ในการฝึกอบรม \r\nสัมมนา และการพัฒนาทรัพยากรมนุษย์ \r\nK56 การวางแผน ออกแบบการฝึกอบรม \r\nสัมมนาและการพัฒนาทรัพยากรมนุษย์ \r\nทางเทคโนโลยีดิจิทัลเพื่อการศึกษา \r\nK57 การประเมินผลและรายงานผลการ\r\nฝึกอบรม สัมมนาและการพัฒนาทรัพยากร\r\nมนุษย์ เพื่อรองรับการประเมินคุณภาพ \r\nK58 การวางแผน การจัดการ  \r\nการบูรณาการนวัตกรรมเทคโนโลยีในการ\r\nพัฒนาการสื่อสารการศึกษา \r\nK59 การประกันคุณภาพทางเทคโนโลยีและ\r\nสื่อสารการศึกษา  \r\nK60 การพัฒนานวัตกรรมเทคโนโลยีในการ\r\nสื่อสารการศึกษา \r\nK61 การค้นคว้าและพัฒนาหัวข้อวิจัย \r\nกระบวนการ รายงานและนำเสนอผลงานในรูป\r\nโครงการวิจัย",
+      "s": "S58 ทักษะการคิดเชิงคำนวณ \r\nS59 ทักษะจดจำรูปแบบ \r\n        (Pattern Recognition) \r\nS60 ทักษะย่อยปัญหา (Decomposition) \r\nS61 ทักษะการสร้างความชำนาญ (Tinkering) \r\nS62 ทักษะการคิดเชิงนามธรรม \r\nS63 ทักษะการให้เหตุผล \r\nS64 ทักษะการเชื่อมโยง \r\nS65 ทักษะการเขียนโปรแกรมด้วย\r\nภาษาคอมพิวเตอร์ \r\nS66 ทักษะการทำงานเป็นทีม",
+      "a": ""
+    },
+    {
+      "k": "K62 ภาวะผู้นำที่มีวิสัยทัศน์ วิสัยทัศน์และ\r\nกระบวนทัศน์ทางนวัตกรรมเทคโนโลยีใน\r\nการศึกษา \r\nK63 การพัฒนาและการจัดทำแผน \r\nกลยุทธ์ทางนวัตกรรมเทคโนโลยีเพื่อการศึกษา \r\nK64 การบริหารการเปลี่ยนแปลงและการแพร่\r\nนวัตกรรม \r\nK65 การสร้างองค์กรแห่งการเรียนรู้และการ\r\nจัดการความรู้ โครงสร้างพื้นฐานทาง\r\nเทคโนโลยี   \r\nK66 การออกแบบและการพัฒนาเกมและแอป\r\nพลิเคชัน \r\nK67 การบริหารจัดการและการดำเนินงาน\r\nธุรกิจด้านเทคโนโลยีดิจิทัลการศึกษา \r\nK68 การกำกับการแสดงทางโทรทัศน์และ\r\nภาพยนตร์เพื่อเป็นสื่อในการศึกษาและการ\r\nพัฒนาทรัพยากรมนุษย์ \r\nK69 เทคนิคในการกำกับการแสดง",
+      "s": "S67 ทักษะการนำเสนอ \r\nS68 ฟัง พูด อ่าน เขียนเพื่อถ่ายทอดความรู้\r\nทางเทคโนโลยี \r\nS69 ทักษะการถ่ายทอดความรู้ทางเทคโนโลยี\r\nดิจิทัลและสื่อสารการศึกษาได้ \r\nS70 ทักษะยอมรับและการปฏิเสธทาง\r\nนวัตกรรม \r\nS71 มีภาวะผู้นำด้านการสื่อสารและการ\r\nถ่ายทอดความรู้เทคโนโลยีดิจิทัลและสื่อสาร\r\nการศึกษาได้",
+      "a": ""
+    },
+    {
+      "k": "K70 การพัฒนาคอมพิวเตอร์แอนิเมชัน 3 มิติ\r\nในการสื่อสารศึกษา \r\nK71 การออกแบบประสบการณ์การเรียนรู้โดย\r\nการใช้การศึกษานอกสถาท",
+      "s": "",
+      "a": ""
+    },
+    {
+      "k": "K72 ทฤษฎี หลักการ แนวคิดของการพัฒนา\r\nระบบด้วยภาษาคอมพิวเตอร์ระดับสูง \r\nK73 แนวคิดเชิงคำนวณ \r\nK74 แนวคิดเชิงนามธรรม \r\nK75 ระบบจำนวน \r\nK76 เลขฐานในระบบคอมพิวเตอร์ \r\nK77 ตรรกศาสตร์ \r\nK78 พีชคณิต \r\nK79 เซต ความสัมพันธ์ ฟังก์ชัน \r\nK80 เมทริกซ์ \r\nK81 การออกแบบอัลกอริทึม \r\nK82 การออกแบบผังงาน (flowchart) \r\nK83 เขียนโปรแกรมด้วยภาษาคอมพิวเตอร์ \r\nK84 ชนิดของข้อมูล",
+      "s": "",
+      "a": ""
+    },
+    {
+      "k": "K96 การจำลองการทำงานและการจำลอง\r\nรูปแบบวงจร \r\nK97 การประยุกต์อินเทอร์เน็ตของสรรพสิ่ง \r\nK98 แนวโน้มและวิทยสาระที่เกี่ยวข้องกับ\r\nอินเทอร์เน็ตของสรรพสิ่ง \r\nK99 การพัฒนาโปรแกรมที่มีส่วนติดต่อกับผู้ใช้\r\nแบบกราฟิก (GUI)",
+      "s": "",
+      "a": ""
+    },
+    {
+      "k": "K100 ทฤษฎี หลักการ แนวคิด เกี่ยวกับการ\nสื่อสารและถ่ายทอดความรู้ทางเทคโนโลยี\nดิจิทัลและสื่อสารการศึกษา \nK101 การสื่อสารทั้งการ ฟัง พูด อ่าน เขียน\nเพื่อถ่ายทอดความรู้ทางเทคโนโลยีดิจิทัลและ\nสื่อสารการศึกษาได้ \nK102 การนำเสนอด้วยสื่อนวัตกรรมเพื่อ\nสื่อสารและถ่ายทอดความรู้ทางเทคโนโลยี\nดิจิทัลและสื่อสารการศึกษาได้ \nK103 การสื่อสารด้วยภาษาไทยและหรือ\nภาษาต่างประเทศเพื่อสื่อสารและถ่ายทอดความรู้ทางเทคโนโลยีดิจิทัลและสื่อสาร\r\nการศึกษาได้",
+      "s": "",
+      "a": ""
+    },
+    {
+      "k": "K104 การแพร่กระจายนวัตกรรมการยอมรับ\r\nและการปฏิเสธทางนวัตกรรม  \r\nK105 การมีภาวะผู้นำสื่อสารและถ่ายทอด\r\nความรู้เทคโนโลยีดิจิทัลและสื่อสารการศึกษา\r\nได้",
+      "s": "",
+      "a": ""
+    }
+  ]
+};
+</script>
+
+</head>
+<body class="text-slate-800 antialiased min-h-screen flex flex-col bg-slate-50">
+
+  <!-- TOP HEADER / BANNER -->
+  <header class="bg-gradient-to-r from-psu-900 via-psu-800 to-psu-700 text-white shadow-lg sticky top-0 z-40">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <!-- Logo & Title -->
+        <div class="flex items-center space-x-3.5">
+          <div class="w-12 h-12 rounded-xl bg-white/10 backdrop-blur border border-white/20 flex items-center justify-center text-psu-gold shadow-inner flex-shrink-0">
+            <i class="fa-solid fa-graduation-cap text-2xl"></i>
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="bg-psu-gold text-psu-900 text-[11px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">หลักสูตรปรับปรุง 2571</span>
+              <span class="text-xs text-blue-200">ม.อ. ปัตตานี</span>
+            </div>
+            <h1 class="text-base sm:text-lg md:text-xl font-bold tracking-tight text-white leading-tight mt-0.5">
+              ระบบกรอกข้อมูล (KSA) ปรับปรุงหลักสูตร
+            </h1>
+            <p class="text-xs sm:text-sm text-blue-100 font-light opacity-90">
+              สาขาวิชาเทคโนโลยีดิจิทัลและสื่อสารการศึกษา คณะศึกษาศาสตร์ มหาวิทยาลัยสงขลานครินทร์
+            </p>
+          </div>
+        </div>
+
+        <!-- Quick actions -->
+        <div class="flex items-center gap-2 self-end md:self-center">
+          <button onclick="openSyncSettingsModal()" title="ตั้งค่าการเชื่อมต่อ / ซิงค์ Google Sheets" 
+                  class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white text-xs font-medium border border-white/15 transition shadow-sm backdrop-blur">
+            <i class="fa-solid fa-cloud-arrow-up text-amber-300"></i>
+            <span class="hidden sm:inline">ตั้งค่า API</span>
+          </button>
+          <a href="https://docs.google.com/spreadsheets/d/1jsDG5NQJ7lc1SfOS2Hz0aXpBvCwcTQYYTc39H5SKmVA/edit" target="_blank" 
+             class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white text-xs font-medium border border-white/15 transition shadow-sm backdrop-blur">
+            <i class="fa-solid fa-table-cells text-emerald-400"></i>
+            <span>Google Sheet</span>
+            <i class="fa-solid fa-arrow-up-right-from-square text-[10px] opacity-70 ml-0.5"></i>
+          </a>
+          <button onclick="refreshData()" title="รีเฟรชข้อมูล" 
+                  class="w-8 h-8 rounded-lg bg-white/10 hover:bg-white/20 text-white flex items-center justify-center border border-white/15 transition">
+            <i id="refresh-icon" class="fa-solid fa-rotate text-xs"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- MAIN NAVIGATION TABS -->
+      <nav class="flex space-x-2 mt-5 border-t border-white/15 pt-3 overflow-x-auto pb-1" aria-label="Tabs">
+        <button onclick="switchTab(1)" id="tab-btn-1" 
+                class="tab-btn active px-4 py-2 text-sm font-semibold rounded-lg flex items-center gap-2 transition duration-150 whitespace-nowrap bg-white text-psu-800 shadow">
+          <i class="fa-solid fa-file-pen text-psu-600"></i>
+          <span>1. กรอกข้อมูล KSA ของแต่ละรายวิชา</span>
+          <span id="badge-total-courses" class="ml-1.5 bg-blue-100 text-blue-800 text-xs px-2 py-0.5 rounded-full font-bold">0</span>
+        </button>
+        <button onclick="switchTab(2)" id="tab-btn-2" 
+                class="tab-btn px-4 py-2 text-sm font-semibold rounded-lg flex items-center gap-2 transition duration-150 whitespace-nowrap text-blue-100 hover:bg-white/10">
+          <i class="fa-solid fa-chart-pie"></i>
+          <span>2. ตาราง(PLOs) กับ Knowledge/Skill/Attitude ปี 71</span>
+          <span id="badge-tab2-count" class="ml-1.5 bg-white/20 text-white text-xs px-2 py-0.5 rounded-full font-bold">0</span>
+        </button>
+        <button onclick="switchTab(3)" id="tab-btn-3" 
+                class="tab-btn px-4 py-2 text-sm font-semibold rounded-lg flex items-center gap-2 transition duration-150 whitespace-nowrap text-blue-100 hover:bg-white/10">
+          <i class="fa-solid fa-book-bookmark"></i>
+          <span>3. แสดงข้อมูลทั้งหมด KSA ปี 66 (อ้างอิง)</span>
+        </button>
+        <button onclick="switchTab(4)" id="tab-btn-4" 
+                class="tab-btn px-4 py-2 text-sm font-semibold rounded-lg flex items-center gap-2 transition duration-150 whitespace-nowrap text-blue-100 hover:bg-white/10">
+          <i class="fa-solid fa-list-check"></i>
+          <span>4. รายวิชากับ Knowledge/ Attitude/ Skill</span>
+          <span class="ml-1 bg-amber-400/20 text-amber-200 border border-amber-400/30 text-[10px] px-1.5 py-0.5 rounded font-bold">ภาคผนวก ค</span>
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <!-- MAIN CONTAINER -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-1 w-full">
+
+    <!-- LOADING SPINNER OVERLAY -->
+    <div id="loading-spinner" class="flex flex-col items-center justify-center py-20">
+      <div class="w-12 h-12 border-4 border-psu-600 border-t-transparent rounded-full animate-spin"></div>
+      <p id="loading-status-text" class="mt-4 text-sm text-slate-600 font-medium">กำลังโหลดข้อมูลจาก Google Sheet...</p>
+    </div>
+
+    <!-- TAB 1 CONTENT: กรอกข้อมูล KSA รายวิชา -->
+    <section id="tab-content-1" class="hidden space-y-6">
+      <!-- STATS SUMMARY CARDS -->
+      <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200/80 flex items-center justify-between">
+          <div>
+            <p class="text-xs font-medium text-slate-500">รายวิชาทั้งหมด</p>
+            <p id="stat-total" class="text-2xl font-bold text-slate-800 mt-1">0</p>
+          </div>
+          <div class="w-10 h-10 rounded-lg bg-blue-50 text-psu-600 flex items-center justify-center text-lg">
+            <i class="fa-solid fa-book-open"></i>
+          </div>
+        </div>
+
+        <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200/80 flex items-center justify-between">
+          <div>
+            <p class="text-xs font-medium text-slate-500">กรอก KSA เรียบร้อย</p>
+            <p id="stat-completed" class="text-2xl font-bold text-emerald-600 mt-1">0</p>
+          </div>
+          <div class="w-10 h-10 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center text-lg">
+            <i class="fa-solid fa-circle-check"></i>
+          </div>
+        </div>
+
+        <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200/80 flex items-center justify-between">
+          <div>
+            <p class="text-xs font-medium text-slate-500">ยังไม่กรอก KSA</p>
+            <p id="stat-pending" class="text-2xl font-bold text-amber-600 mt-1">0</p>
+          </div>
+          <div class="w-10 h-10 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center text-lg">
+            <i class="fa-solid fa-clock"></i>
+          </div>
+        </div>
+
+        <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200/80 flex items-center justify-between">
+          <div>
+            <p class="text-xs font-medium text-slate-500">อาจารย์ผู้สอน</p>
+            <p id="stat-instructors" class="text-2xl font-bold text-indigo-600 mt-1">0</p>
+          </div>
+          <div class="w-10 h-10 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center text-lg">
+            <i class="fa-solid fa-chalkboard-user"></i>
+          </div>
+        </div>
+      </div>
+
+      <!-- FILTER & TOOLBAR -->
+      <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200/80 flex flex-col md:flex-row gap-3 items-stretch md:items-center justify-between">
+        <!-- Teacher selector (Required from User Prompt) -->
+        <div class="flex-1 flex flex-col sm:flex-row gap-3 items-stretch sm:items-center">
+          <div class="relative min-w-[260px]">
+            <label for="filter-instructor" class="block text-xs font-semibold text-slate-600 mb-1">
+              <i class="fa-solid fa-filter text-psu-600 mr-1"></i>เลือกอาจารย์ผู้สอน (คอลัมน์ E)
+            </label>
+            <div class="relative">
+              <select id="filter-instructor" onchange="applyFilters()" 
+                      class="w-full bg-slate-50 border border-slate-300 text-slate-800 text-sm rounded-lg focus:ring-psu-600 focus:border-psu-600 p-2.5 pr-8 appearance-none cursor-pointer">
+                <option value="">-- แสดงอาจารย์ทั้งหมด --</option>
+              </select>
+              <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-slate-500">
+                <i class="fa-solid fa-chevron-down text-xs"></i>
+              </div>
+            </div>
+          </div>
+
+          <!-- Search keyword -->
+          <div class="flex-1">
+            <label for="search-input" class="block text-xs font-semibold text-slate-600 mb-1">
+              <i class="fa-solid fa-magnifying-glass text-slate-400 mr-1"></i>ค้นหารหัสวิชา หรือชื่อวิชา
+            </label>
+            <div class="relative">
+              <input type="text" id="search-input" oninput="applyFilters()" placeholder="พิมพ์คำค้นหา..." 
+                     class="w-full bg-slate-50 border border-slate-300 text-slate-800 text-sm rounded-lg focus:ring-psu-600 focus:border-psu-600 p-2.5 pl-3">
+            </div>
+          </div>
+        </div>
+
+        <!-- Add Course Button -->
+        <div class="pt-4 sm:pt-0 self-end md:self-end">
+          <button onclick="openAddCourseModal()" 
+                  class="inline-flex items-center gap-2 bg-psu-700 hover:bg-psu-800 text-white text-sm font-medium px-4 py-2.5 rounded-lg shadow-sm transition">
+            <i class="fa-solid fa-circle-plus"></i>
+            <span>เพิ่มรายวิชาใหม่</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- COURSE TABLE CARD -->
+      <div class="bg-white rounded-xl shadow-sm border border-slate-200/80 overflow-hidden">
+        <div class="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <h2 class="font-bold text-slate-800 text-base">รายการรายวิชาในหลักสูตร 2571</h2>
+            <span id="showing-count" class="text-xs bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full font-medium">แสดง 0 รายการ</span>
+          </div>
+          <span class="text-xs text-slate-400 italic">คลิกที่ปุ่ม "กรอก/แก้ไข KSA" เพื่อจัดการ PLO และเนื้อหา</span>
+        </div>
+
+        <div class="overflow-x-auto custom-scrollbar">
+          <table class="w-full text-left text-sm text-slate-600">
+            <thead class="bg-slate-50/80 text-xs font-semibold text-slate-700 uppercase border-b border-slate-200">
+              <tr>
+                <th scope="col" class="px-3 py-3 text-center w-12">ลำดับ</th>
+                <th scope="col" class="px-3 py-3 w-24">รหัสวิชา</th>
+                <th scope="col" class="px-4 py-3 min-w-[200px]">ชื่อวิชา</th>
+                <th scope="col" class="px-4 py-3 min-w-[170px]">อาจารย์ผู้สอน</th>
+                <th scope="col" class="px-4 py-3 min-w-[180px]">PLOs ที่เชื่อมโยง</th>
+                <th scope="col" class="px-3 py-3 text-center w-20">CLO (ไทย/Eng)</th>
+                <th scope="col" class="px-3 py-3 text-center w-24">K - S - A</th>
+                <th scope="col" class="px-4 py-3 text-center w-36">จัดการข้อมูล</th>
+              </tr>
+            </thead>
+            <tbody id="course-table-body" class="divide-y divide-slate-100">
+              <!-- Dynamically populated rows -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 2 CONTENT: ตาราง (PLOs) กับ Knowledge/Skill/Attitude ปี 71 -->
+    <section id="tab-content-2" class="hidden space-y-6">
+      <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200/80 flex flex-col md:flex-row md:items-center justify-between gap-4 no-print">
+        <div>
+          <h2 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+            <i class="fa-solid fa-chart-column text-psu-600"></i>
+            ตารางแสดงผลลัพธ์การเรียนรู้ (PLOs) กับ Knowledge / Skill / Attitude ปี 71
+          </h2>
+          <p class="text-xs text-slate-500 mt-1">
+            คอลัมน์แรกแสดง PLO1 - PLO7 (1 แถวต่อ 1 PLO) คอลัมน์ถัดๆ ไปแสดงข้อมูล K, S, A ทั้งหมดที่ได้จากการกรอกของแต่ละรายวิชา จัดเรียงเป็นข้ออย่างเป็นระเบียบ
+          </p>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-2">
+          <!-- Filter by PLO -->
+          <select id="tab2-filter-plo" onchange="renderTab2Table()" 
+                  class="bg-slate-50 border border-slate-300 text-slate-700 text-xs rounded-lg p-2 font-medium">
+            <option value="">ทุก PLO (PLO1 - PLO7)</option>
+            <option value="PLO1">PLO1</option>
+            <option value="PLO2">PLO2</option>
+            <option value="PLO3">PLO3</option>
+            <option value="PLO4">PLO4</option>
+            <option value="PLO5">PLO5</option>
+            <option value="PLO6">PLO6</option>
+            <option value="PLO7">PLO7</option>
+          </select>
+
+          <!-- Search -->
+          <input type="text" id="tab2-search" oninput="renderTab2Table()" placeholder="ค้นหาคำใน KSA / รายวิชา..." 
+                 class="bg-slate-50 border border-slate-300 text-slate-700 text-xs rounded-lg p-2 w-48">
+
+          <!-- Export Word (.doc) -->
+          <button onclick="exportTab2Word()" class="px-3 py-2 bg-blue-700 hover:bg-blue-800 text-white rounded-lg text-xs font-medium flex items-center gap-1.5 shadow-sm transition">
+            <i class="fa-solid fa-file-word"></i>
+            <span>Export Word</span>
+          </button>
+
+          <!-- Export PDF / Print -->
+          <button onclick="exportTab2PDF()" class="px-3 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-lg text-xs font-medium flex items-center gap-1.5 shadow-sm transition">
+            <i class="fa-solid fa-file-pdf"></i>
+            <span>Export PDF / พิมพ์</span>
+          </button>
+
+          <!-- Export CSV -->
+          <button onclick="exportTab2CSV()" class="px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-medium flex items-center gap-1.5 shadow-sm transition">
+            <i class="fa-solid fa-file-excel"></i>
+            <span>Export CSV</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Tab 2 Printable Table Area -->
+      <div id="tab2-printable-area" class="bg-white rounded-xl shadow-sm border border-slate-200/80 overflow-hidden">
+        <!-- Print Header (Visible only when printed) -->
+        <div class="print-only p-4 text-center border-b border-slate-300 mb-2">
+          <h2 class="text-base font-bold text-slate-900">ตารางแสดงผลลัพธ์การเรียนรู้ระดับหลักสูตร (PLOs) กับ Knowledge / Skill / Attitude</h2>
+          <p class="text-xs text-slate-600 mt-1">สาขาวิชาเทคโนโลยีดิจิทัลและสื่อสารการศึกษา หลักสูตรปรับปรุง 2571 คณะศึกษาศาสตร์ มหาวิทยาลัยสงขลานครินทร์</p>
+        </div>
+
+        <div class="overflow-x-auto custom-scrollbar">
+          <table class="w-full text-left text-sm text-slate-700 border-collapse">
+            <thead class="bg-psu-900 text-white text-xs font-semibold uppercase">
+              <tr>
+                <th scope="col" class="px-4 py-3.5 w-64 border-r border-psu-800">
+                  <div class="flex items-center gap-1.5">
+                    <i class="fa-solid fa-bullseye text-blue-300"></i>
+                    <span>PLOs</span>
+                  </div>
+                  <span class="font-normal text-[11px] text-blue-200 block mt-0.5">ผลลัพธ์การเรียนรู้ระดับหลักสูตร</span>
+                </th>
+                <th scope="col" class="px-4 py-3.5 min-w-[280px] border-r border-psu-800 bg-blue-950/40">
+                  <div class="flex items-center gap-1.5">
+                    <i class="fa-solid fa-brain text-blue-300"></i>
+                    <span>K : Knowledge</span>
+                  </div>
+                  <span class="font-normal text-[11px] text-blue-200 block mt-0.5">ความรู้ที่ได้จากทุกรายวิชา</span>
+                </th>
+                <th scope="col" class="px-4 py-3.5 min-w-[280px] border-r border-psu-800 bg-teal-950/40">
+                  <div class="flex items-center gap-1.5">
+                    <i class="fa-solid fa-hand-sparkles text-teal-300"></i>
+                    <span>S : Skill</span>
+                  </div>
+                  <span class="font-normal text-[11px] text-teal-200 block mt-0.5">ทักษะที่ได้จากทุกรายวิชา</span>
+                </th>
+                <th scope="col" class="px-4 py-3.5 min-w-[280px] bg-amber-950/40">
+                  <div class="flex items-center gap-1.5">
+                    <i class="fa-solid fa-heart text-amber-300"></i>
+                    <span>A : Attitude</span>
+                  </div>
+                  <span class="font-normal text-[11px] text-amber-200 block mt-0.5">เจตคติ/คุณลักษณะที่ได้จากทุกรายวิชา</span>
+                </th>
+              </tr>
+            </thead>
+            <tbody id="tab2-table-body" class="divide-y divide-slate-200">
+              <!-- Populated by JS: Exactly 7 rows (PLO1 - PLO7) -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 3 CONTENT: ฐานข้อมูลอ้างอิง KSA ปี 66 -->
+    <section id="tab-content-3" class="hidden space-y-6">
+      <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200/80 flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h2 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+            <i class="fa-solid fa-book-bookmark text-psu-600"></i>
+            ตารางแสดงผลลัพธ์การเรียนรู้ระดับหลักสูตร (PLOs) กับ Knowledge/ Skill/ Attitude (ภาคผนวก ข) ปี 66
+          </h2>
+          <p class="text-xs text-slate-500 mt-1">
+            ดึงข้อมูลอ้างอิงจากชีต "KSA ปึ 66" เพื่อใช้เป็นแนวทางการเขียน KSA ของหลักสูตร 2571
+          </p>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <input type="text" id="tab3-search" oninput="renderTab3Table()" placeholder="ค้นหารหัส หรือข้อความ KSA ปี 66..." 
+                 class="bg-slate-50 border border-slate-300 text-slate-700 text-xs rounded-lg p-2.5 w-64 focus:ring-psu-600">
+        </div>
+      </div>
+
+      <!-- Tab 3 3-Column Display -->
+      <div class="bg-white rounded-xl shadow-sm border border-slate-200/80 overflow-hidden">
+        <div class="overflow-x-auto custom-scrollbar">
+          <table class="w-full text-left text-sm text-slate-600">
+            <thead class="bg-slate-800 text-white text-xs font-semibold uppercase">
+              <tr>
+                <th scope="col" class="px-4 py-3.5 w-1/3 bg-blue-900 border-r border-blue-800">
+                  <div class="flex items-center justify-between">
+                    <span class="text-sm font-bold"><i class="fa-solid fa-brain mr-1.5 text-blue-300"></i>Knowledge (ความรู้)</span>
+                    <span class="text-[11px] text-blue-200">K01 - K28...</span>
+                  </div>
+                </th>
+                <th scope="col" class="px-4 py-3.5 w-1/3 bg-teal-900 border-r border-teal-800">
+                  <div class="flex items-center justify-between">
+                    <span class="text-sm font-bold"><i class="fa-solid fa-screwdriver-wrench mr-1.5 text-teal-300"></i>Skill (ทักษะ)</span>
+                    <span class="text-[11px] text-teal-200">S01 - S26...</span>
+                  </div>
+                </th>
+                <th scope="col" class="px-4 py-3.5 w-1/3 bg-amber-900">
+                  <div class="flex items-center justify-between">
+                    <span class="text-sm font-bold"><i class="fa-solid fa-heart mr-1.5 text-amber-300"></i>Attitude (เจตคติ)</span>
+                    <span class="text-[11px] text-amber-200">A01 - A17...</span>
+                  </div>
+                </th>
+              </tr>
+            </thead>
+            <tbody id="tab3-table-body" class="divide-y divide-slate-200 text-xs leading-relaxed font-body">
+              <!-- Populated by JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 4 CONTENT: รายวิชากับ Knowledge/ Attitude/ Skill (ภาคผนวก ค) -->
+    <section id="tab-content-4" class="tab-pane hidden space-y-6">
+      <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200/80 flex flex-col md:flex-row md:items-center justify-between gap-4 no-print">
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="bg-amber-100 text-amber-800 text-[11px] font-bold px-2.5 py-0.5 rounded border border-amber-300 uppercase tracking-wider">
+              ภาคผนวก ค
+            </span>
+            <h2 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+              <i class="fa-solid fa-list-check text-psu-600"></i>
+              ตารางแสดงรายวิชากับ Knowledge/ Attitude/ Skill
+            </h2>
+          </div>
+          <p class="text-xs text-slate-500 mt-1">
+            แสดงรายการแต่ละรายวิชา ความเชื่อมโยงกับ PLO1 - PLO7 (เครื่องหมาย ✓) และข้อมูล Knowledge, Skill, Attitude ตามรูปแบบมาตรฐานหลักสูตร
+          </p>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-2">
+          <!-- Filter by PLO -->
+          <select id="tab4-filter-plo" onchange="renderTab4Table()" 
+                  class="bg-slate-50 border border-slate-300 text-slate-700 text-xs rounded-lg p-2 font-medium">
+            <option value="">ทุก PLO</option>
+            <option value="PLO1">มี PLO1</option>
+            <option value="PLO2">มี PLO2</option>
+            <option value="PLO3">มี PLO3</option>
+            <option value="PLO4">มี PLO4</option>
+            <option value="PLO5">มี PLO5</option>
+            <option value="PLO6">มี PLO6</option>
+            <option value="PLO7">มี PLO7</option>
+          </select>
+
+          <!-- Search -->
+          <input type="text" id="tab4-search" oninput="renderTab4Table()" placeholder="ค้นหารหัสวิชา / ชื่อวิชา / KSA..." 
+                 class="bg-slate-50 border border-slate-300 text-slate-700 text-xs rounded-lg p-2 w-48">
+
+          <!-- Export Word (.doc) -->
+          <button onclick="exportTab4Word()" class="px-3 py-2 bg-blue-700 hover:bg-blue-800 text-white rounded-lg text-xs font-medium flex items-center gap-1.5 shadow-sm transition">
+            <i class="fa-solid fa-file-word"></i>
+            <span>Export Word</span>
+          </button>
+
+          <!-- Export PDF / Print -->
+          <button onclick="exportTab4PDF()" class="px-3 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-lg text-xs font-medium flex items-center gap-1.5 shadow-sm transition">
+            <i class="fa-solid fa-file-pdf"></i>
+            <span>Export PDF / พิมพ์</span>
+          </button>
+
+          <!-- Export CSV -->
+          <button onclick="exportTab4CSV()" class="px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-medium flex items-center gap-1.5 shadow-sm transition">
+            <i class="fa-solid fa-file-excel"></i>
+            <span>Export CSV</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Tab 4 Printable Table Area -->
+      <div id="tab4-printable-area" class="printable-area bg-white rounded-xl shadow-sm border border-slate-200/80 overflow-hidden p-1">
+        <!-- Print / Document Header -->
+        <div class="p-4 border-b border-slate-200">
+          <div class="flex justify-end text-xs font-bold text-slate-700 mb-1">
+            <span>ภาคผนวก ค</span>
+          </div>
+          <h2 class="text-center font-bold text-base md:text-lg text-slate-900">
+            ตารางแสดงรายวิชากับ Knowledge/ Attitude/ Skill
+          </h2>
+          <p class="text-center text-xs text-slate-600 mt-0.5">
+            สาขาวิชาเทคโนโลยีดิจิทัลและสื่อสารการศึกษา หลักสูตรปรับปรุง 2571 คณะศึกษาศาสตร์ มหาวิทยาลัยสงขลานครินทร์
+          </p>
+        </div>
+
+        <div class="overflow-x-auto custom-scrollbar">
+          <table class="w-full text-left text-sm text-slate-800 border-collapse border border-slate-300">
+            <thead class="bg-slate-100 text-slate-800 text-xs font-bold text-center border-b border-slate-300">
+              <tr>
+                <th scope="col" colspan="2" class="px-4 py-3 border border-slate-300 w-80 text-center">
+                  รายวิชา
+                </th>
+                <th scope="col" class="px-2 py-3 border border-slate-300 w-12 text-center">PLO1</th>
+                <th scope="col" class="px-2 py-3 border border-slate-300 w-12 text-center">PLO2</th>
+                <th scope="col" class="px-2 py-3 border border-slate-300 w-12 text-center">PLO3</th>
+                <th scope="col" class="px-2 py-3 border border-slate-300 w-12 text-center">PLO4</th>
+                <th scope="col" class="px-2 py-3 border border-slate-300 w-12 text-center">PLO5</th>
+                <th scope="col" class="px-2 py-3 border border-slate-300 w-12 text-center">PLO6</th>
+                <th scope="col" class="px-2 py-3 border border-slate-300 w-12 text-center">PLO7</th>
+                <th scope="col" class="px-4 py-3 border border-slate-300 min-w-[280px] text-left">
+                  ความรู้ (Knowledge: K)ทักษะ (Skills: S) และคุณลักษณะ (Ability: A)
+                </th>
+                <th scope="col" class="px-2 py-3 border border-slate-300 w-16 text-center no-print">
+                  จัดการ
+                </th>
+              </tr>
+            </thead>
+            <tbody id="tab4-table-body" class="divide-y divide-slate-300">
+              <!-- Populated by JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="bg-white border-t border-slate-200 py-4 mt-auto">
+    <div class="max-w-7xl mx-auto px-4 text-center text-xs text-slate-500">
+      <p>© 2571 สาขาวิชาเทคโนโลยีดิจิทัลและสื่อสารการศึกษา คณะศึกษาศาสตร์ มหาวิทยาลัยสงขลานครินทร์ วิทยาเขตปัตตานี</p>
+      <p class="mt-0.5 text-slate-400">ระบบฐานข้อมูลเว็บแอปพลิเคชันเชื่อมต่อ Google Sheets แบบ Real-time</p>
+    </div>
+  </footer>
+
+  <!-- ==================== MODAL: กรอก / แก้ไข KSA ของรายวิชา ==================== -->
+  <div id="course-modal" class="fixed inset-0 z-50 hidden bg-slate-900/60 backdrop-blur-sm overflow-y-auto p-4 sm:p-6 flex items-center justify-center">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[92vh] flex flex-col overflow-hidden border border-slate-200">
+      
+      <!-- Modal Header -->
+      <div class="bg-gradient-to-r from-psu-900 to-psu-700 text-white px-6 py-4 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center text-psu-gold text-lg">
+            <i class="fa-solid fa-pen-to-square"></i>
+          </div>
+          <div>
+            <h3 class="text-base sm:text-lg font-bold leading-tight" id="modal-course-title">กรอกข้อมูล KSA รายวิชา</h3>
+            <p class="text-xs text-blue-200 font-light mt-0.5" id="modal-course-subtitle">รหัสวิชา และข้อมูลอาจารย์ผู้สอน</p>
+          </div>
+        </div>
+        <button onclick="closeCourseModal()" class="w-8 h-8 rounded-lg bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+
+      <!-- Modal Body (Scrollable) -->
+      <div class="p-6 overflow-y-auto custom-scrollbar space-y-6 flex-1 bg-slate-50">
+        
+        <input type="hidden" id="modal-row-index">
+
+        <!-- COURSE INFO SUMMARY BADGES -->
+        <div class="bg-white p-4 rounded-xl border border-slate-200 grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+          <div>
+            <span class="text-slate-500 font-medium block">รหัสวิชา:</span>
+            <span id="modal-info-code" class="font-bold text-slate-800 text-sm">-</span>
+          </div>
+          <div>
+            <span class="text-slate-500 font-medium block">ชื่อวิชา:</span>
+            <span id="modal-info-name" class="font-bold text-slate-800 text-sm">-</span>
+          </div>
+          <div>
+            <span class="text-slate-500 font-medium block">อาจารย์ผู้สอน:</span>
+            <span id="modal-info-instructor" class="font-bold text-psu-600 text-sm">-</span>
+          </div>
+        </div>
+
+        <!-- ================= SECTION 1: PLOs SELECTOR พร้อม K, S, A ไม่เกิน 5 ข้อในแต่ละ PLO ================= -->
+        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-3">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-2">
+            <div>
+              <label class="block font-bold text-slate-800 text-sm flex items-center gap-2">
+                <span class="w-6 h-6 rounded-full bg-blue-600 text-white inline-flex items-center justify-center text-xs font-bold">1</span>
+                เลือก PLOs และกรอกข้อมูลด้าน KSA (ไม่เกินด้านละ 5 ข้อ)
+              </label>
+              <p class="text-xs text-slate-500 mt-0.5">
+                เมื่อติ๊กเลือก PLO ใด จะมีช่องให้กรอกข้อมูลด้าน K ไม่เกิน 5 ข้อ ด้าน S ไม่เกิน 5 ข้อ และด้าน A ไม่เกิน 5 ข้อ
+              </p>
+            </div>
+            <div class="flex items-center gap-1.5 self-end sm:self-center">
+              <button type="button" onclick="clearAllPLOs()" class="text-xs px-2.5 py-1 rounded bg-rose-50 text-rose-700 hover:bg-rose-100 font-medium">
+                <i class="fa-solid fa-trash-can mr-1"></i>ล้างการเลือกทั้งหมด
+              </button>
+            </div>
+          </div>
+
+          <!-- 7 PLOs Container -->
+          <div class="space-y-3 pt-1" id="plo-options-grid">
+            <!-- Rendered dynamically by buildPloModalCards() -->
+          </div>
+        </div>
+
+        <!-- ================= SECTION 2: CLO ไทย และ CLO อังกฤษ ================= -->
+        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-4">
+          <label class="block font-bold text-slate-800 text-sm flex items-center gap-2 border-b border-slate-100 pb-2">
+            <span class="w-6 h-6 rounded-full bg-indigo-600 text-white inline-flex items-center justify-center text-xs font-bold">2</span>
+            ผลลัพธ์การเรียนรู้ระดับรายวิชา (CLOs)
+          </label>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label for="modal-input-clo-th" class="block text-xs font-semibold text-slate-700 mb-1">
+                CLO ของรายวิชาเป็นภาษาไทย (คอลัมน์ G)
+              </label>
+              <textarea id="modal-input-clo-th" rows="3" placeholder="พิมพ์ CLO ภาษาไทย เช่น เมื่อสิ้นสุดการเรียนรายวิชานี้ ผู้เรียนสามารถ..."
+                        class="w-full text-xs font-body p-3 border border-slate-300 rounded-lg focus:ring-psu-600 focus:border-psu-600 bg-slate-50/50"></textarea>
+            </div>
+
+            <div>
+              <label for="modal-input-clo-en" class="block text-xs font-semibold text-slate-700 mb-1">
+                CLO ของรายวิชาเป็นภาษาอังกฤษ (คอลัมน์ H)
+              </label>
+              <textarea id="modal-input-clo-en" rows="3" placeholder="Enter CLO in English e.g. Upon completion of this course, students will be able to..."
+                        class="w-full text-xs font-body p-3 border border-slate-300 rounded-lg focus:ring-psu-600 focus:border-psu-600 bg-slate-50/50"></textarea>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="bg-white px-6 py-4 border-t border-slate-200 flex items-center justify-between">
+        <button type="button" onclick="closeCourseModal()" 
+                class="px-4 py-2 text-sm text-slate-600 hover:text-slate-800 font-medium rounded-lg hover:bg-slate-100 transition">
+          ยกเลิก
+        </button>
+
+        <button type="button" id="btn-save-course" onclick="submitSaveCourse()" 
+                class="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold px-6 py-2.5 rounded-lg shadow transition">
+          <i class="fa-solid fa-floppy-disk"></i>
+          <span>บันทึกข้อมูล KSA</span>
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ==================== MODAL: เพิ่มรายวิชาใหม่ ==================== -->
+  <div id="add-course-modal" class="fixed inset-0 z-50 hidden bg-slate-900/60 backdrop-blur-sm overflow-y-auto p-4 flex items-center justify-center">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden border border-slate-200">
+      <div class="bg-psu-800 text-white px-6 py-4 flex items-center justify-between">
+        <h3 class="font-bold text-base flex items-center gap-2">
+          <i class="fa-solid fa-circle-plus text-psu-gold"></i>
+          เพิ่มรายวิชาใหม่ในหลักสูตร 2571
+        </h3>
+        <button onclick="closeAddCourseModal()" class="text-white/80 hover:text-white">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+
+      <div class="p-6 space-y-4 text-xs font-medium">
+        <div>
+          <label class="block text-slate-700 mb-1">รหัสวิชา (เช่น 263-xxx) *</label>
+          <input type="text" id="add-code" placeholder="เช่น 263-201" class="w-full p-2.5 border border-slate-300 rounded-lg text-sm">
+        </div>
+        <div>
+          <label class="block text-slate-700 mb-1">ชื่อวิชา (ภาษาไทย) *</label>
+          <input type="text" id="add-name" placeholder="ชื่อรายวิชา" class="w-full p-2.5 border border-slate-300 rounded-lg text-sm">
+        </div>
+        <div>
+          <label class="block text-slate-700 mb-1">หน่วยกิต (ถ้ามี)</label>
+          <input type="text" id="add-credit" placeholder="เช่น 3(2-2-5)" class="w-full p-2.5 border border-slate-300 rounded-lg text-sm">
+        </div>
+        <div>
+          <label class="block text-slate-700 mb-1">อาจารย์ผู้สอน (คอลัมน์ E) *</label>
+          <input type="text" id="add-instructor" list="instructor-datalist" placeholder="เลือกหรือพิมพ์ชื่ออาจารย์ผู้สอน" class="w-full p-2.5 border border-slate-300 rounded-lg text-sm">
+          <datalist id="instructor-datalist"></datalist>
+        </div>
+      </div>
+
+      <div class="bg-slate-50 px-6 py-3 border-t border-slate-200 flex justify-end gap-2">
+        <button onclick="closeAddCourseModal()" class="px-4 py-2 text-slate-600 hover:bg-slate-200 rounded-lg text-xs font-semibold">ยกเลิก</button>
+        <button onclick="submitAddCourse()" class="px-4 py-2 bg-psu-700 hover:bg-psu-800 text-white rounded-lg text-xs font-semibold">บันทึกรายวิชา</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL: ตั้งค่าการเชื่อมต่อ API / ซิงค์ Google Sheets ==================== -->
+  <div id="sync-settings-modal" class="fixed inset-0 z-50 hidden bg-slate-900/60 backdrop-blur-sm overflow-y-auto p-4 flex items-center justify-center">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden border border-slate-200">
+      <div class="bg-gradient-to-r from-sky-700 to-psu-800 text-white px-6 py-4 flex items-center justify-between">
+        <h3 class="font-bold text-base flex items-center gap-2">
+          <i class="fa-solid fa-cloud-arrow-up text-amber-300"></i>
+          ตั้งค่าการเชื่อมต่อ Google Sheets API (Vercel / Cloud)
+        </h3>
+        <button onclick="closeSyncSettingsModal()" class="text-white/80 hover:text-white">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+
+      <div class="p-6 space-y-4 text-xs font-medium text-slate-700">
+        <div class="p-3 bg-blue-50 border border-blue-200 rounded-xl text-blue-900 space-y-1">
+          <p class="font-bold flex items-center gap-1.5"><i class="fa-solid fa-circle-info text-blue-600"></i> โหมดการทำงานบน Vercel / เว็บไซต์</p>
+          <p class="text-[11px] leading-relaxed text-blue-800">
+            ระบบทำงานแบบ Standalone พร้อมข้อมูลตัวอย่างครบถ้วน และบันทึกข้อมูลไว้ใน Browser (LocalStorage) อัตโนมัติ หรือเชื่อมต่อสดกับ Google Sheet ผ่าน Web App URL ด้านล่าง
+          </p>
+        </div>
+
+        <div>
+          <label class="block text-slate-800 font-bold mb-1">Google Apps Script Web App URL</label>
+          <input type="url" id="setting-gas-url" placeholder="https://script.google.com/macros/s/.../exec" 
+                 class="w-full p-2.5 border border-slate-300 rounded-lg text-xs font-mono">
+          <p class="text-[11px] text-slate-500 mt-1">URL ที่ได้จากการ Deploy Web App ใน Google Apps Script (Who has access: Anyone)</p>
+        </div>
+
+        <div class="pt-2 flex flex-col gap-2">
+          <button onclick="testGasApiConnection()" class="w-full py-2 bg-sky-100 hover:bg-sky-200 text-sky-800 rounded-lg font-semibold flex items-center justify-center gap-1.5 transition">
+            <i class="fa-solid fa-bolt"></i> ทดสอบการเชื่อมต่อ Google Sheet API
+          </button>
+          <button onclick="resetToDefaultData()" class="w-full py-2 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 rounded-lg font-semibold flex items-center justify-center gap-1.5 transition">
+            <i class="fa-solid fa-rotate-left"></i> รีเซ็ตข้อมูลเป็นค่าเริ่มต้น (Reset Default Data)
+          </button>
+        </div>
+      </div>
+
+      <div class="bg-slate-50 px-6 py-3 border-t border-slate-200 flex justify-end gap-2">
+        <button onclick="closeSyncSettingsModal()" class="px-4 py-2 text-slate-600 hover:bg-slate-200 rounded-lg text-xs font-semibold">ปิด</button>
+        <button onclick="saveSyncSettings()" class="px-4 py-2 bg-psu-700 hover:bg-psu-800 text-white rounded-lg text-xs font-semibold">บันทึกการตั้งค่า</button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ==================== JAVASCRIPT APPLICATION LOGIC ==================== -->
+  <script>
+    // 7 PLOs Definition as requested
+    const PLO_DEFINITIONS = [
+      {
+        id: "PLO1",
+        code: "PLO1",
+        title: "PLO1",
+        desc: "แสดงพฤติกรรมการมีจิตอาสา ทำงานเป็นทีมและทำงานร่วมกับชุมชนได้บรรลุเป้าหมาย",
+        color: "bg-blue-100 text-blue-800 border-blue-300"
+      },
+      {
+        id: "PLO2",
+        code: "PLO2",
+        title: "PLO2",
+        desc: "ปฏิบัติตนในฐานะพลเมืองดิจิทัลที่ใช้สื่อและเทคโนโลยีอย่างปลอดภัย",
+        color: "bg-cyan-100 text-cyan-800 border-cyan-300"
+      },
+      {
+        id: "PLO3",
+        code: "PLO3",
+        title: "PLO3",
+        desc: "วิเคราะห์และออกแบบการจัดการเรียนรู้ในชั้นเรียนโดยใช้ศาสตร์การสอนและการวัดประเมินผลตาม จรรยาบรรณวิชาชีพครู",
+        color: "bg-emerald-100 text-emerald-800 border-emerald-300"
+      },
+      {
+        id: "PLO4",
+        code: "PLO4",
+        title: "PLO4",
+        desc: "สร้างนวัตกรรมทางการศึกษาเพื่อปฏิบัติการสอนในชั้นเรียนโดยใช้เทคโนโลยีปัญญาประดิษฐ์ เทคโนโลยีดิจิทัลและวิจัยเป็นฐาน",
+        color: "bg-amber-100 text-amber-800 border-amber-300"
+      },
+      {
+        id: "PLO5",
+        code: "PLO5",
+        title: "PLO5",
+        desc: "พัฒนาสื่อดิจิทัลและแพลตฟอร์มเพื่อการศึกษาโดยใช้หลักการออกแบบที่ยึดผู้ใช้งานเป็นศูนย์กลาง",
+        color: "bg-purple-100 text-purple-800 border-purple-300"
+      },
+      {
+        id: "PLO6",
+        code: "PLO6",
+        title: "PLO6",
+        desc: "เลือกใช้และประเมินเทคโนโลยีปัญญาประดิษฐ์และเทคโนโลยีดิจิทัลเพื่อการตัดสินใจและแก้ปัญหา ขององค์กร",
+        color: "bg-rose-100 text-rose-800 border-rose-300"
+      },
+      {
+        id: "PLO7",
+        code: "PLO7",
+        title: "PLO7",
+        desc: "ปฏิบัติงานและจัดการเรียนรู้ในชั้นเรียนโดยใช้ศาสตร์ด้านเทคโนโลยีดิจิทัลและสื่อสารการศึกษา",
+        color: "bg-indigo-100 text-indigo-800 border-indigo-300"
+      }
+    ];
+
+    // Global State
+    let appData = {
+      courses: [],
+      instructors: [],
+      tab2Data: [],
+      tab3Data: []
+    };
+    let activeTab = 1;
+    let selectedPLOsInModal = new Set();
+
+    // DOM Ready Initialization
+    document.addEventListener("DOMContentLoaded", function() {
+      buildPloModalCards();
+      loadInitialData();
+    });
+
+    /**
+     * ดึงข้อมูลเริ่มต้นจาก Google Apps Script Backend (google.script.run)
+     */
+    function loadInitialData() {
+      showLoading(true);
+
+      const loadingText = document.getElementById("loading-status-text");
+      if (loadingText) loadingText.textContent = "กำลังโหลดข้อมูลจาก Google Sheet...";
+
+      const timeoutTimer = setTimeout(function() {
+        if (loadingText) {
+          loadingText.innerHTML = `
+            <span>กำลังเชื่อมต่อกับ Google Sheet ครั้งแรก (กำลังเริ่มต้นระบบ Apps Script)...</span>
+            <div class="mt-3">
+              <button onclick="loadInitialData()" class="px-3 py-1.5 bg-psu-600 hover:bg-psu-700 text-white rounded text-xs shadow transition">
+                <i class="fa-solid fa-rotate-right mr-1"></i> ลองเชื่อมต่อใหม่อีกครั้ง
+              </button>
+            </div>
+          `;
+        }
+      }, 12000);
+      
+      if (typeof google !== "undefined" && google.script && google.script.run) {
+        google.script.run
+          .withSuccessHandler(function(res) {
+            clearTimeout(timeoutTimer);
+            showLoading(false);
+            if (res.success) {
+              appData.courses = res.courses || [];
+              appData.instructors = res.instructors || [];
+              appData.tab2Data = res.tab2Data || [];
+              appData.tab3Data = res.tab3Data || [];
+
+              initInstructorFilter();
+              applyFilters();
+              renderTab2Table();
+              renderTab3Table();
+              renderTab4Table();
+              updateSummaryStats();
+            } else {
+              Swal.fire({
+                icon: 'error',
+                title: 'เกิดข้อผิดพลาดในการโหลดข้อมูล',
+                text: res.error || 'โปรดตรวจสอบสิทธิ์การเข้าถึงชีต'
+              });
+            }
+          })
+          .withFailureHandler(function(err) {
+            clearTimeout(timeoutTimer);
+            showLoading(false);
+            Swal.fire({
+              icon: 'error',
+              title: 'ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์',
+              text: err.toString()
+            });
+          })
+          .getInitialData();
+      } else {
+        // Fallback for Local / Vercel Web Deployment
+        clearTimeout(timeoutTimer);
+        const gasApiUrl = localStorage.getItem("gas_api_url");
+
+        if (gasApiUrl) {
+          if (loadingText) loadingText.textContent = "กำลังซิงค์ข้อมูลสดจาก Google Sheet...";
+          fetch(`${gasApiUrl}?action=getData`)
+            .then(res => res.json())
+            .then(res => {
+              showLoading(false);
+              if (res.success) {
+                appData.courses = res.courses || [];
+                appData.instructors = res.instructors || [];
+                appData.tab2Data = res.tab2Data || [];
+                appData.tab3Data = res.tab3Data || [];
+
+                initInstructorFilter();
+                applyFilters();
+                renderTab2Table();
+                renderTab3Table();
+                renderTab4Table();
+                updateSummaryStats();
+                return;
+              }
+              fallbackToLocalData();
+            })
+            .catch(err => {
+              console.warn("Could not fetch from GAS API URL, falling back to local data:", err);
+              fallbackToLocalData();
+            });
+        } else {
+          fallbackToLocalData();
+        }
+      }
+    }
+
+    function fallbackToLocalData() {
+      showLoading(false);
+      if (window.MOCK_DATA) {
+        appData = JSON.parse(JSON.stringify(window.MOCK_DATA));
+        try {
+          const savedCourses = localStorage.getItem("app_courses_data");
+          if (savedCourses) {
+            appData.courses = JSON.parse(savedCourses);
+          }
+          const savedTab2 = localStorage.getItem("app_tab2_data");
+          if (savedTab2) {
+            appData.tab2Data = JSON.parse(savedTab2);
+          }
+        } catch(e) {
+          console.error("Failed to parse saved courses from localStorage", e);
+        }
+
+        initInstructorFilter();
+        applyFilters();
+        renderTab2Table();
+        renderTab3Table();
+        renderTab4Table();
+        updateSummaryStats();
+      }
+    }
+
+    function openSyncSettingsModal() {
+      const input = document.getElementById("setting-gas-url");
+      if (input) {
+        input.value = localStorage.getItem("gas_api_url") || "";
+      }
+      document.getElementById("sync-settings-modal").classList.remove("hidden");
+    }
+
+    function closeSyncSettingsModal() {
+      document.getElementById("sync-settings-modal").classList.add("hidden");
+    }
+
+    function saveSyncSettings() {
+      const input = document.getElementById("setting-gas-url");
+      const val = input ? input.value.trim() : "";
+      if (val) {
+        localStorage.setItem("gas_api_url", val);
+        Swal.fire({
+          icon: 'success',
+          title: 'บันทึกการตั้งค่าแล้ว',
+          text: 'ระบบจะเชื่อมต่อข้อมูลสดกับ Google Apps Script Web App เมื่อโหลดข้อมูล',
+          timer: 2000,
+          showConfirmButton: false
+        });
+        closeSyncSettingsModal();
+        loadInitialData();
+      } else {
+        localStorage.removeItem("gas_api_url");
+        Swal.fire({
+          icon: 'info',
+          title: 'ยกเลิกการเชื่อมต่อ URL',
+          text: 'ระบบจะกลับไปใช้โหมด Standalone (จัดเก็บใน Browser)',
+          timer: 2000,
+          showConfirmButton: false
+        });
+        closeSyncSettingsModal();
+      }
+    }
+
+    function testGasApiConnection() {
+      const input = document.getElementById("setting-gas-url");
+      const url = input ? input.value.trim() : "";
+      if (!url) {
+        Swal.fire({ icon: 'warning', title: 'โปรดระบุ URL', text: 'กรุณากรอก Google Apps Script Web App URL ก่อนทดสอบ' });
+        return;
+      }
+      Swal.fire({
+        title: 'กำลังทดสอบเชื่อมต่อ...',
+        allowOutsideClick: false,
+        didOpen: () => { Swal.showLoading(); }
+      });
+      fetch(`${url}?action=getData`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            Swal.fire({
+              icon: 'success',
+              title: 'เชื่อมต่อสำเร็จ!',
+              text: `พบข้อมูล ${data.courses ? data.courses.length : 0} รายวิชาจาก Google Sheet เรียบร้อยแล้ว`
+            });
+          } else {
+            Swal.fire({
+              icon: 'warning',
+              title: 'เชื่อมต่อได้ แต่เกิดข้อผิดพลาด',
+              text: data.error || 'โปรดตรวจสอบสิทธิ์การแชร์ชีต'
+            });
+          }
+        })
+        .catch(err => {
+          Swal.fire({
+            icon: 'error',
+            title: 'เชื่อมต่อไม่สำเร็จ',
+            text: 'ไม่สามารถติดต่อ Web App URL ได้ โปรดตรวจสอบว่าได้ตั้งค่า Deploy เป็น Anyone หรือยัง'
+          });
+        });
+    }
+
+    function resetToDefaultData() {
+      Swal.fire({
+        title: 'ยืนยันการรีเซ็ตข้อมูล?',
+        text: 'ข้อมูลที่แก้ไขและบันทึกไว้ใน Browser จะถูกรีเซ็ตกลับเป็นข้อมูลตั้งต้นทั้งหมด',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#e11d48',
+        cancelButtonColor: '#64748b',
+        confirmButtonText: 'ใช่, รีเซ็ตข้อมูล',
+        cancelButtonText: 'ยกเลิก'
+      }).then(res => {
+        if (res.isConfirmed) {
+          localStorage.removeItem("app_courses_data");
+          localStorage.removeItem("app_tab2_data");
+          if (window.MOCK_DATA) {
+            appData = JSON.parse(JSON.stringify(window.MOCK_DATA));
+            initInstructorFilter();
+            applyFilters();
+            renderTab2Table();
+            renderTab3Table();
+            renderTab4Table();
+            updateSummaryStats();
+          }
+          closeSyncSettingsModal();
+          Swal.fire({ icon: 'success', title: 'รีเซ็ตข้อมูลเรียบร้อยแล้ว', timer: 1500, showConfirmButton: false });
+        }
+      });
+    }
+
+    function refreshData() {
+      const icon = document.getElementById("refresh-icon");
+      if (icon) icon.classList.add("fa-spin");
+      loadInitialData();
+      setTimeout(() => { if (icon) icon.classList.remove("fa-spin"); }, 1000);
+    }
+
+    function showLoading(show) {
+      const el = document.getElementById("loading-spinner");
+      const tab1 = document.getElementById("tab-content-1");
+      const tab2 = document.getElementById("tab-content-2");
+      const tab3 = document.getElementById("tab-content-3");
+      const tab4 = document.getElementById("tab-content-4");
+
+      if (show) {
+        if (el) el.classList.remove("hidden");
+        if (tab1) tab1.classList.add("hidden");
+        if (tab2) tab2.classList.add("hidden");
+        if (tab3) tab3.classList.add("hidden");
+        if (tab4) tab4.classList.add("hidden");
+      } else {
+        if (el) el.classList.add("hidden");
+        switchTab(activeTab);
+      }
+    }
+
+    /**
+     * สลับแท็บ 1, 2, 3, 4
+     */
+    function switchTab(tabIndex) {
+      activeTab = tabIndex;
+      for (let i = 1; i <= 4; i++) {
+        const btn = document.getElementById(`tab-btn-${i}`);
+        const content = document.getElementById(`tab-content-${i}`);
+        if (i === tabIndex) {
+          if (btn) {
+            btn.className = "tab-btn active px-4 py-2 text-sm font-semibold rounded-lg flex items-center gap-2 transition duration-150 whitespace-nowrap bg-white text-psu-800 shadow";
+          }
+          if (content) content.classList.remove("hidden");
+        } else {
+          if (btn) {
+            btn.className = "tab-btn px-4 py-2 text-sm font-semibold rounded-lg flex items-center gap-2 transition duration-150 whitespace-nowrap text-blue-100 hover:bg-white/10";
+          }
+          if (content) content.classList.add("hidden");
+        }
+      }
+    }
+
+    /**
+     * ดึงรายชื่ออาจารย์ผู้สอนใส่ในดรอปดาวน์
+     */
+    function initInstructorFilter() {
+      const select = document.getElementById("filter-instructor");
+      const datalist = document.getElementById("instructor-datalist");
+      if (!select) return;
+
+      select.innerHTML = '<option value="">-- แสดงอาจารย์ทั้งหมด --</option>';
+      if (datalist) datalist.innerHTML = '';
+
+      appData.instructors.forEach(inst => {
+        if (!inst) return;
+        const opt = document.createElement("option");
+        opt.value = inst;
+        opt.textContent = inst;
+        select.appendChild(opt);
+
+        if (datalist) {
+          const dlOpt = document.createElement("option");
+          dlOpt.value = inst;
+          datalist.appendChild(dlOpt);
+        }
+      });
+    }
+
+    /**
+     * อัปเดตสถิติรวม
+     */
+    function updateSummaryStats() {
+      const total = appData.courses.length;
+      let completed = 0;
+      appData.courses.forEach(c => {
+        if ((c.plos && c.plos.trim()) || (c.k && c.k.trim())) {
+          completed++;
+        }
+      });
+      const pending = total - completed;
+
+      const elTotal = document.getElementById("stat-total");
+      const elCompleted = document.getElementById("stat-completed");
+      const elPending = document.getElementById("stat-pending");
+      const elInstructors = document.getElementById("stat-instructors");
+      const elBadgeCourses = document.getElementById("badge-total-courses");
+      const elBadgeTab2 = document.getElementById("badge-tab2-count");
+
+      if (elTotal) elTotal.textContent = total;
+      if (elCompleted) elCompleted.textContent = completed;
+      if (elPending) elPending.textContent = pending;
+      if (elInstructors) elInstructors.textContent = appData.instructors.length;
+      if (elBadgeCourses) elBadgeCourses.textContent = total;
+      if (elBadgeTab2) elBadgeTab2.textContent = appData.tab2Data.length;
+    }
+
+    /**
+     * กรองและแสดงผลตารางในแถบที่ 1
+     */
+    function applyFilters() {
+      const selectedInstructor = (document.getElementById("filter-instructor").value || "").trim().toLowerCase();
+      const searchKeyword = (document.getElementById("search-input").value || "").trim().toLowerCase();
+
+      const tbody = document.getElementById("course-table-body");
+      if (!tbody) return;
+      tbody.innerHTML = "";
+
+      let count = 0;
+
+      appData.courses.forEach((c) => {
+        // กรองอาจารย์
+        if (selectedInstructor && c.instructor.toLowerCase() !== selectedInstructor) {
+          return;
+        }
+        // กรองคำค้นหา
+        if (searchKeyword) {
+          const matchCode = c.code.toLowerCase().includes(searchKeyword);
+          const matchName = c.name.toLowerCase().includes(searchKeyword);
+          const matchInst = c.instructor.toLowerCase().includes(searchKeyword);
+          if (!matchCode && !matchName && !matchInst) return;
+        }
+
+        count++;
+        const tr = document.createElement("tr");
+        tr.className = "hover:bg-blue-50/40 transition duration-150 border-b border-slate-100";
+
+        // Badges for PLO
+        let ploBadgesHtml = '<span class="text-xs text-slate-400 italic">ยังไม่ได้ระบุ PLO</span>';
+        if (c.plos && c.plos.trim()) {
+          const ploList = c.plos.split(/[\s,;\n]+/).filter(Boolean);
+          ploBadgesHtml = '<div class="flex flex-wrap gap-1">';
+          ploList.forEach(p => {
+            const def = PLO_DEFINITIONS.find(d => d.code === p) || { code: p, desc: p, color: 'bg-slate-100 text-slate-700' };
+            ploBadgesHtml += `<span class="badge-plo inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold border ${def.color}" title="${escapeHtml(def.desc)}">${escapeHtml(def.code)}</span>`;
+          });
+          ploBadgesHtml += '</div>';
+        }
+
+        // Status Indicators for CLO and KSA
+        const hasCLO = (c.cloTh && c.cloTh.trim()) || (c.cloEn && c.cloEn.trim());
+        const cloStatus = hasCLO 
+          ? `<span class="inline-flex items-center gap-1 text-emerald-600 text-xs font-semibold" title="${escapeHtml(c.cloTh || c.cloEn)}"><i class="fa-solid fa-check"></i> กรอกแล้ว</span>`
+          : `<span class="text-slate-300 text-xs">-</span>`;
+
+        const hasK = c.k && c.k.trim();
+        const hasS = c.s && c.s.trim();
+        const hasA = c.a && c.a.trim();
+        let ksaHtml = '<div class="flex items-center justify-center gap-1.5">';
+        ksaHtml += `<span class="px-1.5 py-0.5 rounded text-[10px] font-bold ${hasK ? 'bg-blue-100 text-blue-700' : 'bg-slate-100 text-slate-300'}" title="K: ${escapeHtml(c.k || 'ยังไม่กรอก')}">K</span>`;
+        ksaHtml += `<span class="px-1.5 py-0.5 rounded text-[10px] font-bold ${hasS ? 'bg-teal-100 text-teal-700' : 'bg-slate-100 text-slate-300'}" title="S: ${escapeHtml(c.s || 'ยังไม่กรอก')}">S</span>`;
+        ksaHtml += `<span class="px-1.5 py-0.5 rounded text-[10px] font-bold ${hasA ? 'bg-amber-100 text-amber-700' : 'bg-slate-100 text-slate-300'}" title="A: ${escapeHtml(c.a || 'ยังไม่กรอก')}">A</span>`;
+        ksaHtml += '</div>';
+
+        tr.innerHTML = `
+          <td class="px-3 py-3 text-center text-xs font-medium text-slate-500">${c.order || c.rowIndex - 1}</td>
+          <td class="px-3 py-3 font-semibold text-slate-800 text-xs font-mono">${escapeHtml(c.code)}</td>
+          <td class="px-4 py-3 font-medium text-slate-900 leading-snug">
+            <div>${escapeHtml(c.name)}</div>
+            ${c.credit ? `<span class="text-[11px] text-slate-400 font-normal">หน่วยกิต: ${escapeHtml(c.credit)}</span>` : ''}
+          </td>
+          <td class="px-4 py-3 text-xs text-slate-700">
+            <span class="inline-flex items-center gap-1 font-medium bg-slate-100 px-2 py-1 rounded text-slate-700">
+              <i class="fa-solid fa-chalkboard-user text-psu-600 text-[10px]"></i>
+              ${escapeHtml(c.instructor || 'ยังไม่ได้ระบุ')}
+            </span>
+          </td>
+          <td class="px-4 py-3">${ploBadgesHtml}</td>
+          <td class="px-3 py-3 text-center">${cloStatus}</td>
+          <td class="px-3 py-3 text-center">${ksaHtml}</td>
+          <td class="px-4 py-3 text-center">
+            <div class="inline-flex items-center gap-1.5">
+              <button onclick="openCourseModal(${c.rowIndex})" 
+                      class="px-3 py-1.5 bg-psu-700 hover:bg-psu-800 text-white rounded-lg text-xs font-medium flex items-center gap-1 shadow-sm transition">
+                <i class="fa-solid fa-file-pen text-[11px]"></i>
+                <span>กรอก/แก้ไข</span>
+              </button>
+              <button onclick="confirmDeleteCourse(${c.rowIndex}, '${escapeHtml(c.code)}', '${escapeHtml(c.name)}')" 
+                      title="ลบรายวิชา" 
+                      class="w-7 h-7 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 flex items-center justify-center transition">
+                <i class="fa-solid fa-trash-can text-xs"></i>
+              </button>
+            </div>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      const elShowing = document.getElementById("showing-count");
+      if (elShowing) elShowing.textContent = `แสดง ${count} รายการ`;
+
+      if (count === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="8" class="text-center py-12 text-slate-400 text-sm">
+              <i class="fa-solid fa-folder-open text-3xl mb-2 block opacity-40"></i>
+              ไม่พบรายวิชาที่ตรงกับเงื่อนไขการค้นหา
+            </td>
+          </tr>
+        `;
+      }
+    }
+
+    /**
+     * สร้างการ์ด PLO1 - PLO7 พร้อมฟอร์มกรอก K (5 ข้อ), S (5 ข้อ), A (5 ข้อ) ภายในแต่ละ PLO
+     */
+    function buildPloModalCards() {
+      const container = document.getElementById("plo-options-grid");
+      if (!container) return;
+      container.innerHTML = "";
+
+      PLO_DEFINITIONS.forEach(plo => {
+        const card = document.createElement("div");
+        card.id = `card-${plo.id}`;
+        card.className = "border border-slate-200 rounded-xl overflow-hidden bg-white transition shadow-sm";
+
+        card.innerHTML = `
+          <!-- Card Header (Click to toggle checkbox) -->
+          <div class="flex items-start gap-3 p-3.5 bg-slate-50/60 hover:bg-blue-50/40 cursor-pointer border-b border-slate-100"
+               onclick="togglePloCheckbox('${plo.id}')">
+            <input type="checkbox" id="cb-${plo.id}" value="${plo.id}" 
+                   onclick="event.stopPropagation(); handlePloToggle('${plo.id}', this.checked)"
+                   class="mt-1 w-4 h-4 rounded text-blue-600 focus:ring-blue-500 border-slate-300 cursor-pointer">
+            <div class="flex-1">
+              <div class="flex items-center gap-2">
+                <span class="font-bold text-xs px-2.5 py-0.5 rounded border ${plo.color}">${plo.code}</span>
+                <span class="text-xs font-semibold text-slate-800">${plo.code}</span>
+              </div>
+              <p class="text-xs text-slate-600 mt-1 font-body leading-relaxed">${escapeHtml(plo.desc)}</p>
+            </div>
+            <div class="text-xs font-semibold text-slate-400 flex items-center gap-1" id="arrow-${plo.id}">
+              <i class="fa-solid fa-chevron-down text-xs transition duration-200"></i>
+            </div>
+          </div>
+
+          <!-- Card Body: K (5 items), S (5 items), A (5 items) -->
+          <div id="body-${plo.id}" class="hidden p-4 space-y-4 bg-white border-t border-slate-100">
+            
+            <!-- K Group (สูงสุด 5 ข้อ) -->
+            <div class="bg-blue-50/40 p-3.5 rounded-xl border border-blue-100/80">
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-xs font-bold text-blue-900 flex items-center gap-1.5">
+                  <i class="fa-solid fa-brain text-blue-600"></i>
+                  ข้อมูลด้าน K (ความรู้) ไม่เกิน 5 ข้อ
+                </span>
+                <span class="text-[11px] text-blue-600 font-medium">${plo.code}</span>
+              </div>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                ${generateNumberedInputs(plo.id, 'k', 5)}
+              </div>
+            </div>
+
+            <!-- S Group (สูงสุด 5 ข้อ) -->
+            <div class="bg-teal-50/40 p-3.5 rounded-xl border border-teal-100/80">
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-xs font-bold text-teal-900 flex items-center gap-1.5">
+                  <i class="fa-solid fa-screwdriver-wrench text-teal-600"></i>
+                  ข้อมูลด้าน S (ทักษะ) ไม่เกิน 5 ข้อ
+                </span>
+                <span class="text-[11px] text-teal-600 font-medium">${plo.code}</span>
+              </div>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                ${generateNumberedInputs(plo.id, 's', 5)}
+              </div>
+            </div>
+
+            <!-- A Group (สูงสุด 5 ข้อ) -->
+            <div class="bg-amber-50/40 p-3.5 rounded-xl border border-amber-100/80">
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-xs font-bold text-amber-900 flex items-center gap-1.5">
+                  <i class="fa-solid fa-heart text-amber-600"></i>
+                  ข้อมูลด้าน A (เจตคติ) ไม่เกิน 5 ข้อ
+                </span>
+                <span class="text-[11px] text-amber-600 font-medium">${plo.code}</span>
+              </div>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                ${generateNumberedInputs(plo.id, 'a', 5)}
+              </div>
+            </div>
+
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function generateNumberedInputs(ploId, type, maxCount) {
+      let html = '';
+      const typeLabel = type === 'k' ? 'ความรู้ K' : (type === 's' ? 'ทักษะ S' : 'เจตคติ A');
+      for (let i = 1; i <= maxCount; i++) {
+        html += `
+          <div class="flex items-center gap-2">
+            <span class="w-5 text-right font-mono font-bold text-slate-500 text-xs">${i}.</span>
+            <input type="text" id="input-${ploId}-${type}-${i}" placeholder="${typeLabel} ข้อที่ ${i}..." 
+                   class="flex-1 text-xs p-2 border border-slate-200 rounded-lg focus:ring-blue-500 focus:border-blue-500 bg-white">
+          </div>
+        `;
+      }
+      return html;
+    }
+
+    function togglePloCheckbox(ploId) {
+      const cb = document.getElementById(`cb-${ploId}`);
+      if (cb) {
+        cb.checked = !cb.checked;
+        handlePloToggle(ploId, cb.checked);
+      }
+    }
+
+    function handlePloToggle(ploId, isChecked) {
+      const body = document.getElementById(`body-${ploId}`);
+      const arrow = document.getElementById(`arrow-${ploId}`);
+      const card = document.getElementById(`card-${ploId}`);
+
+      if (isChecked) {
+        if (body) body.classList.remove("hidden");
+        if (arrow) arrow.innerHTML = '<i class="fa-solid fa-chevron-up text-xs text-blue-600"></i>';
+        if (card) card.classList.add("border-blue-300", "ring-1", "ring-blue-200");
+      } else {
+        if (body) body.classList.add("hidden");
+        if (arrow) arrow.innerHTML = '<i class="fa-solid fa-chevron-down text-xs"></i>';
+        if (card) card.classList.remove("border-blue-300", "ring-1", "ring-blue-200");
+      }
+    }
+
+    function clearAllPLOs() {
+      PLO_DEFINITIONS.forEach(plo => {
+        const cb = document.getElementById(`cb-${plo.id}`);
+        if (cb) {
+          cb.checked = false;
+          handlePloToggle(plo.id, false);
+        }
+        for (let i = 1; i <= 5; i++) {
+          const inK = document.getElementById(`input-${plo.id}-k-${i}`);
+          const inS = document.getElementById(`input-${plo.id}-s-${i}`);
+          const inA = document.getElementById(`input-${plo.id}-a-${i}`);
+          if (inK) inK.value = "";
+          if (inS) inS.value = "";
+          if (inA) inA.value = "";
+        }
+      });
+    }
+
+    /**
+     * ดึงข้อความจาก Input 1-5 รวมออกมาในรูปแบบ:
+     * "PLO1: 1. ข้อแรก, 2. ข้อสอง"
+     */
+    function buildFormattedKsaString(type) {
+      const parts = [];
+      PLO_DEFINITIONS.forEach(plo => {
+        const cb = document.getElementById(`cb-${plo.id}`);
+        if (!cb || !cb.checked) return;
+
+        const items = [];
+        for (let i = 1; i <= 5; i++) {
+          const input = document.getElementById(`input-${plo.id}-${type}-${i}`);
+          if (input && input.value.trim()) {
+            items.push(input.value.trim());
+          }
+        }
+
+        if (items.length > 0) {
+          const formattedItems = items.map((item, idx) => `${idx + 1}. ${item}`).join(", ");
+          parts.push(`${plo.code}: ${formattedItems}`);
+        }
+      });
+      return parts.join("\n");
+    }
+
+    /**
+     * แยกข้อความ Col I, J, K จาก Sheet (เช่น PLO1: 1. ..., 2. ...) เข้าสู่ Input fields
+     */
+    function parseKsaString(text) {
+      const result = {};
+      if (!text) return result;
+
+      const ploRegex = /(PLO[1-7])\s*:\s*/gi;
+      let matches = [];
+      let m;
+      while ((m = ploRegex.exec(text)) !== null) {
+        matches.push({ plo: m[1].toUpperCase(), index: m.index, end: ploRegex.lastIndex });
+      }
+
+      for (let i = 0; i < matches.length; i++) {
+        const cur = matches[i];
+        const nextIndex = i + 1 < matches.length ? matches[i + 1].index : text.length;
+        const content = text.substring(cur.end, nextIndex).trim();
+
+        const itemRegex = /(?:^|,\s*|\s+)(?:(\d+)[\.\)]\s*)/g;
+        let itemMatches = [];
+        let im;
+        while ((im = itemRegex.exec(content)) !== null) {
+          itemMatches.push({ num: parseInt(im[1]), index: im.index, end: itemRegex.lastIndex });
+        }
+
+        const items = [];
+        if (itemMatches.length > 0) {
+          for (let j = 0; j < itemMatches.length; j++) {
+            const cItem = itemMatches[j];
+            const nextItemIndex = j + 1 < itemMatches.length ? itemMatches[j + 1].index : content.length;
+            let val = content.substring(cItem.end, nextItemIndex).trim();
+            if (val.endsWith(',')) val = val.slice(0, -1).trim();
+            if (val) items.push(val);
+          }
+        } else {
+          if (content) items.push(content);
+        }
+        result[cur.plo] = items.slice(0, 5);
+      }
+      return result;
+    }
+
+    /**
+     * เปิด Modal สำหรับกรอก/แก้ไข KSA ของรายวิชา
+     */
+    function openCourseModal(rowIndex) {
+      const course = appData.courses.find(c => c.rowIndex === rowIndex);
+      if (!course) return;
+
+      document.getElementById("modal-row-index").value = rowIndex;
+      document.getElementById("modal-course-title").textContent = `กรอก/แก้ไขข้อมูลรายวิชา: ${course.name}`;
+      document.getElementById("modal-course-subtitle").textContent = `รหัสวิชา: ${course.code} | อาจารย์ผู้สอน: ${course.instructor || 'ไม่ระบุ'}`;
+
+      document.getElementById("modal-info-code").textContent = course.code || '-';
+      document.getElementById("modal-info-name").textContent = course.name || '-';
+      document.getElementById("modal-info-instructor").textContent = course.instructor || '-';
+
+      // เคลียร์ค่าทั้งหมดก่อน
+      clearAllPLOs();
+
+      // แปลงข้อมูล K, S, A เดิม
+      const parsedK = parseKsaString(course.k);
+      const parsedS = parseKsaString(course.s);
+      const parsedA = parseKsaString(course.a);
+
+      // Selected PLOs from Column F
+      const selectedPloSet = new Set();
+      if (course.plos) {
+        course.plos.split(/[\s,;\n]+/).filter(Boolean).forEach(p => {
+          selectedPloSet.add(p.toUpperCase().trim());
+        });
+      }
+      Object.keys(parsedK).forEach(p => selectedPloSet.add(p));
+      Object.keys(parsedS).forEach(p => selectedPloSet.add(p));
+      Object.keys(parsedA).forEach(p => selectedPloSet.add(p));
+
+      // กำหนดค่าลงในการ์ดของแต่ละ PLO
+      PLO_DEFINITIONS.forEach(plo => {
+        const isSelected = selectedPloSet.has(plo.id);
+        const cb = document.getElementById(`cb-${plo.id}`);
+        if (cb) {
+          cb.checked = isSelected;
+          handlePloToggle(plo.id, isSelected);
+        }
+
+        const kItems = parsedK[plo.id] || [];
+        for (let i = 1; i <= 5; i++) {
+          const input = document.getElementById(`input-${plo.id}-k-${i}`);
+          if (input) input.value = kItems[i - 1] || "";
+        }
+
+        const sItems = parsedS[plo.id] || [];
+        for (let i = 1; i <= 5; i++) {
+          const input = document.getElementById(`input-${plo.id}-s-${i}`);
+          if (input) input.value = sItems[i - 1] || "";
+        }
+
+        const aItems = parsedA[plo.id] || [];
+        for (let i = 1; i <= 5; i++) {
+          const input = document.getElementById(`input-${plo.id}-a-${i}`);
+          if (input) input.value = aItems[i - 1] || "";
+        }
+      });
+
+      // CLOs
+      document.getElementById("modal-input-clo-th").value = course.cloTh || "";
+      document.getElementById("modal-input-clo-en").value = course.cloEn || "";
+
+      document.getElementById("course-modal").classList.remove("hidden");
+    }
+
+    function closeCourseModal() {
+      document.getElementById("course-modal").classList.add("hidden");
+    }
+
+    /**
+     * กดปุ่มบันทึกข้อมูล
+     */
+    function submitSaveCourse() {
+      const rowIndex = parseInt(document.getElementById("modal-row-index").value, 10);
+      const course = appData.courses.find(c => c.rowIndex === rowIndex);
+      if (!course) return;
+
+      const selectedPlos = [];
+      PLO_DEFINITIONS.forEach(plo => {
+        const cb = document.getElementById(`cb-${plo.id}`);
+        if (cb && cb.checked) {
+          selectedPlos.push(plo.id);
+        }
+      });
+
+      const plosStr = selectedPlos.join(", ");
+      const cloTh = document.getElementById("modal-input-clo-th").value.trim();
+      const cloEn = document.getElementById("modal-input-clo-en").value.trim();
+
+      const kStr = buildFormattedKsaString('k');
+      const sStr = buildFormattedKsaString('s');
+      const aStr = buildFormattedKsaString('a');
+
+      const btnSave = document.getElementById("btn-save-course");
+      const originalText = btnSave.innerHTML;
+      btnSave.disabled = true;
+      btnSave.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i> กำลังบันทึก...';
+
+      const payload = {
+        rowIndex: rowIndex,
+        code: course.code,
+        name: course.name,
+        instructor: course.instructor,
+        plos: plosStr,
+        cloTh: cloTh,
+        cloEn: cloEn,
+        k: kStr,
+        s: sStr,
+        a: aStr
+      };
+
+      if (typeof google !== "undefined" && google.script && google.script.run) {
+        google.script.run
+          .withSuccessHandler(function(res) {
+            btnSave.disabled = false;
+            btnSave.innerHTML = originalText;
+            if (res.success) {
+              course.plos = plosStr;
+              course.cloTh = cloTh;
+              course.cloEn = cloEn;
+              course.k = kStr;
+              course.s = sStr;
+              course.a = aStr;
+
+              closeCourseModal();
+              applyFilters();
+              updateSummaryStats();
+              loadInitialData(); // ซิงค์ตารางแถบ 2 ตรงจากชีต
+
+              Swal.fire({
+                icon: 'success',
+                title: 'บันทึกสำเร็จ!',
+                text: 'บันทึกข้อมูลและซิงค์เข้าตารางสรุปเรียบร้อยแล้ว',
+                timer: 2000,
+                showConfirmButton: false
+              });
+            } else {
+              Swal.fire({ icon: 'error', title: 'บันทึกไม่สำเร็จ', text: res.error });
+            }
+          })
+          .withFailureHandler(function(err) {
+            btnSave.disabled = false;
+            btnSave.innerHTML = originalText;
+            Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: err.toString() });
+          })
+          .saveCourseKSA(payload);
+      } else {
+        // Local / Vercel Web Deployment
+        setTimeout(() => {
+          btnSave.disabled = false;
+          btnSave.innerHTML = originalText;
+          course.plos = plosStr;
+          course.cloTh = cloTh;
+          course.cloEn = cloEn;
+          course.k = kStr;
+          course.s = sStr;
+          course.a = aStr;
+
+          // Save to localStorage
+          try {
+            localStorage.setItem("app_courses_data", JSON.stringify(appData.courses));
+          } catch(e){}
+
+          // Optional sync with Google Apps Script Web App API
+          const apiUrl = localStorage.getItem("gas_api_url");
+          if (apiUrl) {
+            fetch(apiUrl, {
+              method: 'POST',
+              mode: 'no-cors',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ action: 'saveKsa', data: payload })
+            }).catch(console.error);
+          }
+
+          closeCourseModal();
+          applyFilters();
+          renderTab2Table();
+          renderTab4Table();
+          updateSummaryStats();
+
+          Swal.fire({
+            icon: 'success',
+            title: 'บันทึกสำเร็จ!',
+            text: apiUrl ? 'บันทึกข้อมูลและส่งซิงค์เข้า Google Sheet แล้ว' : 'บันทึกข้อมูลเรียบร้อยแล้ว (จัดเก็บในเครื่อง)',
+            timer: 1800,
+            showConfirmButton: false
+          });
+        }, 500);
+      }
+    }
+
+    /**
+     * ลบรายวิชา
+     */
+    function confirmDeleteCourse(rowIndex, code, name) {
+      Swal.fire({
+        title: 'ยืนยันการลบรายวิชา?',
+        html: `คุณต้องการลบรายวิชา <br><b class="text-rose-600">${code} ${name}</b> <br>ออกจากชีตใช่หรือไม่?`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#e11d48',
+        cancelButtonColor: '#64748b',
+        confirmButtonText: 'ใช่, ต้องการลบ',
+        cancelButtonText: 'ยกเลิก'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          if (typeof google !== "undefined" && google.script && google.script.run) {
+            google.script.run
+              .withSuccessHandler(function(res) {
+                if (res.success) {
+                  Swal.fire({ icon: 'success', title: 'ลบสำเร็จ', text: res.message, timer: 1500, showConfirmButton: false });
+                  loadInitialData();
+                } else {
+                  Swal.fire({ icon: 'error', title: 'ลบไม่สำเร็จ', text: res.error });
+                }
+              })
+              .deleteCourse(rowIndex);
+          } else {
+            appData.courses = appData.courses.filter(c => c.rowIndex !== rowIndex);
+            try {
+              localStorage.setItem("app_courses_data", JSON.stringify(appData.courses));
+            } catch(e){}
+
+            const apiUrl = localStorage.getItem("gas_api_url");
+            if (apiUrl) {
+              fetch(apiUrl, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'deleteCourse', rowIndex: rowIndex })
+              }).catch(console.error);
+            }
+
+            applyFilters();
+            renderTab2Table();
+            renderTab4Table();
+            updateSummaryStats();
+            Swal.fire({ icon: 'success', title: 'ลบสำเร็จ', timer: 1500, showConfirmButton: false });
+          }
+        }
+      });
+    }
+
+    /**
+     * Modal เพิ่มรายวิชาใหม่
+     */
+    function openAddCourseModal() {
+      document.getElementById("add-code").value = "";
+      document.getElementById("add-name").value = "";
+      document.getElementById("add-credit").value = "";
+      document.getElementById("add-instructor").value = "";
+      document.getElementById("add-course-modal").classList.remove("hidden");
+    }
+
+    function closeAddCourseModal() {
+      document.getElementById("add-course-modal").classList.add("hidden");
+    }
+
+    function submitAddCourse() {
+      const code = document.getElementById("add-code").value.trim();
+      const name = document.getElementById("add-name").value.trim();
+      const credit = document.getElementById("add-credit").value.trim();
+      const instructor = document.getElementById("add-instructor").value.trim();
+
+      if (!code || !name) {
+        Swal.fire({ icon: 'warning', title: 'กรุณากรอกข้อมูล', text: 'กรุณาระบุรหัสวิชา และชื่อวิชา' });
+        return;
+      }
+
+      const payload = {
+        code: code,
+        name: name,
+        credit: credit,
+        instructor: instructor
+      };
+
+      if (typeof google !== "undefined" && google.script && google.script.run) {
+        google.script.run
+          .withSuccessHandler(function(res) {
+            if (res.success) {
+              closeAddCourseModal();
+              Swal.fire({ icon: 'success', title: 'เพิ่มวิชาเรียบร้อย', timer: 1500, showConfirmButton: false });
+              loadInitialData();
+            } else {
+              Swal.fire({ icon: 'error', title: 'ไม่สามารถเพิ่มได้', text: res.error });
+            }
+          })
+          .addNewCourse(payload);
+      } else {
+        const newCourse = {
+          rowIndex: appData.courses.length + 2,
+          order: String(appData.courses.length + 1),
+          code: code,
+          name: name,
+          credit: credit,
+          instructor: instructor,
+          plos: '',
+          cloTh: '',
+          cloEn: '',
+          k: '',
+          s: '',
+          a: ''
+        };
+        appData.courses.push(newCourse);
+        try {
+          localStorage.setItem("app_courses_data", JSON.stringify(appData.courses));
+        } catch(e){}
+
+        const apiUrl = localStorage.getItem("gas_api_url");
+        if (apiUrl) {
+          fetch(apiUrl, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: 'addCourse', data: payload })
+          }).catch(console.error);
+        }
+
+        closeAddCourseModal();
+        applyFilters();
+        renderTab2Table();
+        renderTab4Table();
+        updateSummaryStats();
+        Swal.fire({ icon: 'success', title: 'เพิ่มวิชาเรียบร้อย', timer: 1500, showConfirmButton: false });
+      }
+    }
+
+    /**
+     * วาดตาราง แถบที่ 2: ตาราง(PLOs) กับ Knowledge/ Skill/ Attitude ปี 71
+     * คอลัมน์แรก แถวที่ 1-7 แสดง PLO1 - PLO7 (1 แถวต่อ 1 PLO)
+     * คอลัมน์ถัดๆ ไป แสดงข้อมูล K, S, A ทั้งหมดภายใต้ PLO นั้นๆ จากทุกรายวิชาที่กรอกจากแถบที่ 1 จัดเรียงเป็นข้ออย่างเป็นระเบียบ
+     */
+    function renderTab2Table() {
+      const tbody = document.getElementById("tab2-table-body");
+      if (!tbody) return;
+      tbody.innerHTML = "";
+
+      const ploFilter = (document.getElementById("tab2-filter-plo").value || "").trim().toUpperCase();
+      const keyword = (document.getElementById("tab2-search").value || "").trim().toLowerCase();
+
+      let visibleCount = 0;
+
+      PLO_DEFINITIONS.forEach(plo => {
+        // กรองตาม PLO Dropdown
+        if (ploFilter && plo.id !== ploFilter) {
+          return;
+        }
+
+        // รวมข้อมูล K, S, A ภายใต้ PLO นี้จากทุกรายวิชา
+        const kCourses = [];
+        const sCourses = [];
+        const aCourses = [];
+
+        appData.courses.forEach(c => {
+          const parsedK = parseKsaString(c.k);
+          const parsedS = parseKsaString(c.s);
+          const parsedA = parseKsaString(c.a);
+
+          if (parsedK[plo.id] && parsedK[plo.id].length > 0) {
+            kCourses.push({
+              code: c.code || '',
+              name: c.name || '',
+              instructor: c.instructor || '',
+              items: parsedK[plo.id]
+            });
+          }
+          if (parsedS[plo.id] && parsedS[plo.id].length > 0) {
+            sCourses.push({
+              code: c.code || '',
+              name: c.name || '',
+              instructor: c.instructor || '',
+              items: parsedS[plo.id]
+            });
+          }
+          if (parsedA[plo.id] && parsedA[plo.id].length > 0) {
+            aCourses.push({
+              code: c.code || '',
+              name: c.name || '',
+              instructor: c.instructor || '',
+              items: parsedA[plo.id]
+            });
+          }
+        });
+
+        // Fallback จาก tab2Data หากยังไม่มีการบันทึกรายวิชาใน memory
+        let fallbackK = '';
+        let fallbackS = '';
+        let fallbackA = '';
+        if (kCourses.length === 0 && sCourses.length === 0 && aCourses.length === 0 && appData.tab2Data && appData.tab2Data.length > 0) {
+          const tab2Row = appData.tab2Data.find(r => (r.plo && (r.plo.includes(plo.id) || r.plo === plo.id)));
+          if (tab2Row) {
+            fallbackK = tab2Row.k || '';
+            fallbackS = tab2Row.s || '';
+            fallbackA = tab2Row.a || '';
+          }
+        }
+
+        // กรองตามคำค้นหา
+        if (keyword) {
+          const kText = kCourses.map(c => c.code + " " + c.name + " " + c.instructor + " " + c.items.join(" ")).join(" ") + " " + fallbackK;
+          const sText = sCourses.map(c => c.code + " " + c.name + " " + c.instructor + " " + c.items.join(" ")).join(" ") + " " + fallbackS;
+          const aText = aCourses.map(c => c.code + " " + c.name + " " + c.instructor + " " + c.items.join(" ")).join(" ") + " " + fallbackA;
+          const combined = (plo.code + " " + plo.title + " " + plo.desc + " " + kText + " " + sText + " " + aText).toLowerCase();
+          if (!combined.includes(keyword)) {
+            return;
+          }
+        }
+
+        visibleCount++;
+
+        // ตัวช่วยสร้างบล็อกเนื้อหาในเซลล์ K, S, A จัดเรียงเป็นข้อตามรายวิชาอย่างเป็นระเบียบ
+        const renderCellContent = (courses, fallbackText, theme) => {
+          if (courses.length > 0) {
+            return `
+              <div class="space-y-3">
+                ${courses.map(c => `
+                  <div class="p-3 ${theme.bg} rounded-lg border ${theme.border} shadow-2xs hover:shadow-xs transition">
+                    <div class="flex items-center justify-between gap-2 mb-2 pb-1.5 border-b ${theme.divider}">
+                      <div class="font-bold text-xs text-slate-800 flex items-center gap-1.5 flex-wrap">
+                        <span class="w-2 h-2 rounded-full ${theme.dot} inline-block"></span>
+                        <span class="font-mono text-psu-900 font-semibold">[${escapeHtml(c.code)}]</span>
+                        <span class="text-slate-800">${escapeHtml(c.name)}</span>
+                      </div>
+                      ${c.instructor ? `
+                        <span class="text-[11px] text-slate-600 bg-white px-2 py-0.5 rounded border border-slate-200/80 whitespace-nowrap shadow-2xs">
+                          <i class="fa-solid fa-chalkboard-user text-[10px] text-slate-400 mr-1"></i>${escapeHtml(c.instructor)}
+                        </span>
+                      ` : ''}
+                    </div>
+                    <ol class="list-decimal list-outside ml-4 space-y-1 text-xs text-slate-700 font-body leading-relaxed">
+                      ${c.items.map(it => `<li>${escapeHtml(it)}</li>`).join('')}
+                    </ol>
+                  </div>
+                `).join('')}
+              </div>
+            `;
+          } else if (fallbackText) {
+            return `<div class="text-xs text-slate-700 whitespace-pre-line leading-relaxed font-body p-2.5 bg-slate-50 rounded border border-slate-200/60">${escapeHtml(fallbackText)}</div>`;
+          } else {
+            return `<div class="text-slate-400 italic text-xs py-4 px-3 text-center bg-slate-50/50 rounded-lg border border-dashed border-slate-200">- ยังไม่มีข้อมูล -</div>`;
+          }
+        };
+
+        const themeK = { bg: 'bg-blue-50/50', border: 'border-blue-100', divider: 'border-blue-200/60', dot: 'bg-blue-600' };
+        const themeS = { bg: 'bg-teal-50/50', border: 'border-teal-100', divider: 'border-teal-200/60', dot: 'bg-teal-600' };
+        const themeA = { bg: 'bg-amber-50/50', border: 'border-amber-100', divider: 'border-amber-200/60', dot: 'bg-amber-600' };
+
+        const tr = document.createElement("tr");
+        tr.className = "hover:bg-slate-50/40 transition border-b border-slate-200 align-top";
+
+        tr.innerHTML = `
+          <!-- คอลัมน์ 1: PLOs -->
+          <td class="px-4 py-4 w-64 bg-slate-50/70 border-r border-slate-200">
+            <div class="sticky top-20 space-y-2">
+              <div class="flex items-center gap-2">
+                <span class="badge-plo inline-flex items-center px-2.5 py-1 rounded text-xs font-bold border ${plo.color}">${escapeHtml(plo.code)}</span>
+                <span class="font-bold text-sm text-psu-900">${escapeHtml(plo.title)}</span>
+              </div>
+              <p class="text-xs text-slate-600 font-body leading-relaxed bg-white p-3 rounded-lg border border-slate-200/80 shadow-2xs">
+                ${escapeHtml(plo.desc)}
+              </p>
+            </div>
+          </td>
+
+          <!-- คอลัมน์ 2: K (Knowledge) -->
+          <td class="px-4 py-4 min-w-[280px] border-r border-slate-200">
+            ${renderCellContent(kCourses, fallbackK, themeK)}
+          </td>
+
+          <!-- คอลัมน์ 3: S (Skill) -->
+          <td class="px-4 py-4 min-w-[280px] border-r border-slate-200">
+            ${renderCellContent(sCourses, fallbackS, themeS)}
+          </td>
+
+          <!-- คอลัมน์ 4: A (Attitude) -->
+          <td class="px-4 py-4 min-w-[280px]">
+            ${renderCellContent(aCourses, fallbackA, themeA)}
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      if (visibleCount === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="4" class="text-center py-12 text-slate-400 text-sm">
+              <i class="fa-solid fa-table-list text-3xl mb-2 block opacity-40"></i>
+              ไม่พบข้อมูล PLO ที่ตรงกับเงื่อนไขการค้นหา
+            </td>
+          </tr>
+        `;
+      }
+    }
+
+    /**
+     * วาดตาราง แถบที่ 3: ข้อมูล KSA ปี 66 (อ้างอิง)
+     */
+    function renderTab3Table() {
+      const tbody = document.getElementById("tab3-table-body");
+      if (!tbody) return;
+      tbody.innerHTML = "";
+
+      const keyword = (document.getElementById("tab3-search").value || "").trim().toLowerCase();
+      let count = 0;
+
+      appData.tab3Data.forEach(row => {
+        if (keyword) {
+          const combined = (row.k + " " + row.s + " " + row.a).toLowerCase();
+          if (!combined.includes(keyword)) return;
+        }
+
+        count++;
+        const tr = document.createElement("tr");
+        tr.className = "hover:bg-slate-50 transition border-b border-slate-200 align-top";
+
+        tr.innerHTML = `
+          <td class="px-4 py-3 border-r border-slate-200 bg-blue-50/20 text-slate-800 whitespace-pre-line leading-relaxed group relative">
+            ${escapeHtml(row.k)}
+            ${row.k ? `<button onclick="copyToClipboard('${escapeJs(row.k)}')" class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 p-1 bg-white border border-slate-200 rounded text-slate-500 hover:text-blue-600 transition" title="คัดลอกข้อความ"><i class="fa-regular fa-copy text-xs"></i></button>` : ''}
+          </td>
+          <td class="px-4 py-3 border-r border-slate-200 bg-teal-50/20 text-slate-800 whitespace-pre-line leading-relaxed group relative">
+            ${escapeHtml(row.s)}
+            ${row.s ? `<button onclick="copyToClipboard('${escapeJs(row.s)}')" class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 p-1 bg-white border border-slate-200 rounded text-slate-500 hover:text-teal-600 transition" title="คัดลอกข้อความ"><i class="fa-regular fa-copy text-xs"></i></button>` : ''}
+          </td>
+          <td class="px-4 py-3 bg-amber-50/20 text-slate-800 whitespace-pre-line leading-relaxed group relative">
+            ${escapeHtml(row.a)}
+            ${row.a ? `<button onclick="copyToClipboard('${escapeJs(row.a)}')" class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 p-1 bg-white border border-slate-200 rounded text-slate-500 hover:text-amber-600 transition" title="คัดลอกข้อความ"><i class="fa-regular fa-copy text-xs"></i></button>` : ''}
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      if (count === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="3" class="text-center py-12 text-slate-400 text-sm">
+              <i class="fa-solid fa-book text-3xl mb-2 block opacity-40"></i>
+              ไม่พบข้อมูล KSA ปี 66 ที่ค้นหา
+            </td>
+          </tr>
+        `;
+      }
+    }
+
+    /**
+     * คัดลอกข้อความลงคลิปบอร์ด
+     */
+    function copyToClipboard(text) {
+      navigator.clipboard.writeText(text).then(() => {
+        Swal.fire({
+          toast: true,
+          position: 'top-end',
+          icon: 'success',
+          title: 'คัดลอกข้อความแล้ว',
+          showConfirmButton: false,
+          timer: 1500
+        });
+      });
+    }
+
+    /**
+     * ส่งออกข้อมูล แถบที่ 2 เป็นไฟล์ Microsoft Word (.doc)
+     */
+    function exportTab2Word() {
+      let docContent = `
+        <html xmlns:o='urn:schemas-microsoft-com:office:office' 
+              xmlns:w='urn:schemas-microsoft-com:office:word' 
+              xmlns='http://www.w3.org/TR/REC-html40'>
+        <head>
+          <meta charset='utf-8'>
+          <title>ตารางแสดงผลลัพธ์การเรียนรู้ (PLOs) กับ KSA ปี 71</title>
+          <!--[if gte mso 9]>
+          <xml>
+            <w:WordDocument>
+              <w:View>Print</w:View>
+              <w:Zoom>100</w:Zoom>
+              <w:DoNotOptimizeForBrowser/>
+            </w:WordDocument>
+          </xml>
+          <![endif]-->
+          <style>
+            @page {
+              size: landscape;
+              margin: 1.5cm;
+            }
+            body {
+              font-family: 'TH Sarabun New', 'Angsana New', 'Cordia New', Tahoma, sans-serif;
+              font-size: 14pt;
+              line-height: 1.35;
+              color: #222222;
+            }
+            h2 {
+              font-size: 18pt;
+              font-weight: bold;
+              text-align: center;
+              margin-bottom: 4px;
+              color: #0b3b60;
+            }
+            p.sub {
+              font-size: 14pt;
+              text-align: center;
+              color: #444444;
+              margin-top: 0;
+              margin-bottom: 16px;
+            }
+            table {
+              border-collapse: collapse;
+              width: 100%;
+              margin-top: 10px;
+            }
+            th, td {
+              border: 1px solid #333333;
+              padding: 8px 10px;
+              vertical-align: top;
+              font-size: 13pt;
+            }
+            th {
+              background-color: #0b3b60;
+              color: #ffffff;
+              font-weight: bold;
+              text-align: center;
+            }
+            .plo-head {
+              font-weight: bold;
+              font-size: 14pt;
+              color: #0b3b60;
+              margin-bottom: 4px;
+            }
+            .plo-desc {
+              font-size: 12pt;
+              color: #333333;
+            }
+            .course-head {
+              font-weight: bold;
+              color: #1e3a8a;
+              margin-top: 6px;
+              margin-bottom: 2px;
+            }
+            .instructor-label {
+              font-size: 11pt;
+              color: #555555;
+              font-weight: normal;
+            }
+            ol {
+              margin: 2px 0 8px 0;
+              padding-left: 22px;
+            }
+            li {
+              margin-bottom: 2px;
+            }
+            .empty-text {
+              color: #888888;
+              font-style: italic;
+              text-align: center;
+            }
+          </style>
+        </head>
+        <body>
+          <h2>ตารางแสดงผลลัพธ์การเรียนรู้ระดับหลักสูตร (PLOs) กับ Knowledge / Skill / Attitude</h2>
+          <p class="sub">สาขาวิชาเทคโนโลยีดิจิทัลและสื่อสารการศึกษา หลักสูตรปรับปรุง 2571 คณะศึกษาศาสตร์ มหาวิทยาลัยสงขลานครินทร์</p>
+          <table>
+            <thead>
+              <tr>
+                <th style="width: 22%;">PLOs</th>
+                <th style="width: 26%;">K : Knowledge (ความรู้)</th>
+                <th style="width: 26%;">S : Skill (ทักษะ)</th>
+                <th style="width: 26%;">A : Attitude (เจตคติ/คุณลักษณะ)</th>
+              </tr>
+            </thead>
+            <tbody>
+      `;
+
+      PLO_DEFINITIONS.forEach(plo => {
+        const kCourses = [];
+        const sCourses = [];
+        const aCourses = [];
+
+        appData.courses.forEach(c => {
+          const parsedK = parseKsaString(c.k);
+          const parsedS = parseKsaString(c.s);
+          const parsedA = parseKsaString(c.a);
+
+          if (parsedK[plo.id] && parsedK[plo.id].length > 0) {
+            kCourses.push({ code: c.code, name: c.name, instructor: c.instructor, items: parsedK[plo.id] });
+          }
+          if (parsedS[plo.id] && parsedS[plo.id].length > 0) {
+            sCourses.push({ code: c.code, name: c.name, instructor: c.instructor, items: parsedS[plo.id] });
+          }
+          if (parsedA[plo.id] && parsedA[plo.id].length > 0) {
+            aCourses.push({ code: c.code, name: c.name, instructor: c.instructor, items: parsedA[plo.id] });
+          }
+        });
+
+        const formatWordCol = (courses) => {
+          if (courses.length === 0) return '<div class="empty-text">-</div>';
+          return courses.map(c => `
+            <div class="course-head">
+              [${escapeHtml(c.code)}] ${escapeHtml(c.name)}
+              ${c.instructor ? `<span class="instructor-label">(${escapeHtml(c.instructor)})</span>` : ''}
+            </div>
+            <ol>
+              ${c.items.map(it => `<li>${escapeHtml(it)}</li>`).join('')}
+            </ol>
+          `).join('');
+        };
+
+        docContent += `
+          <tr>
+            <td>
+              <div class="plo-head">${escapeHtml(plo.code)}</div>
+              <div class="plo-desc">${escapeHtml(plo.desc)}</div>
+            </td>
+            <td>${formatWordCol(kCourses)}</td>
+            <td>${formatWordCol(sCourses)}</td>
+            <td>${formatWordCol(aCourses)}</td>
+          </tr>
+        `;
+      });
+
+      docContent += `
+            </tbody>
+          </table>
+        </body>
+        </html>
+      `;
+
+      const blob = new Blob(['\ufeff' + docContent], { type: 'application/msword;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `ตาราง_PLOs_KSA_ปี71_${new Date().toISOString().slice(0, 10)}.doc`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    /**
+     * ส่งออกข้อมูล แถบที่ 2 เป็นไฟล์ PDF / พิมพ์
+     */
+    function exportTab2PDF() {
+      // สลับไปที่แถบที่ 2 เพื่อแสดงตาราง
+      switchTab(2);
+      document.body.classList.add('print-tab2');
+      document.body.classList.remove('print-tab4');
+
+      // แจ้งเตือนผู้ใช้เรื่องการเลือกบันทึกเป็น PDF ในหน้าต่างพิมพ์
+      Swal.fire({
+        title: 'กำลังเปิดหน้าต่างพิมพ์ / PDF',
+        html: 'ระบบกำลังเปิดหน้าต่างพิมพ์ กรุณาเลือกเครื่องพิมพ์เป็น <b class="text-psu-700">"Save as PDF" (บันทึกเป็น PDF)</b> และเลือกการวางแนวเป็น <b>แนวนอน (Landscape)</b>',
+        icon: 'info',
+        confirmButtonText: 'พิมพ์ / บันทึก PDF ตอนนี้',
+        confirmButtonColor: '#0056b3',
+        showCancelButton: true,
+        cancelButtonText: 'ยกเลิก'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          setTimeout(() => {
+            window.print();
+          }, 300);
+        }
+      });
+    }
+
+    /**
+     * ส่งออกข้อมูล แถบที่ 2 เป็นไฟล์ CSV 4 คอลัมน์ (PLOs, K, S, A)
+     */
+    function exportTab2CSV() {
+      let csv = "\uFEFF"; // UTF-8 BOM for Thai Excel
+      csv += "PLOs,K:Knowledge,S: Skill,A:Attitude\n";
+
+      PLO_DEFINITIONS.forEach(plo => {
+        const kCourses = [];
+        const sCourses = [];
+        const aCourses = [];
+
+        appData.courses.forEach(c => {
+          const parsedK = parseKsaString(c.k);
+          const parsedS = parseKsaString(c.s);
+          const parsedA = parseKsaString(c.a);
+
+          if (parsedK[plo.id] && parsedK[plo.id].length > 0) {
+            kCourses.push(`[${c.code} ${c.name}] ` + parsedK[plo.id].map((it, idx) => `${idx + 1}. ${it}`).join(' '));
+          }
+          if (parsedS[plo.id] && parsedS[plo.id].length > 0) {
+            sCourses.push(`[${c.code} ${c.name}] ` + parsedS[plo.id].map((it, idx) => `${idx + 1}. ${it}`).join(' '));
+          }
+          if (parsedA[plo.id] && parsedA[plo.id].length > 0) {
+            aCourses.push(`[${c.code} ${c.name}] ` + parsedA[plo.id].map((it, idx) => `${idx + 1}. ${it}`).join(' '));
+          }
+        });
+
+        const clean = (val) => '"' + (String(val || '')).replace(/"/g, '""') + '"';
+        const ploText = `${plo.code} : ${plo.desc}`;
+        const kText = kCourses.join('\n\n');
+        const sText = sCourses.join('\n\n');
+        const aText = aCourses.join('\n\n');
+
+        csv += [
+          clean(ploText),
+          clean(kText),
+          clean(sText),
+          clean(aText)
+        ].join(",") + "\n";
+      });
+
+      const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.setAttribute("href", url);
+      link.setAttribute("download", `ตาราง_PLOs_KSA_ปี71_${new Date().toISOString().slice(0, 10)}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    /**
+     * ==================== TAB 4: รายวิชากับ Knowledge/ Attitude/ Skill (ภาคผนวก ค) ====================
+     */
+
+    /**
+     * จัดกลุ่มหมวดวิชาตามรหัสวิชา
+     */
+    function getCourseCategoryName(code) {
+      const clean = (code || '').trim();
+      if (clean.startsWith('260-') || clean.startsWith('261-')) {
+        return 'หมวดวิชาชีพครู';
+      } else if (clean.startsWith('263-')) {
+        return 'หมวดวิชาเฉพาะด้าน (สาขาวิชาเทคโนโลยีดิจิทัลและสื่อสารการศึกษา)';
+      } else if (clean.startsWith('000-')) {
+        return 'หมวดวิชาศึกษาทั่วไป';
+      }
+      return 'หมวดวิชาเฉพาะด้าน';
+    }
+
+    /**
+     * ตรวจสอบว่ารายวิชานั้นเชื่อมโยงกับ PLO นั้นหรือไม่
+     */
+    function checkCourseLinkedPlo(c, ploId) {
+      if (c.plos && c.plos.toUpperCase().includes(ploId)) return true;
+      const parsedK = parseKsaString(c.k);
+      const parsedS = parseKsaString(c.s);
+      const parsedA = parseKsaString(c.a);
+      return (parsedK[ploId] && parsedK[ploId].length > 0) ||
+             (parsedS[ploId] && parsedS[ploId].length > 0) ||
+             (parsedA[ploId] && parsedA[ploId].length > 0);
+    }
+
+    /**
+     * วาดตาราง แถบที่ 4: รายวิชากับ Knowledge/ Attitude/ Skill (ภาคผนวก ค)
+     */
+    function renderTab4Table() {
+      const tbody = document.getElementById("tab4-table-body");
+      if (!tbody) return;
+      tbody.innerHTML = "";
+
+      const ploFilter = (document.getElementById("tab4-filter-plo").value || "").trim().toUpperCase();
+      const keyword = (document.getElementById("tab4-search").value || "").trim().toLowerCase();
+
+      let visibleCount = 0;
+      let lastCategory = null;
+
+      // จัดเรียงรายวิชาตามหมวดหมู่และรหัสวิชา (หมวดวิชาชีพครูขึ้นก่อนตามรูปภาพ)
+      const sortedCourses = [...appData.courses].sort((a, b) => {
+        const catA = getCourseCategoryName(a.code);
+        const catB = getCourseCategoryName(b.code);
+        if (catA !== catB) {
+          if (catA === 'หมวดวิชาชีพครู') return -1;
+          if (catB === 'หมวดวิชาชีพครู') return 1;
+          return catA.localeCompare(catB, 'th');
+        }
+        return (a.code || '').localeCompare(b.code || '');
+      });
+
+      sortedCourses.forEach(c => {
+        // กรองตาม PLO
+        if (ploFilter && !checkCourseLinkedPlo(c, ploFilter)) {
+          return;
+        }
+
+        // กรองตาม Keyword
+        if (keyword) {
+          const combined = (c.code + " " + c.name + " " + c.credit + " " + c.instructor + " " + c.plos + " " + c.k + " " + c.s + " " + c.a).toLowerCase();
+          if (!combined.includes(keyword)) {
+            return;
+          }
+        }
+
+        const category = getCourseCategoryName(c.code);
+
+        // หากเปลี่ยนหมวดวิชา ให้สร้างแถวหัวข้อหมวดวิชา (แถบสีเทาตามแบบในรูปภาพ)
+        if (category !== lastCategory) {
+          lastCategory = category;
+          const catTr = document.createElement("tr");
+          catTr.className = "bg-slate-200/90 font-bold text-slate-900 border border-slate-300";
+          catTr.innerHTML = `
+            <td colspan="11" class="px-4 py-2 bg-slate-200/90 text-slate-900 font-bold text-xs tracking-wide">
+              ${escapeHtml(category)}
+            </td>
+          `;
+          tbody.appendChild(catTr);
+        }
+
+        visibleCount++;
+
+        // ตรวจสอบเครื่องหมายถูก PLO1 - PLO7
+        const hasPlo1 = checkCourseLinkedPlo(c, "PLO1");
+        const hasPlo2 = checkCourseLinkedPlo(c, "PLO2");
+        const hasPlo3 = checkCourseLinkedPlo(c, "PLO3");
+        const hasPlo4 = checkCourseLinkedPlo(c, "PLO4");
+        const hasPlo5 = checkCourseLinkedPlo(c, "PLO5");
+        const hasPlo6 = checkCourseLinkedPlo(c, "PLO6");
+        const hasPlo7 = checkCourseLinkedPlo(c, "PLO7");
+
+        const tr = document.createElement("tr");
+        tr.className = "hover:bg-slate-50 transition border-b border-slate-300 align-top text-xs";
+
+        tr.innerHTML = `
+          <!-- รหัสวิชาและชื่อวิชา -->
+          <td class="px-3 py-3 border border-slate-300 font-medium text-slate-900 leading-snug">
+            <span class="font-mono font-bold text-psu-900">${escapeHtml(c.code)}</span>
+            <span class="ml-1">${escapeHtml(c.name)}</span>
+            ${c.instructor ? `<div class="text-[11px] text-slate-400 mt-0.5 no-print"><i class="fa-solid fa-user-tie text-[9px] mr-1"></i>${escapeHtml(c.instructor)}</div>` : ''}
+          </td>
+
+          <!-- หน่วยกิต -->
+          <td class="px-2 py-3 border border-slate-300 text-center font-mono whitespace-nowrap text-slate-700">
+            ${escapeHtml(c.credit || '-')}
+          </td>
+
+          <!-- เครื่องหมายถูก PLO1 - PLO7 -->
+          <td class="px-2 py-3 border border-slate-300 text-center text-sm font-bold text-slate-900 select-none">${hasPlo1 ? '✓' : ''}</td>
+          <td class="px-2 py-3 border border-slate-300 text-center text-sm font-bold text-slate-900 select-none">${hasPlo2 ? '✓' : ''}</td>
+          <td class="px-2 py-3 border border-slate-300 text-center text-sm font-bold text-slate-900 select-none">${hasPlo3 ? '✓' : ''}</td>
+          <td class="px-2 py-3 border border-slate-300 text-center text-sm font-bold text-slate-900 select-none">${hasPlo4 ? '✓' : ''}</td>
+          <td class="px-2 py-3 border border-slate-300 text-center text-sm font-bold text-slate-900 select-none">${hasPlo5 ? '✓' : ''}</td>
+          <td class="px-2 py-3 border border-slate-300 text-center text-sm font-bold text-slate-900 select-none">${hasPlo6 ? '✓' : ''}</td>
+          <td class="px-2 py-3 border border-slate-300 text-center text-sm font-bold text-slate-900 select-none">${hasPlo7 ? '✓' : ''}</td>
+
+          <!-- K, S, A -->
+          <td class="px-3 py-3 border border-slate-300 font-body leading-relaxed">
+            ${formatTab4Ksa(c)}
+          </td>
+
+          <!-- ปุ่มแก้ไข (ซ่อนเมื่อสั่งพิมพ์) -->
+          <td class="px-2 py-3 border border-slate-300 text-center no-print whitespace-nowrap">
+            <button onclick="openCourseModal(${c.rowIndex})" 
+                    title="กรอก/แก้ไข KSA ของวิชานี้"
+                    class="px-2.5 py-1 bg-blue-50 text-blue-700 hover:bg-blue-100 rounded text-[11px] font-medium transition inline-flex items-center gap-1 border border-blue-200/60">
+              <i class="fa-solid fa-pen-to-square text-[10px]"></i>
+              <span>แก้ไข</span>
+            </button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      if (visibleCount === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="11" class="text-center py-12 text-slate-400 text-sm">
+              <i class="fa-solid fa-folder-open text-3xl mb-2 block opacity-40"></i>
+              ไม่พบรายวิชาที่ตรงกับเงื่อนไขการค้นหา
+            </td>
+          </tr>
+        `;
+      }
+    }
+
+    /**
+     * จัดรูปแบบเนื้อหาคอลัมน์ K, S, A สำหรับแถบที่ 4
+     */
+    function formatTab4Ksa(course) {
+      const parsedK = parseKsaString(course.k);
+      const parsedS = parseKsaString(course.s);
+      const parsedA = parseKsaString(course.a);
+
+      let allK = [];
+      Object.values(parsedK).forEach(items => allK.push(...items));
+      let allS = [];
+      Object.values(parsedS).forEach(items => allS.push(...items));
+      let allA = [];
+      Object.values(parsedA).forEach(items => allA.push(...items));
+
+      // Fallback จากสตริงดิบถ้า parsed ว่าง
+      let strK = allK.length > 0 ? allK.join(' ') : (course.k || '').trim();
+      let strS = allS.length > 0 ? allS.join(' ') : (course.s || '').trim();
+      let strA = allA.length > 0 ? allA.join(' ') : (course.a || '').trim();
+
+      // ตัดคำนำหน้าเช่น PLO1: ออกเพื่อให้กระชับ
+      strK = strK.replace(/PLO[1-7]\s*:\s*/gi, '').replace(/\n+/g, ' ').trim();
+      strS = strS.replace(/PLO[1-7]\s*:\s*/gi, '').replace(/\n+/g, ' ').trim();
+      strA = strA.replace(/PLO[1-7]\s*:\s*/gi, '').replace(/\n+/g, ' ').trim();
+
+      if (!strK && !strS && !strA) {
+        return '<span class="text-slate-400 italic text-[11px]">- ยังไม่ได้ระบุ KSA -</span>';
+      }
+
+      const rows = [];
+      if (strK) {
+        const isCode = /^K\d+/i.test(strK) || /^K\s/i.test(strK);
+        rows.push(`<div class="text-slate-800 font-mono text-[11px] leading-relaxed">${isCode ? '' : '<b class="text-blue-900 font-sans font-semibold">K: </b>'}${escapeHtml(strK)}</div>`);
+      }
+      if (strS) {
+        const isCode = /^S\d+/i.test(strS) || /^S\s/i.test(strS);
+        rows.push(`<div class="text-slate-800 font-mono text-[11px] leading-relaxed mt-1">${isCode ? '' : '<b class="text-teal-900 font-sans font-semibold">S: </b>'}${escapeHtml(strS)}</div>`);
+      }
+      if (strA) {
+        const isCode = /^A\d+/i.test(strA) || /^A\s/i.test(strA);
+        rows.push(`<div class="text-slate-800 font-mono text-[11px] leading-relaxed mt-1">${isCode ? '' : '<b class="text-amber-900 font-sans font-semibold">A: </b>'}${escapeHtml(strA)}</div>`);
+      }
+      return rows.join('');
+    }
+
+    /**
+     * ส่งออกข้อมูล แถบที่ 4 เป็นไฟล์ Microsoft Word (.doc) ตามรูปภาพ ภาคผนวก ค
+     */
+    function exportTab4Word() {
+      let docContent = `
+        <html xmlns:o='urn:schemas-microsoft-com:office:office' 
+              xmlns:w='urn:schemas-microsoft-com:office:word' 
+              xmlns='http://www.w3.org/TR/REC-html40'>
+        <head>
+          <meta charset='utf-8'>
+          <title>ภาคผนวก ค - ตารางแสดงรายวิชากับ Knowledge/ Attitude/ Skill</title>
+          <!--[if gte mso 9]>
+          <xml>
+            <w:WordDocument>
+              <w:View>Print</w:View>
+              <w:Zoom>100</w:Zoom>
+              <w:DoNotOptimizeForBrowser/>
+            </w:WordDocument>
+          </xml>
+          <![endif]-->
+          <style>
+            @page {
+              size: landscape;
+              margin: 1.2cm;
+            }
+            body {
+              font-family: 'TH Sarabun New', 'Angsana New', 'Cordia New', Tahoma, sans-serif;
+              font-size: 14pt;
+              line-height: 1.3;
+              color: #222222;
+            }
+            .annex-label {
+              text-align: right;
+              font-weight: bold;
+              font-size: 14pt;
+              margin-bottom: 2px;
+            }
+            h2 {
+              font-size: 18pt;
+              font-weight: bold;
+              text-align: center;
+              margin-top: 4px;
+              margin-bottom: 4px;
+              color: #0b3b60;
+            }
+            p.sub {
+              font-size: 14pt;
+              text-align: center;
+              color: #444444;
+              margin-top: 0;
+              margin-bottom: 14px;
+            }
+            table {
+              border-collapse: collapse;
+              width: 100%;
+              margin-top: 10px;
+            }
+            th, td {
+              border: 1px solid #333333;
+              padding: 6px 8px;
+              vertical-align: top;
+              font-size: 12.5pt;
+            }
+            th {
+              background-color: #f1f5f9;
+              color: #0f172a;
+              font-weight: bold;
+              text-align: center;
+            }
+            .category-tr {
+              background-color: #e2e8f0;
+              font-weight: bold;
+            }
+            .check-td {
+              text-align: center;
+              font-weight: bold;
+              font-size: 14pt;
+            }
+            .credit-td {
+              text-align: center;
+              white-space: nowrap;
+            }
+            .ksa-text {
+              font-family: 'TH Sarabun New', monospace, sans-serif;
+              font-size: 12pt;
+              line-height: 1.25;
+            }
+          </style>
+        </head>
+        <body>
+          <div class="annex-label">ภาคผนวก ค</div>
+          <h2>ตารางแสดงรายวิชากับ Knowledge/ Attitude/ Skill</h2>
+          <p class="sub">สาขาวิชาเทคโนโลยีดิจิทัลและสื่อสารการศึกษา หลักสูตรปรับปรุง 2571 คณะศึกษาศาสตร์ มหาวิทยาลัยสงขลานครินทร์</p>
+          <table>
+            <thead>
+              <tr>
+                <th colspan="2" style="width: 32%;">รายวิชา</th>
+                <th style="width: 4%;">PLO1</th>
+                <th style="width: 4%;">PLO2</th>
+                <th style="width: 4%;">PLO3</th>
+                <th style="width: 4%;">PLO4</th>
+                <th style="width: 4%;">PLO5</th>
+                <th style="width: 4%;">PLO6</th>
+                <th style="width: 4%;">PLO7</th>
+                <th style="width: 36%;">ความรู้ (Knowledge: K)ทักษะ (Skills: S) และคุณลักษณะ (Ability: A)</th>
+              </tr>
+            </thead>
+            <tbody>
+      `;
+
+      let lastCat = null;
+
+      const sorted = [...appData.courses].sort((a, b) => {
+        const catA = getCourseCategoryName(a.code);
+        const catB = getCourseCategoryName(b.code);
+        if (catA !== catB) {
+          if (catA === 'หมวดวิชาชีพครู') return -1;
+          if (catB === 'หมวดวิชาชีพครู') return 1;
+          return catA.localeCompare(catB, 'th');
+        }
+        return (a.code || '').localeCompare(b.code || '');
+      });
+
+      sorted.forEach(c => {
+        const category = getCourseCategoryName(c.code);
+        if (category !== lastCat) {
+          lastCat = category;
+          docContent += `
+            <tr class="category-tr">
+              <td colspan="10"><b>${escapeHtml(category)}</b></td>
+            </tr>
+          `;
+        }
+
+        const hasPlo1 = checkCourseLinkedPlo(c, "PLO1") ? '✓' : '';
+        const hasPlo2 = checkCourseLinkedPlo(c, "PLO2") ? '✓' : '';
+        const hasPlo3 = checkCourseLinkedPlo(c, "PLO3") ? '✓' : '';
+        const hasPlo4 = checkCourseLinkedPlo(c, "PLO4") ? '✓' : '';
+        const hasPlo5 = checkCourseLinkedPlo(c, "PLO5") ? '✓' : '';
+        const hasPlo6 = checkCourseLinkedPlo(c, "PLO6") ? '✓' : '';
+        const hasPlo7 = checkCourseLinkedPlo(c, "PLO7") ? '✓' : '';
+
+        // KSA text
+        const parsedK = parseKsaString(c.k);
+        const parsedS = parseKsaString(c.s);
+        const parsedA = parseKsaString(c.a);
+        let allK = []; Object.values(parsedK).forEach(it => allK.push(...it));
+        let allS = []; Object.values(parsedS).forEach(it => allS.push(...it));
+        let allA = []; Object.values(parsedA).forEach(it => allA.push(...it));
+        let strK = allK.length > 0 ? allK.join(' ') : (c.k || '').replace(/PLO[1-7]\s*:\s*/gi, '').trim();
+        let strS = allS.length > 0 ? allS.join(' ') : (c.s || '').replace(/PLO[1-7]\s*:\s*/gi, '').trim();
+        let strA = allA.length > 0 ? allA.join(' ') : (c.a || '').replace(/PLO[1-7]\s*:\s*/gi, '').trim();
+
+        let ksaHtml = '';
+        if (strK) ksaHtml += `<div>${escapeHtml(strK)}</div>`;
+        if (strS) ksaHtml += `<div>${escapeHtml(strS)}</div>`;
+        if (strA) ksaHtml += `<div>${escapeHtml(strA)}</div>`;
+        if (!ksaHtml) ksaHtml = '-';
+
+        docContent += `
+          <tr>
+            <td>${escapeHtml(c.code)} ${escapeHtml(c.name)}</td>
+            <td class="credit-td">${escapeHtml(c.credit || '-')}</td>
+            <td class="check-td">${hasPlo1}</td>
+            <td class="check-td">${hasPlo2}</td>
+            <td class="check-td">${hasPlo3}</td>
+            <td class="check-td">${hasPlo4}</td>
+            <td class="check-td">${hasPlo5}</td>
+            <td class="check-td">${hasPlo6}</td>
+            <td class="check-td">${hasPlo7}</td>
+            <td class="ksa-text">${ksaHtml}</td>
+          </tr>
+        `;
+      });
+
+      docContent += `
+            </tbody>
+          </table>
+        </body>
+        </html>
+      `;
+
+      const blob = new Blob(['\ufeff' + docContent], { type: 'application/msword;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `ภาคผนวก_ค_รายวิชากับ_KSA_ปี71_${new Date().toISOString().slice(0, 10)}.doc`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    /**
+     * ส่งออกข้อมูล แถบที่ 4 เป็นไฟล์ PDF / พิมพ์
+     */
+    function exportTab4PDF() {
+      switchTab(4);
+      document.body.classList.add('print-tab4');
+      document.body.classList.remove('print-tab2');
+
+      Swal.fire({
+        title: 'กำลังเปิดหน้าต่างพิมพ์ / PDF',
+        html: 'ระบบกำลังเปิดหน้าต่างพิมพ์ กรุณาเลือกเครื่องพิมพ์เป็น <b class="text-psu-700">"Save as PDF" (บันทึกเป็น PDF)</b> และเลือกการวางแนวเป็น <b>แนวนอน (Landscape)</b>',
+        icon: 'info',
+        confirmButtonText: 'พิมพ์ / บันทึก PDF ตอนนี้',
+        confirmButtonColor: '#0056b3',
+        showCancelButton: true,
+        cancelButtonText: 'ยกเลิก'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          setTimeout(() => {
+            window.print();
+          }, 300);
+        }
+      });
+    }
+
+    /**
+     * ส่งออกข้อมูล แถบที่ 4 เป็นไฟล์ CSV
+     */
+    function exportTab4CSV() {
+      let csv = "\uFEFF"; // UTF-8 BOM
+      csv += "หมวดวิชา,รหัสวิชา,ชื่อวิชา,หน่วยกิต,PLO1,PLO2,PLO3,PLO4,PLO5,PLO6,PLO7,ความรู้_ทักษะ_คุณลักษณะ\n";
+
+      const clean = (val) => '"' + (String(val || '')).replace(/"/g, '""') + '"';
+
+      appData.courses.forEach(c => {
+        const cat = getCourseCategoryName(c.code);
+        const p1 = checkCourseLinkedPlo(c, "PLO1") ? '✓' : '';
+        const p2 = checkCourseLinkedPlo(c, "PLO2") ? '✓' : '';
+        const p3 = checkCourseLinkedPlo(c, "PLO3") ? '✓' : '';
+        const p4 = checkCourseLinkedPlo(c, "PLO4") ? '✓' : '';
+        const p5 = checkCourseLinkedPlo(c, "PLO5") ? '✓' : '';
+        const p6 = checkCourseLinkedPlo(c, "PLO6") ? '✓' : '';
+        const p7 = checkCourseLinkedPlo(c, "PLO7") ? '✓' : '';
+
+        const parsedK = parseKsaString(c.k);
+        const parsedS = parseKsaString(c.s);
+        const parsedA = parseKsaString(c.a);
+        let allK = []; Object.values(parsedK).forEach(it => allK.push(...it));
+        let allS = []; Object.values(parsedS).forEach(it => allS.push(...it));
+        let allA = []; Object.values(parsedA).forEach(it => allA.push(...it));
+        let strK = allK.length > 0 ? allK.join(' ') : (c.k || '').replace(/PLO[1-7]\s*:\s*/gi, '').trim();
+        let strS = allS.length > 0 ? allS.join(' ') : (c.s || '').replace(/PLO[1-7]\s*:\s*/gi, '').trim();
+        let strA = allA.length > 0 ? allA.join(' ') : (c.a || '').replace(/PLO[1-7]\s*:\s*/gi, '').trim();
+
+        const ksaText = [strK, strS, strA].filter(Boolean).join('\n');
+
+        csv += [
+          clean(cat),
+          clean(c.code),
+          clean(c.name),
+          clean(c.credit),
+          clean(p1),
+          clean(p2),
+          clean(p3),
+          clean(p4),
+          clean(p5),
+          clean(p6),
+          clean(p7),
+          clean(ksaText)
+        ].join(",") + "\n";
+      });
+
+      const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.setAttribute("href", url);
+      link.setAttribute("download", `ภาคผนวก_ค_รายวิชากับ_KSA_ปี71_${new Date().toISOString().slice(0, 10)}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    // Helper functions
+    function escapeHtml(text) {
+      if (!text) return "";
+      return String(text)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    function escapeJs(text) {
+      if (!text) return "";
+      return String(text)
+        .replace(/\\/g, "\\\\")
+        .replace(/'/g, "\\'")
+        .replace(/"/g, '\\"')
+        .replace(/\n/g, "\\n")
+        .replace(/\r/g, "");
+    }
+  </script>
+</body>
+</html>

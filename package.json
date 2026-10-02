@@ -1,0 +1,21 @@
+{
+  "name": "edutech-curriculum-ksa-2571",
+  "version": "1.0.0",
+  "description": "ระบบกรอกข้อมูล (KSA) ปรับปรุงหลักสูตร 2571 สาขาวิชาเทคโนโลยีดิจิทัลและสื่อสารการศึกษา คณะศึกษาศาสตร์ มหาวิทยาลัยสงขลานครินทร์",
+  "main": "index.html",
+  "scripts": {
+    "start": "node server.js",
+    "build": "node generate_preview.js"
+  },
+  "keywords": [
+    "curriculum",
+    "ksa",
+    "plo",
+    "clo",
+    "education",
+    "psu",
+    "vercel"
+  ],
+  "author": "สาขาวิชาเทคโนโลยีดิจิทัลและสื่อสารการศึกษา มหาวิทยาลัยสงขลานครินทร์",
+  "license": "MIT"
+}
