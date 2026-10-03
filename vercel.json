@@ -1,22 +1,9 @@
 {
-  "version": 2,
   "cleanUrls": true,
-  "routes": [
+  "rewrites": [
     {
-      "src": "/",
-      "dest": "/Index.html"
-    },
-    {
-      "src": "/index.html",
-      "dest": "/Index.html"
-    },
-    {
-      "src": "/local_preview.html",
-      "dest": "/local_preview.html"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/Index.html"
+      "source": "/(.*)",
+      "destination": "/index.html"
     }
   ],
   "headers": [
