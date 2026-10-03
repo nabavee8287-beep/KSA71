@@ -1282,18 +1282,18 @@
 
         <!-- Quick actions -->
         <div class="flex items-center gap-2 self-end md:self-center">
-          <button onclick="openSyncSettingsModal()" title="ตั้งค่าการเชื่อมต่อ / ซิงค์ Google Sheets" 
-                  class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white text-xs font-medium border border-white/15 transition shadow-sm backdrop-blur">
-            <i class="fa-solid fa-cloud-arrow-up text-amber-300"></i>
-            <span class="hidden sm:inline">ตั้งค่า API</span>
-          </button>
+          <!-- Real-time Status Badge -->
+          <div id="live-sync-indicator" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500/20 text-emerald-200 text-xs font-medium border border-emerald-400/30 backdrop-blur" title="ระบบเชื่อมต่อ Google Sheet แบบ Real-time อัตโนมัติ">
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span>ซิงค์สด Real-time</span>
+          </div>
           <a href="https://docs.google.com/spreadsheets/d/1jsDG5NQJ7lc1SfOS2Hz0aXpBvCwcTQYYTc39H5SKmVA/edit" target="_blank" 
              class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white text-xs font-medium border border-white/15 transition shadow-sm backdrop-blur">
             <i class="fa-solid fa-table-cells text-emerald-400"></i>
             <span>Google Sheet</span>
             <i class="fa-solid fa-arrow-up-right-from-square text-[10px] opacity-70 ml-0.5"></i>
           </a>
-          <button onclick="refreshData()" title="รีเฟรชข้อมูล" 
+          <button onclick="refreshData()" title="รีเฟรชข้อมูลสด" 
                   class="w-8 h-8 rounded-lg bg-white/10 hover:bg-white/20 text-white flex items-center justify-center border border-white/15 transition">
             <i id="refresh-icon" class="fa-solid fa-rotate text-xs"></i>
           </button>
@@ -1306,24 +1306,23 @@
                 class="tab-btn active px-4 py-2 text-sm font-semibold rounded-lg flex items-center gap-2 transition duration-150 whitespace-nowrap bg-white text-psu-800 shadow">
           <i class="fa-solid fa-file-pen text-psu-600"></i>
           <span>1. กรอกข้อมูล KSA ของแต่ละรายวิชา</span>
-          <span id="badge-total-courses" class="ml-1.5 bg-blue-100 text-blue-800 text-xs px-2 py-0.5 rounded-full font-bold">0</span>
+          <span id="badge-total-courses" class="ml-1.5 bg-blue-100 text-blue-800 text-xs px-2 py-0.5 rounded-full font-bold">39</span>
         </button>
         <button onclick="switchTab(2)" id="tab-btn-2" 
                 class="tab-btn px-4 py-2 text-sm font-semibold rounded-lg flex items-center gap-2 transition duration-150 whitespace-nowrap text-blue-100 hover:bg-white/10">
           <i class="fa-solid fa-chart-pie"></i>
-          <span>2. ตาราง(PLOs) กับ Knowledge/Skill/Attitude ปี 71</span>
-          <span id="badge-tab2-count" class="ml-1.5 bg-white/20 text-white text-xs px-2 py-0.5 rounded-full font-bold">0</span>
+          <span>2. ตาราง(PLOs) กับ KSA ปี 71</span>
+          <span id="badge-tab2-count" class="ml-1.5 bg-white/20 text-white text-xs px-2 py-0.5 rounded-full font-bold">7</span>
         </button>
         <button onclick="switchTab(3)" id="tab-btn-3" 
                 class="tab-btn px-4 py-2 text-sm font-semibold rounded-lg flex items-center gap-2 transition duration-150 whitespace-nowrap text-blue-100 hover:bg-white/10">
           <i class="fa-solid fa-book-bookmark"></i>
-          <span>3. แสดงข้อมูลทั้งหมด KSA ปี 66 (อ้างอิง)</span>
+          <span>3. KSA ปี 66</span>
         </button>
         <button onclick="switchTab(4)" id="tab-btn-4" 
                 class="tab-btn px-4 py-2 text-sm font-semibold rounded-lg flex items-center gap-2 transition duration-150 whitespace-nowrap text-blue-100 hover:bg-white/10">
           <i class="fa-solid fa-list-check"></i>
-          <span>4. รายวิชากับ Knowledge/ Attitude/ Skill</span>
-          <span class="ml-1 bg-amber-400/20 text-amber-200 border border-amber-400/30 text-[10px] px-1.5 py-0.5 rounded font-bold">ภาคผนวก ค</span>
+          <span>4. รายวิชากับ PLOs และ KSA ปี 71</span>
         </button>
       </nav>
     </div>
@@ -1561,48 +1560,68 @@
     <section id="tab-content-3" class="hidden space-y-6">
       <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200/80 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h2 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+          <h2 class="text-base sm:text-lg font-bold text-slate-800 flex items-center gap-2">
             <i class="fa-solid fa-book-bookmark text-psu-600"></i>
             ตารางแสดงผลลัพธ์การเรียนรู้ระดับหลักสูตร (PLOs) กับ Knowledge/ Skill/ Attitude (ภาคผนวก ข) ปี 66
           </h2>
           <p class="text-xs text-slate-500 mt-1">
-            ดึงข้อมูลอ้างอิงจากชีต "KSA ปึ 66" เพื่อใช้เป็นแนวทางการเขียน KSA ของหลักสูตร 2571
+            ดึงข้อมูลอ้างอิงจากชีต "KSA ปี 66" เพื่อใช้เป็นแนวทางการเขียน KSA ของหลักสูตร 2571
           </p>
         </div>
 
         <div class="flex items-center gap-2">
-          <input type="text" id="tab3-search" oninput="renderTab3Table()" placeholder="ค้นหารหัส หรือข้อความ KSA ปี 66..." 
-                 class="bg-slate-50 border border-slate-300 text-slate-700 text-xs rounded-lg p-2.5 w-64 focus:ring-psu-600">
+          <div class="relative w-72">
+            <input type="text" id="tab3-search" oninput="renderTab3Table()" placeholder="ค้นหารหัส หรือข้อความ KSA ปี 66..." 
+                   class="bg-slate-50 border border-slate-300 text-slate-700 text-xs rounded-lg p-2.5 pl-8 w-full focus:ring-psu-600 focus:border-psu-600">
+            <i class="fa-solid fa-magnifying-glass absolute left-2.5 top-3 text-slate-400 text-xs"></i>
+          </div>
         </div>
       </div>
 
-      <!-- Tab 3 3-Column Display -->
+      <!-- Tab 3 3-Column Display (Matching Image 2) -->
       <div class="bg-white rounded-xl shadow-sm border border-slate-200/80 overflow-hidden">
         <div class="overflow-x-auto custom-scrollbar">
-          <table class="w-full text-left text-sm text-slate-600">
-            <thead class="bg-slate-800 text-white text-xs font-semibold uppercase">
-              <tr>
-                <th scope="col" class="px-4 py-3.5 w-1/3 bg-blue-900 border-r border-blue-800">
+          <table class="w-full text-left text-sm text-slate-800 border-collapse">
+            <thead>
+              <tr class="text-white text-xs font-semibold">
+                <!-- K Header -->
+                <th scope="col" class="px-4 py-3.5 w-1/3 bg-[#0d2a4a] border-r border-slate-700">
                   <div class="flex items-center justify-between">
-                    <span class="text-sm font-bold"><i class="fa-solid fa-brain mr-1.5 text-blue-300"></i>Knowledge (ความรู้)</span>
-                    <span class="text-[11px] text-blue-200">K01 - K28...</span>
+                    <span class="text-sm font-bold flex items-center gap-1.5">
+                      <i class="fa-solid fa-brain text-blue-300"></i>
+                      KNOWLEDGE (ความรู้)
+                    </span>
+                    <span class="text-[11px] text-blue-200 font-mono font-normal">K01 - K28..</span>
                   </div>
                 </th>
-                <th scope="col" class="px-4 py-3.5 w-1/3 bg-teal-900 border-r border-teal-800">
+                <!-- S Header -->
+                <th scope="col" class="px-4 py-3.5 w-1/3 bg-[#0d4a36] border-r border-slate-700">
                   <div class="flex items-center justify-between">
-                    <span class="text-sm font-bold"><i class="fa-solid fa-screwdriver-wrench mr-1.5 text-teal-300"></i>Skill (ทักษะ)</span>
-                    <span class="text-[11px] text-teal-200">S01 - S26...</span>
+                    <span class="text-sm font-bold flex items-center gap-1.5">
+                      <i class="fa-solid fa-screwdriver-wrench text-teal-300"></i>
+                      SKILL (ทักษะ)
+                    </span>
+                    <div class="flex items-center gap-2">
+                      <span class="text-[11px] text-teal-200 font-mono font-normal">S01 - S26..</span>
+                      <button onclick="copyAllKsaColumn('s')" class="text-teal-200 hover:text-white transition" title="คัดลอกทักษะ (Skill) ทั้งหมด">
+                        <i class="fa-regular fa-copy text-xs"></i>
+                      </button>
+                    </div>
                   </div>
                 </th>
-                <th scope="col" class="px-4 py-3.5 w-1/3 bg-amber-900">
+                <!-- A Header -->
+                <th scope="col" class="px-4 py-3.5 w-1/3 bg-[#6e3914]">
                   <div class="flex items-center justify-between">
-                    <span class="text-sm font-bold"><i class="fa-solid fa-heart mr-1.5 text-amber-300"></i>Attitude (เจตคติ)</span>
-                    <span class="text-[11px] text-amber-200">A01 - A17...</span>
+                    <span class="text-sm font-bold flex items-center gap-1.5">
+                      <i class="fa-solid fa-heart text-amber-300"></i>
+                      ATTITUDE (เจตคติ)
+                    </span>
+                    <span class="text-[11px] text-amber-200 font-mono font-normal">A01 - A17..</span>
                   </div>
                 </th>
               </tr>
             </thead>
-            <tbody id="tab3-table-body" class="divide-y divide-slate-200 text-xs leading-relaxed font-body">
+            <tbody id="tab3-table-body" class="divide-y divide-slate-100 text-xs leading-relaxed font-body">
               <!-- Populated by JS -->
             </tbody>
           </table>
@@ -1631,7 +1650,7 @@
         <div class="flex flex-wrap items-center gap-2">
           <!-- Filter by PLO -->
           <select id="tab4-filter-plo" onchange="renderTab4Table()" 
-                  class="bg-slate-50 border border-slate-300 text-slate-700 text-xs rounded-lg p-2 font-medium">
+                  class="bg-white border border-slate-300 text-slate-700 text-xs rounded-lg p-2 font-medium shadow-sm focus:ring-psu-600 cursor-pointer">
             <option value="">ทุก PLO</option>
             <option value="PLO1">มี PLO1</option>
             <option value="PLO2">มี PLO2</option>
@@ -1640,6 +1659,12 @@
             <option value="PLO5">มี PLO5</option>
             <option value="PLO6">มี PLO6</option>
             <option value="PLO7">มี PLO7</option>
+          </select>
+
+          <!-- Filter by Instructor (Requested by User) -->
+          <select id="tab4-filter-instructor" onchange="renderTab4Table()" 
+                  class="bg-white border border-slate-300 text-slate-700 text-xs rounded-lg p-2 font-medium shadow-sm focus:ring-psu-600 cursor-pointer">
+            <option value="">อาจารย์ผู้สอน: ทุกคน</option>
           </select>
 
           <!-- Search -->
@@ -1685,7 +1710,7 @@
           <table class="w-full text-left text-sm text-slate-800 border-collapse border border-slate-300">
             <thead class="bg-slate-100 text-slate-800 text-xs font-bold text-center border-b border-slate-300">
               <tr>
-                <th scope="col" colspan="2" class="px-4 py-3 border border-slate-300 w-80 text-center">
+                <th scope="col" class="px-4 py-3 border border-slate-300 w-80 text-center">
                   รายวิชา
                 </th>
                 <th scope="col" class="px-2 py-3 border border-slate-300 w-12 text-center">PLO1</th>
@@ -2158,9 +2183,76 @@
     let selectedPLOsInModal = new Set();
 
     // DOM Ready Initialization
+    let autoSyncTimer = null;
+
+    function startRealtimeSync() {
+      if (autoSyncTimer) clearInterval(autoSyncTimer);
+      // Auto-poll Google Sheet silently every 8 seconds
+      autoSyncTimer = setInterval(() => {
+        const modal = document.getElementById("course-modal");
+        const addModal = document.getElementById("add-course-modal");
+        if ((modal && !modal.classList.contains("hidden")) || (addModal && !addModal.classList.contains("hidden"))) {
+          return; // Do not interrupt if teacher is typing in modal
+        }
+        silentSyncFromGoogleSheet();
+      }, 8000);
+
+      // Immediate check when user tabs back into the browser
+      window.addEventListener('focus', () => {
+        silentSyncFromGoogleSheet();
+      });
+    }
+
+    async function silentSyncFromGoogleSheet() {
+      try {
+        const live = await fetchDirectGoogleSheetLive();
+        if (!live || !live.courses || live.courses.length === 0) return;
+
+        // Check if there are changes between live sheet and memory
+        let hasChanges = false;
+        if (live.courses.length !== appData.courses.length) {
+          hasChanges = true;
+        } else {
+          for (let i = 0; i < live.courses.length; i++) {
+            const lc = live.courses[i];
+            const ac = appData.courses[i];
+            if (!ac || lc.k !== ac.k || lc.s !== ac.s || lc.a !== ac.a || lc.plos !== ac.plos || lc.name !== ac.name || lc.instructor !== ac.instructor) {
+              hasChanges = true;
+              break;
+            }
+          }
+        }
+
+        if (hasChanges) {
+          console.log("Real-time update detected from Google Sheet, refreshing views...");
+          appData.courses = live.courses;
+          appData.instructors = live.instructors;
+          appData.tab2Data = live.tab2Data;
+          appData.tab3Data = live.tab3Data;
+
+          initInstructorFilter();
+          applyFilters();
+          renderTab2Table();
+          renderTab3Table();
+          renderTab4Table();
+          updateSummaryStats();
+
+          // Flash live indicator smoothly
+          const ind = document.getElementById("live-sync-indicator");
+          if (ind) {
+            ind.classList.add("ring-2", "ring-emerald-400");
+            setTimeout(() => ind.classList.remove("ring-2", "ring-emerald-400"), 1200);
+          }
+        }
+      } catch (e) {
+        // Silent catch for background poll
+      }
+    }
+
     document.addEventListener("DOMContentLoaded", function() {
       buildPloModalCards();
       loadInitialData();
+      startRealtimeSync();
     });
 
     /**
@@ -2498,26 +2590,40 @@
      * ดึงรายชื่ออาจารย์ผู้สอนใส่ในดรอปดาวน์
      */
     function initInstructorFilter() {
-      const select = document.getElementById("filter-instructor");
+      const select1 = document.getElementById("filter-instructor");
+      const select4 = document.getElementById("tab4-filter-instructor");
       const datalist = document.getElementById("instructor-datalist");
-      if (!select) return;
 
-      select.innerHTML = '<option value="">-- แสดงอาจารย์ทั้งหมด --</option>';
+      const currentVal1 = select1 ? select1.value : '';
+      const currentVal4 = select4 ? select4.value : '';
+
+      if (select1) select1.innerHTML = '<option value="">-- แสดงอาจารย์ทั้งหมด --</option>';
+      if (select4) select4.innerHTML = '<option value="">อาจารย์ผู้สอน: ทุกคน</option>';
       if (datalist) datalist.innerHTML = '';
 
       appData.instructors.forEach(inst => {
         if (!inst) return;
-        const opt = document.createElement("option");
-        opt.value = inst;
-        opt.textContent = inst;
-        select.appendChild(opt);
-
+        if (select1) {
+          const opt1 = document.createElement("option");
+          opt1.value = inst;
+          opt1.textContent = inst;
+          select1.appendChild(opt1);
+        }
+        if (select4) {
+          const opt4 = document.createElement("option");
+          opt4.value = inst;
+          opt4.textContent = inst;
+          select4.appendChild(opt4);
+        }
         if (datalist) {
-          const dlOpt = document.createElement("option");
-          dlOpt.value = inst;
-          datalist.appendChild(dlOpt);
+          const dOpt = document.createElement("option");
+          dOpt.value = inst;
+          datalist.appendChild(dOpt);
         }
       });
+
+      if (select1 && currentVal1) select1.value = currentVal1;
+      if (select4 && currentVal4) select4.value = currentVal4;
     }
 
     /**
@@ -3359,26 +3465,31 @@
 
       appData.tab3Data.forEach(row => {
         if (keyword) {
-          const combined = (row.k + " " + row.s + " " + row.a).toLowerCase();
+          const combined = ((row.k || '') + " " + (row.s || '') + " " + (row.a || '')).toLowerCase();
           if (!combined.includes(keyword)) return;
         }
 
         count++;
         const tr = document.createElement("tr");
-        tr.className = "hover:bg-slate-50 transition border-b border-slate-200 align-top";
+        tr.className = "hover:bg-slate-50/70 transition border-b border-slate-100 align-top";
 
         tr.innerHTML = `
-          <td class="px-4 py-3 border-r border-slate-200 bg-blue-50/20 text-slate-800 whitespace-pre-line leading-relaxed group relative">
-            ${escapeHtml(row.k)}
-            ${row.k ? `<button onclick="copyToClipboard('${escapeJs(row.k)}')" class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 p-1 bg-white border border-slate-200 rounded text-slate-500 hover:text-blue-600 transition" title="คัดลอกข้อความ"><i class="fa-regular fa-copy text-xs"></i></button>` : ''}
+          <!-- K Column -->
+          <td class="px-4 py-2.5 border-r border-slate-200 text-slate-800 leading-relaxed group relative">
+            <div class="pr-5">${formatKsaItemWithCode(row.k)}</div>
+            ${row.k ? `<button onclick="copyToClipboard('${escapeJs(row.k)}')" class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 p-1 bg-white border border-slate-200 rounded text-slate-400 hover:text-blue-600 transition shadow-xs" title="คัดลอกข้อความ"><i class="fa-regular fa-copy text-xs"></i></button>` : ''}
           </td>
-          <td class="px-4 py-3 border-r border-slate-200 bg-teal-50/20 text-slate-800 whitespace-pre-line leading-relaxed group relative">
-            ${escapeHtml(row.s)}
-            ${row.s ? `<button onclick="copyToClipboard('${escapeJs(row.s)}')" class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 p-1 bg-white border border-slate-200 rounded text-slate-500 hover:text-teal-600 transition" title="คัดลอกข้อความ"><i class="fa-regular fa-copy text-xs"></i></button>` : ''}
+
+          <!-- S Column -->
+          <td class="px-4 py-2.5 border-r border-slate-200 text-slate-800 leading-relaxed group relative">
+            <div class="pr-5">${formatKsaItemWithCode(row.s)}</div>
+            ${row.s ? `<button onclick="copyToClipboard('${escapeJs(row.s)}')" class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 p-1 bg-white border border-slate-200 rounded text-slate-400 hover:text-teal-600 transition shadow-xs" title="คัดลอกข้อความ"><i class="fa-regular fa-copy text-xs"></i></button>` : ''}
           </td>
-          <td class="px-4 py-3 bg-amber-50/20 text-slate-800 whitespace-pre-line leading-relaxed group relative">
-            ${escapeHtml(row.a)}
-            ${row.a ? `<button onclick="copyToClipboard('${escapeJs(row.a)}')" class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 p-1 bg-white border border-slate-200 rounded text-slate-500 hover:text-amber-600 transition" title="คัดลอกข้อความ"><i class="fa-regular fa-copy text-xs"></i></button>` : ''}
+
+          <!-- A Column -->
+          <td class="px-4 py-2.5 text-slate-800 leading-relaxed group relative">
+            <div class="pr-5">${formatKsaItemWithCode(row.a)}</div>
+            ${row.a ? `<button onclick="copyToClipboard('${escapeJs(row.a)}')" class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 p-1 bg-white border border-slate-200 rounded text-slate-400 hover:text-amber-600 transition shadow-xs" title="คัดลอกข้อความ"><i class="fa-regular fa-copy text-xs"></i></button>` : ''}
           </td>
         `;
         tbody.appendChild(tr);
@@ -3388,11 +3499,34 @@
         tbody.innerHTML = `
           <tr>
             <td colspan="3" class="text-center py-12 text-slate-400 text-sm">
-              <i class="fa-solid fa-book text-3xl mb-2 block opacity-40"></i>
-              ไม่พบข้อมูล KSA ปี 66 ที่ค้นหา
+              <i class="fa-solid fa-magnifying-glass text-2xl mb-2 block opacity-40"></i>
+              ไม่พบข้อมูล KSA ปี 66 ที่ตรงกับคำค้นหา
             </td>
           </tr>
         `;
+      }
+    }
+
+    function formatKsaItemWithCode(text) {
+      if (!text) return '';
+      const clean = escapeHtml(text.trim());
+      const match = clean.match(/^([KSA]\d+)\s*(.*)$/);
+      if (match) {
+        return `<span class="font-bold text-slate-900">${match[1]}</span> ${match[2]}`;
+      }
+      return clean;
+    }
+
+    function copyAllKsaColumn(type) {
+      const items = [];
+      appData.tab3Data.forEach(r => {
+        if (type === 'k' && r.k) items.push(r.k);
+        if (type === 's' && r.s) items.push(r.s);
+        if (type === 'a' && r.a) items.push(r.a);
+      });
+      if (items.length > 0) {
+        copyToClipboard(items.join('\n'));
+        Swal.fire({ icon: 'success', title: 'คัดลอกสำเร็จ', text: 'คัดลอกข้อความทั้งหมดเรียบร้อยแล้ว', timer: 1500, showConfirmButton: false });
       }
     }
 
@@ -3709,13 +3843,14 @@
       if (!tbody) return;
       tbody.innerHTML = "";
 
-      const ploFilter = (document.getElementById("tab4-filter-plo").value || "").trim().toUpperCase();
-      const keyword = (document.getElementById("tab4-search").value || "").trim().toLowerCase();
+      const ploFilter = (document.getElementById("tab4-filter-plo") ? document.getElementById("tab4-filter-plo").value : "").trim().toUpperCase();
+      const instructorFilter = (document.getElementById("tab4-filter-instructor") ? document.getElementById("tab4-filter-instructor").value : "").trim().toLowerCase();
+      const keyword = (document.getElementById("tab4-search") ? document.getElementById("tab4-search").value : "").trim().toLowerCase();
 
       let visibleCount = 0;
       let lastCategory = null;
 
-      // จัดเรียงรายวิชาตามหมวดหมู่และรหัสวิชา (หมวดวิชาชีพครูขึ้นก่อนตามรูปภาพ)
+      // จัดเรียงรายวิชาตามหมวดหมู่และรหัสวิชา
       const sortedCourses = [...appData.courses].sort((a, b) => {
         const catA = getCourseCategoryName(a.code);
         const catB = getCourseCategoryName(b.code);
@@ -3733,6 +3868,11 @@
           return;
         }
 
+        // กรองตามอาจารย์ผู้สอน (ช่องเลือกชื่อตัวเอง หรือทุกคน)
+        if (instructorFilter && c.instructor.toLowerCase() !== instructorFilter) {
+          return;
+        }
+
         // กรองตาม Keyword
         if (keyword) {
           const combined = (c.code + " " + c.name + " " + c.credit + " " + c.instructor + " " + c.plos + " " + c.k + " " + c.s + " " + c.a).toLowerCase();
@@ -3743,13 +3883,13 @@
 
         const category = getCourseCategoryName(c.code);
 
-        // หากเปลี่ยนหมวดวิชา ให้สร้างแถวหัวข้อหมวดวิชา (แถบสีเทาตามแบบในรูปภาพ)
+        // แถวหัวข้อหมวดวิชา (ไม่มีช่อง - คอลัมน์รวม 10 คอลัมน์)
         if (category !== lastCategory) {
           lastCategory = category;
           const catTr = document.createElement("tr");
           catTr.className = "bg-slate-200/90 font-bold text-slate-900 border border-slate-300";
           catTr.innerHTML = `
-            <td colspan="11" class="px-4 py-2 bg-slate-200/90 text-slate-900 font-bold text-xs tracking-wide">
+            <td colspan="10" class="px-4 py-2 bg-slate-200/90 text-slate-900 font-bold text-xs tracking-wide">
               ${escapeHtml(category)}
             </td>
           `;
@@ -3770,17 +3910,13 @@
         const tr = document.createElement("tr");
         tr.className = "hover:bg-slate-50 transition border-b border-slate-300 align-top text-xs";
 
+        // ตัดคอลัมน์ที่มี "-" ออก ตามรูปแนบ 3
         tr.innerHTML = `
-          <!-- รหัสวิชาและชื่อวิชา -->
+          <!-- รหัสวิชา ชื่อวิชา และอาจารย์ -->
           <td class="px-3 py-3 border border-slate-300 font-medium text-slate-900 leading-snug">
             <span class="font-mono font-bold text-psu-900">${escapeHtml(c.code)}</span>
-            <span class="ml-1">${escapeHtml(c.name)}</span>
-            ${c.instructor ? `<div class="text-[11px] text-slate-400 mt-0.5 no-print"><i class="fa-solid fa-user-tie text-[9px] mr-1"></i>${escapeHtml(c.instructor)}</div>` : ''}
-          </td>
-
-          <!-- หน่วยกิต -->
-          <td class="px-2 py-3 border border-slate-300 text-center font-mono whitespace-nowrap text-slate-700">
-            ${escapeHtml(c.credit || '-')}
+            <span class="ml-1 font-semibold text-slate-800">${escapeHtml(c.name)}</span>
+            ${c.instructor ? `<div class="text-[11px] text-slate-500 mt-1 no-print flex items-center gap-1"><i class="fa-solid fa-user-tie text-[9px] text-psu-600"></i> ${escapeHtml(c.instructor)}</div>` : ''}
           </td>
 
           <!-- เครื่องหมายถูก PLO1 - PLO7 -->
@@ -3797,7 +3933,7 @@
             ${formatTab4Ksa(c)}
           </td>
 
-          <!-- ปุ่มแก้ไข (ซ่อนเมื่อสั่งพิมพ์) -->
+          <!-- ปุ่มแก้ไข -->
           <td class="px-2 py-3 border border-slate-300 text-center no-print whitespace-nowrap">
             <button onclick="openCourseModal(${c.rowIndex})" 
                     title="กรอก/แก้ไข KSA ของวิชานี้"
@@ -3945,10 +4081,6 @@
               font-weight: bold;
               font-size: 14pt;
             }
-            .credit-td {
-              text-align: center;
-              white-space: nowrap;
-            }
             .ksa-text {
               font-family: 'TH Sarabun New', monospace, sans-serif;
               font-size: 12pt;
@@ -3963,7 +4095,7 @@
           <table>
             <thead>
               <tr>
-                <th colspan="2" style="width: 32%;">รายวิชา</th>
+                <th style="width: 32%;">รายวิชา</th>
                 <th style="width: 4%;">PLO1</th>
                 <th style="width: 4%;">PLO2</th>
                 <th style="width: 4%;">PLO3</th>
@@ -3990,13 +4122,19 @@
         return (a.code || '').localeCompare(b.code || '');
       });
 
+      const instructorFilter = (document.getElementById("tab4-filter-instructor") ? document.getElementById("tab4-filter-instructor").value : "").trim().toLowerCase();
+      const ploFilter = (document.getElementById("tab4-filter-plo") ? document.getElementById("tab4-filter-plo").value : "").trim().toUpperCase();
+
       sorted.forEach(c => {
+        if (instructorFilter && c.instructor.toLowerCase() !== instructorFilter) return;
+        if (ploFilter && !checkCourseLinkedPlo(c, ploFilter)) return;
+
         const category = getCourseCategoryName(c.code);
         if (category !== lastCat) {
           lastCat = category;
           docContent += `
             <tr class="category-tr">
-              <td colspan="10"><b>${escapeHtml(category)}</b></td>
+              <td colspan="9"><b>${escapeHtml(category)}</b></td>
             </tr>
           `;
         }
@@ -4016,9 +4154,9 @@
         let allK = []; Object.values(parsedK).forEach(it => allK.push(...it));
         let allS = []; Object.values(parsedS).forEach(it => allS.push(...it));
         let allA = []; Object.values(parsedA).forEach(it => allA.push(...it));
-        let strK = allK.length > 0 ? allK.join(' ') : (c.k || '').replace(/PLO[1-7]\s*:\s*/gi, '').trim();
-        let strS = allS.length > 0 ? allS.join(' ') : (c.s || '').replace(/PLO[1-7]\s*:\s*/gi, '').trim();
-        let strA = allA.length > 0 ? allA.join(' ') : (c.a || '').replace(/PLO[1-7]\s*:\s*/gi, '').trim();
+        let strK = allK.length > 0 ? ('K: ' + allK.join(', ')) : (c.k ? 'K: ' + c.k.replace(/PLO[1-7]\s*:\s*/gi, '').trim() : '');
+        let strS = allS.length > 0 ? ('S: ' + allS.join(', ')) : (c.s ? 'S: ' + c.s.replace(/PLO[1-7]\s*:\s*/gi, '').trim() : '');
+        let strA = allA.length > 0 ? ('A: ' + allA.join(', ')) : (c.a ? 'A: ' + c.a.replace(/PLO[1-7]\s*:\s*/gi, '').trim() : '');
 
         let ksaHtml = '';
         if (strK) ksaHtml += `<div>${escapeHtml(strK)}</div>`;
@@ -4028,8 +4166,10 @@
 
         docContent += `
           <tr>
-            <td>${escapeHtml(c.code)} ${escapeHtml(c.name)}</td>
-            <td class="credit-td">${escapeHtml(c.credit || '-')}</td>
+            <td>
+              <b>${escapeHtml(c.code)}</b> ${escapeHtml(c.name)}
+              ${c.instructor ? `<br><span style="font-size:11pt;color:#666666;">ผู้สอน: ${escapeHtml(c.instructor)}</span>` : ''}
+            </td>
             <td class="check-td">${hasPlo1}</td>
             <td class="check-td">${hasPlo2}</td>
             <td class="check-td">${hasPlo3}</td>
@@ -4090,7 +4230,7 @@
      */
     function exportTab4CSV() {
       let csv = "\uFEFF"; // UTF-8 BOM
-      csv += "หมวดวิชา,รหัสวิชา,ชื่อวิชา,หน่วยกิต,PLO1,PLO2,PLO3,PLO4,PLO5,PLO6,PLO7,ความรู้_ทักษะ_คุณลักษณะ\n";
+      csv += "หมวดวิชา,รหัสวิชา,ชื่อวิชา,อาจารย์ผู้สอน,PLO1,PLO2,PLO3,PLO4,PLO5,PLO6,PLO7,ความรู้_ทักษะ_เจตคติ\n";
 
       const clean = (val) => '"' + (String(val || '')).replace(/"/g, '""') + '"';
 
@@ -4120,7 +4260,7 @@
           clean(cat),
           clean(c.code),
           clean(c.name),
-          clean(c.credit),
+          clean(c.instructor),
           clean(p1),
           clean(p2),
           clean(p3),
