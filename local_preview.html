@@ -2803,70 +2803,231 @@
             </div>
           </div>
 
-          <!-- Card Body: K (5 items), S (5 items), A (5 items) -->
+          <!-- Card Body: K, S, A แบบกรอกเป็นข้อๆ ไดนามิก -->
           <div id="body-${plo.id}" class="hidden p-4 space-y-4 bg-white border-t border-slate-100">
             
-            <!-- K Group (สูงสุด 5 ข้อ) -->
-            <div class="bg-blue-50/40 p-3.5 rounded-xl border border-blue-100/80">
-              <div class="flex items-center justify-between mb-2">
+            <!-- K Group (ความรู้) -->
+            <div class="bg-blue-50/40 p-3.5 rounded-xl border border-blue-100/80 space-y-2.5">
+              <div class="flex items-center justify-between pb-1.5 border-b border-blue-100">
                 <span class="text-xs font-bold text-blue-900 flex items-center gap-1.5">
                   <i class="fa-solid fa-brain text-blue-600"></i>
-                  ข้อมูลด้าน K (ความรู้) ไม่เกิน 5 ข้อ
+                  ข้อมูลด้าน K (ความรู้)
                 </span>
-                <span class="text-[11px] text-blue-600 font-medium">${plo.code}</span>
+                <div class="flex items-center gap-2">
+                  <span class="text-[11px] text-blue-600 font-semibold bg-blue-100/60 px-2 py-0.5 rounded">${plo.code}</span>
+                  <button type="button" onclick="addPloKsaItem('${plo.id}', 'k')" 
+                          class="inline-flex items-center gap-1 px-2.5 py-1 bg-white hover:bg-blue-50 text-blue-700 text-xs font-semibold rounded-md border border-blue-300 transition shadow-2xs cursor-pointer">
+                    <i class="fa-solid fa-plus text-[10px]"></i>
+                    <span>เพิ่มข้อ K</span>
+                  </button>
+                </div>
               </div>
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
-                ${generateNumberedInputs(plo.id, 'k', 5)}
+              <div id="items-${plo.id}-k" class="space-y-2">
+                <!-- Rendered dynamically by renderPloKsaItems -->
+              </div>
+              <div class="pt-0.5">
+                <button type="button" onclick="addPloKsaItem('${plo.id}', 'k')" 
+                        class="w-full py-1.5 border border-dashed border-blue-300 hover:border-blue-500 hover:bg-blue-50/60 rounded-lg text-blue-700 font-semibold text-xs flex items-center justify-center gap-1.5 transition cursor-pointer">
+                  <i class="fa-solid fa-plus text-xs"></i>
+                  <span>+ เพิ่มข้อ K (${plo.code})</span>
+                </button>
               </div>
             </div>
 
-            <!-- S Group (สูงสุด 5 ข้อ) -->
-            <div class="bg-teal-50/40 p-3.5 rounded-xl border border-teal-100/80">
-              <div class="flex items-center justify-between mb-2">
+            <!-- S Group (ทักษะ) -->
+            <div class="bg-teal-50/40 p-3.5 rounded-xl border border-teal-100/80 space-y-2.5">
+              <div class="flex items-center justify-between pb-1.5 border-b border-teal-100">
                 <span class="text-xs font-bold text-teal-900 flex items-center gap-1.5">
                   <i class="fa-solid fa-screwdriver-wrench text-teal-600"></i>
-                  ข้อมูลด้าน S (ทักษะ) ไม่เกิน 5 ข้อ
+                  ข้อมูลด้าน S (ทักษะ)
                 </span>
-                <span class="text-[11px] text-teal-600 font-medium">${plo.code}</span>
+                <div class="flex items-center gap-2">
+                  <span class="text-[11px] text-teal-600 font-semibold bg-teal-100/60 px-2 py-0.5 rounded">${plo.code}</span>
+                  <button type="button" onclick="addPloKsaItem('${plo.id}', 's')" 
+                          class="inline-flex items-center gap-1 px-2.5 py-1 bg-white hover:bg-teal-50 text-teal-700 text-xs font-semibold rounded-md border border-teal-300 transition shadow-2xs cursor-pointer">
+                    <i class="fa-solid fa-plus text-[10px]"></i>
+                    <span>เพิ่มข้อ S</span>
+                  </button>
+                </div>
               </div>
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
-                ${generateNumberedInputs(plo.id, 's', 5)}
+              <div id="items-${plo.id}-s" class="space-y-2">
+                <!-- Rendered dynamically by renderPloKsaItems -->
+              </div>
+              <div class="pt-0.5">
+                <button type="button" onclick="addPloKsaItem('${plo.id}', 's')" 
+                        class="w-full py-1.5 border border-dashed border-teal-300 hover:border-teal-500 hover:bg-teal-50/60 rounded-lg text-teal-700 font-semibold text-xs flex items-center justify-center gap-1.5 transition cursor-pointer">
+                  <i class="fa-solid fa-plus text-xs"></i>
+                  <span>+ เพิ่มข้อ S (${plo.code})</span>
+                </button>
               </div>
             </div>
 
-            <!-- A Group (สูงสุด 5 ข้อ) -->
-            <div class="bg-amber-50/40 p-3.5 rounded-xl border border-amber-100/80">
-              <div class="flex items-center justify-between mb-2">
+            <!-- A Group (เจตคติ) -->
+            <div class="bg-amber-50/40 p-3.5 rounded-xl border border-amber-100/80 space-y-2.5">
+              <div class="flex items-center justify-between pb-1.5 border-b border-amber-100">
                 <span class="text-xs font-bold text-amber-900 flex items-center gap-1.5">
                   <i class="fa-solid fa-heart text-amber-600"></i>
-                  ข้อมูลด้าน A (เจตคติ) ไม่เกิน 5 ข้อ
+                  ข้อมูลด้าน A (เจตคติ)
                 </span>
-                <span class="text-[11px] text-amber-600 font-medium">${plo.code}</span>
+                <div class="flex items-center gap-2">
+                  <span class="text-[11px] text-amber-600 font-semibold bg-amber-100/60 px-2 py-0.5 rounded">${plo.code}</span>
+                  <button type="button" onclick="addPloKsaItem('${plo.id}', 'a')" 
+                          class="inline-flex items-center gap-1 px-2.5 py-1 bg-white hover:bg-amber-50 text-amber-700 text-xs font-semibold rounded-md border border-amber-300 transition shadow-2xs cursor-pointer">
+                    <i class="fa-solid fa-plus text-[10px]"></i>
+                    <span>เพิ่มข้อ A</span>
+                  </button>
+                </div>
               </div>
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
-                ${generateNumberedInputs(plo.id, 'a', 5)}
+              <div id="items-${plo.id}-a" class="space-y-2">
+                <!-- Rendered dynamically by renderPloKsaItems -->
+              </div>
+              <div class="pt-0.5">
+                <button type="button" onclick="addPloKsaItem('${plo.id}', 'a')" 
+                        class="w-full py-1.5 border border-dashed border-amber-300 hover:border-amber-500 hover:bg-amber-50/60 rounded-lg text-amber-700 font-semibold text-xs flex items-center justify-center gap-1.5 transition cursor-pointer">
+                  <i class="fa-solid fa-plus text-xs"></i>
+                  <span>+ เพิ่มข้อ A (${plo.code})</span>
+                </button>
               </div>
             </div>
 
           </div>
         `;
         container.appendChild(card);
+
+        // กำหนดให้มีข้อเริ่มต้น 1 ข้อเสมอ
+        renderPloKsaItems(plo.id, 'k', []);
+        renderPloKsaItems(plo.id, 's', []);
+        renderPloKsaItems(plo.id, 'a', []);
       });
     }
 
-    function generateNumberedInputs(ploId, type, maxCount) {
-      let html = '';
+    /**
+     * ==========================================
+     * ฟังก์ชันจัดการ K, S, A แบบแยกข้อไดนามิก
+     * ==========================================
+     */
+
+    function createKsaRowElement(ploId, type, num, value = '') {
+      const prefix = type.toUpperCase();
       const typeLabel = type === 'k' ? 'ความรู้ K' : (type === 's' ? 'ทักษะ S' : 'เจตคติ A');
-      for (let i = 1; i <= maxCount; i++) {
-        html += `
-          <div class="flex items-center gap-2">
-            <span class="w-5 text-right font-mono font-bold text-slate-500 text-xs">${i}.</span>
-            <input type="text" id="input-${ploId}-${type}-${i}" placeholder="${typeLabel} ข้อที่ ${i}..." 
-                   class="flex-1 text-xs p-2 border border-slate-200 rounded-lg focus:ring-blue-500 focus:border-blue-500 bg-white">
-          </div>
-        `;
+      
+      let badgeBg = 'bg-blue-600 text-white';
+      let focusRing = 'focus:ring-blue-500 focus:border-blue-500';
+      if (type === 's') {
+        badgeBg = 'bg-teal-600 text-white';
+        focusRing = 'focus:ring-teal-500 focus:border-teal-500';
+      } else if (type === 'a') {
+        badgeBg = 'bg-amber-600 text-white';
+        focusRing = 'focus:ring-amber-500 focus:border-amber-500';
       }
-      return html;
+
+      const row = document.createElement("div");
+      row.className = "ksa-item-row flex items-center gap-2 bg-white p-2 rounded-lg border border-slate-200 hover:border-slate-300 transition shadow-2xs group";
+      row.dataset.plo = ploId;
+      row.dataset.type = type;
+
+      row.innerHTML = `
+        <span class="ksa-badge inline-flex items-center justify-center px-2 py-1 rounded-md text-xs font-bold ${badgeBg} shrink-0 shadow-xs">
+          ${prefix}${num}:
+        </span>
+        <input type="text" class="ksa-input flex-1 text-xs p-2 border border-slate-200 rounded-md focus:ring-2 ${focusRing} bg-slate-50/40" 
+               placeholder="${typeLabel} ข้อที่ ${num}...">
+        <button type="button" onclick="removePloKsaItem(this)" 
+                class="btn-remove-ksa text-slate-400 hover:text-rose-600 p-1.5 rounded hover:bg-rose-50 text-xs transition cursor-pointer shrink-0" 
+                title="ลบข้อนี้">
+          <i class="fa-solid fa-trash-can"></i>
+        </button>
+      `;
+
+      const input = row.querySelector(".ksa-input");
+      if (input) input.value = value || "";
+
+      return row;
+    }
+
+    function renderPloKsaItems(ploId, type, items) {
+      const container = document.getElementById(`items-${ploId}-${type}`);
+      if (!container) return;
+      container.innerHTML = "";
+
+      const cleanItems = (Array.isArray(items) ? items : []).filter(item => typeof item === 'string' && item.trim());
+
+      if (cleanItems.length === 0) {
+        const row = createKsaRowElement(ploId, type, 1, "");
+        container.appendChild(row);
+      } else {
+        cleanItems.forEach((val, index) => {
+          const row = createKsaRowElement(ploId, type, index + 1, val);
+          container.appendChild(row);
+        });
+      }
+
+      reindexKsaRows(ploId, type);
+    }
+
+    function addPloKsaItem(ploId, type, initialValue = '') {
+      const container = document.getElementById(`items-${ploId}-${type}`);
+      if (!container) return;
+
+      const currentCount = container.querySelectorAll(".ksa-item-row").length;
+      const newNum = currentCount + 1;
+
+      const row = createKsaRowElement(ploId, type, newNum, initialValue);
+      container.appendChild(row);
+
+      reindexKsaRows(ploId, type);
+
+      const input = row.querySelector(".ksa-input");
+      if (input) {
+        input.focus();
+      }
+    }
+
+    function removePloKsaItem(btn) {
+      const row = btn.closest(".ksa-item-row");
+      if (!row) return;
+
+      const ploId = row.dataset.plo;
+      const type = row.dataset.type;
+      const container = document.getElementById(`items-${ploId}-${type}`);
+      if (!container) return;
+
+      const rows = container.querySelectorAll(".ksa-item-row");
+      if (rows.length <= 1) {
+        const input = row.querySelector(".ksa-input");
+        if (input) input.value = "";
+        return;
+      }
+
+      row.remove();
+      reindexKsaRows(ploId, type);
+    }
+
+    function reindexKsaRows(ploId, type) {
+      const container = document.getElementById(`items-${ploId}-${type}`);
+      if (!container) return;
+
+      const prefix = type.toUpperCase();
+      const typeLabel = type === 'k' ? 'ความรู้ K' : (type === 's' ? 'ทักษะ S' : 'เจตคติ A');
+      const rows = container.querySelectorAll(".ksa-item-row");
+
+      rows.forEach((row, index) => {
+        const num = index + 1;
+        const badge = row.querySelector(".ksa-badge");
+        if (badge) badge.textContent = `${prefix}${num}:`;
+
+        const input = row.querySelector(".ksa-input");
+        if (input) input.placeholder = `${typeLabel} ข้อที่ ${num}...`;
+
+        const removeBtn = row.querySelector(".btn-remove-ksa");
+        if (removeBtn) {
+          if (rows.length <= 1) {
+            removeBtn.title = "ล้างข้อความข้อนี้";
+          } else {
+            removeBtn.title = `ลบข้อ ${prefix}${num}`;
+          }
+        }
+      });
     }
 
     function togglePloCheckbox(ploId) {
@@ -2900,14 +3061,9 @@
           cb.checked = false;
           handlePloToggle(plo.id, false);
         }
-        for (let i = 1; i <= 5; i++) {
-          const inK = document.getElementById(`input-${plo.id}-k-${i}`);
-          const inS = document.getElementById(`input-${plo.id}-s-${i}`);
-          const inA = document.getElementById(`input-${plo.id}-a-${i}`);
-          if (inK) inK.value = "";
-          if (inS) inS.value = "";
-          if (inA) inA.value = "";
-        }
+        renderPloKsaItems(plo.id, 'k', []);
+        renderPloKsaItems(plo.id, 's', []);
+        renderPloKsaItems(plo.id, 'a', []);
       });
     }
 
@@ -2921,13 +3077,18 @@
         const cb = document.getElementById(`cb-${plo.id}`);
         if (!cb || !cb.checked) return;
 
+        const container = document.getElementById(`items-${plo.id}-${type}`);
+        if (!container) return;
+
+        const inputs = container.querySelectorAll(".ksa-input");
         const items = [];
-        for (let i = 1; i <= 5; i++) {
-          const input = document.getElementById(`input-${plo.id}-${type}-${i}`);
-          if (input && input.value.trim()) {
-            items.push(input.value.trim());
+        inputs.forEach(input => {
+          let val = input.value.trim();
+          val = val.replace(/^(?:(?:[KkSsAa]\d+[:\.\-]?|\d+[\.\)]))\s*/i, '').trim();
+          if (val) {
+            items.push(val);
           }
-        }
+        });
 
         if (items.length > 0) {
           const formattedItems = items.map((item, idx) => `${idx + 1}. ${item}`).join(", ");
@@ -2975,7 +3136,7 @@
         } else {
           if (content) items.push(content);
         }
-        result[cur.plo] = items.slice(0, 5);
+        result[cur.plo] = items;
       }
       return result;
     }
@@ -3263,22 +3424,13 @@
         }
 
         const kItems = parsedK[plo.id] || [];
-        for (let i = 1; i <= 5; i++) {
-          const input = document.getElementById(`input-${plo.id}-k-${i}`);
-          if (input) input.value = kItems[i - 1] || "";
-        }
+        renderPloKsaItems(plo.id, 'k', kItems);
 
         const sItems = parsedS[plo.id] || [];
-        for (let i = 1; i <= 5; i++) {
-          const input = document.getElementById(`input-${plo.id}-s-${i}`);
-          if (input) input.value = sItems[i - 1] || "";
-        }
+        renderPloKsaItems(plo.id, 's', sItems);
 
         const aItems = parsedA[plo.id] || [];
-        for (let i = 1; i <= 5; i++) {
-          const input = document.getElementById(`input-${plo.id}-a-${i}`);
-          if (input) input.value = aItems[i - 1] || "";
-        }
+        renderPloKsaItems(plo.id, 'a', aItems);
       });
 
       // CLOs (เป็นข้อๆ ไดนามิก)
