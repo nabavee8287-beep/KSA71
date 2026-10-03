@@ -187,15 +187,33 @@ function getInitialData() {
     var tab3Data = [];
     if (sheet3) {
       var data3 = sheet3.getDataRange().getValues();
-      // แถวที่ 1 มักเป็นหัวตารางใหญ่ แถว 2 คือ Knowledge, Skill, Attitude
-      var startRow = 2; // ข้าม header
-      for (var j = startRow; j < data3.length; j++) {
+      var kLines = [];
+      var sLines = [];
+      var aLines = [];
+
+      // แถวที่ 1 เป็นหัวตารางใหญ่ แถว 2 คือ Knowledge, Skill, Attitude ข้อมูลเริ่มแถว 3
+      for (var j = 2; j < data3.length; j++) {
         var r3 = data3[j];
-        if (!r3[0] && !r3[1] && !r3[2]) continue;
+        if (r3[0]) {
+          var itemsK = String(r3[0]).split(/\r?\n/).map(function(s){ return s.trim(); }).filter(Boolean);
+          kLines = kLines.concat(itemsK);
+        }
+        if (r3[1]) {
+          var itemsS = String(r3[1]).split(/\r?\n/).map(function(s){ return s.trim(); }).filter(Boolean);
+          sLines = sLines.concat(itemsS);
+        }
+        if (r3[2]) {
+          var itemsA = String(r3[2]).split(/\r?\n/).map(function(s){ return s.trim(); }).filter(Boolean);
+          aLines = aLines.concat(itemsA);
+        }
+      }
+
+      var maxItems = Math.max(kLines.length, sLines.length, aLines.length);
+      for (var m = 0; m < maxItems; m++) {
         tab3Data.push({
-          k: r3[0] ? String(r3[0]).trim() : '',
-          s: r3[1] ? String(r3[1]).trim() : '',
-          a: r3[2] ? String(r3[2]).trim() : ''
+          k: kLines[m] || '',
+          s: sLines[m] || '',
+          a: aLines[m] || ''
         });
       }
     }

@@ -101,7 +101,14 @@ const liveData = {
   tab3Data: tab3Data
 };
 
+console.log('Courses count from Google Sheet:', courses.length);
+console.log('Instructors from Google Sheet:', liveData.instructors);
+console.log('Tab 2 PLO rows count:', tab2Data.length);
+console.log('Tab 3 KSA items count:', tab3Data.length);
+
+// Read index.html and replace MOCK_DATA
 let html = fs.readFileSync('index.html', 'utf-8');
+
 const regex = /<script>\s*window\.MOCK_DATA\s*=\s*[\s\S]*?;\s*<\/script>/;
 const newScript = `<script>\n  window.MOCK_DATA = ${JSON.stringify(liveData, null, 2)};\n</script>`;
 
@@ -113,4 +120,4 @@ if (regex.test(html)) {
 
 fs.writeFileSync('index.html', html, 'utf-8');
 fs.writeFileSync('local_preview.html', html, 'utf-8');
-console.log('generate_preview.js: Updated index.html and local_preview.html with exact Google Sheet data (39 courses, 94 KSA records).');
+console.log('Successfully updated index.html and local_preview.html with 100% exact Google Sheet data!');
