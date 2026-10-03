@@ -4,6 +4,7 @@
  * คณะศึกษาศาสตร์ มหาวิทยาลัยสงขลานครินทร์
  * 
  * Google Spreadsheet ID: 1jsDG5NQJ7lc1SfOS2Hz0aXpBvCwcTQYYTc39H5SKmVA
+ * Web App URL: https://script.google.com/macros/s/AKfycbyL1HnIyqbu8D8R4bD6AXYZNJM-wyNEBpOX0gG1gVXJY12ucjRD99-dS7mHK18KDQMlbQ/exec
  */
 
 const SPREADSHEET_ID = "1jsDG5NQJ7lc1SfOS2Hz0aXpBvCwcTQYYTc39H5SKmVA";
@@ -22,13 +23,35 @@ const PLO_INFO = [
  * ให้บริการหน้าเว็บแอปพลิเคชัน และ REST API สำหรับภายนอก (เช่น Vercel)
  */
 function doGet(e) {
-  // หากมีพารามิเตอร์เรียก API เช่น ?action=getData
-  if (e && e.parameter && e.parameter.action === 'getData') {
+  var action = e && e.parameter ? e.parameter.action : '';
+
+  // 1. เรียกดูข้อมูลทั้งหมด (REST API GET)
+  if (action === 'getData') {
     var data = getInitialData();
     return ContentService.createTextOutput(JSON.stringify(data))
       .setMimeType(ContentService.MimeType.JSON);
   }
 
+  // 2. รองรับการบันทึกผ่าน GET (Fallback สำหรับระบบที่บล็อก POST)
+  if (action === 'saveKsa' && e.parameter.data) {
+    try {
+      var courseData = JSON.parse(e.parameter.data);
+      var saveResult = saveCourseKSA(courseData);
+      return ContentService.createTextOutput(JSON.stringify(saveResult))
+        .setMimeType(ContentService.MimeType.JSON);
+    } catch (err) {
+      return ContentService.createTextOutput(JSON.stringify({ success: false, error: err.toString() }))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
+  }
+
+  if (action === 'deleteCourse' && e.parameter.rowIndex) {
+    var delResult = deleteCourse(e.parameter.rowIndex);
+    return ContentService.createTextOutput(JSON.stringify(delResult))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+
+  // 3. แสดงหน้าเว็บ (เมื่อเปิดบน Google Apps Script โดยตรง)
   var template;
   try {
     template = HtmlService.createTemplateFromFile('index');
@@ -43,26 +66,34 @@ function doGet(e) {
 
 /**
  * รองรับ Web API POST สำหรับเรียกจากภายนอก เช่น Vercel
+ * รองรับ Content-Type: text/plain, application/json, application/x-www-form-urlencoded
  */
 function doPost(e) {
   try {
-    var contents = e.postData ? e.postData.contents : '';
+    var contents = (e && e.postData && e.postData.contents) ? e.postData.contents : '';
     var body = {};
-    try {
-      body = JSON.parse(contents);
-    } catch(err) {
-      body = e.parameter || {};
+
+    if (contents) {
+      try {
+        body = JSON.parse(contents);
+      } catch (err) {
+        body = (e && e.parameter) ? e.parameter : {};
+      }
+    } else if (e && e.parameter) {
+      body = e.parameter;
     }
 
-    var action = body.action || (e.parameter && e.parameter.action);
-    var result = { success: false, message: 'Unknown action' };
+    var action = body.action || (e && e.parameter && e.parameter.action);
+    var data = body.data || body;
+    var rowIndex = body.rowIndex || (body.data && body.data.rowIndex) || (e && e.parameter && e.parameter.rowIndex);
+    var result = { success: false, message: 'Unknown action: ' + action };
 
     if (action === 'saveKsa') {
-      result = saveCourseKSA(body.data || body);
+      result = saveCourseKSA(data);
     } else if (action === 'addCourse') {
-      result = addNewCourse(body.data || body);
+      result = addNewCourse(data);
     } else if (action === 'deleteCourse') {
-      result = deleteCourse(body.rowIndex);
+      result = deleteCourse(rowIndex);
     } else if (action === 'getData') {
       result = getInitialData();
     }
@@ -76,7 +107,6 @@ function doPost(e) {
     })).setMimeType(ContentService.MimeType.JSON);
   }
 }
-
 
 /**
  * ดึง Spreadsheet ที่ใช้งาน
@@ -102,6 +132,14 @@ function findSheet(ss, nameOrPattern) {
       if (nameOrPattern.test(name)) return sheets[i];
     }
   }
+  // Fallback: ตรวจสอบแบบ case-insensitive contains
+  if (typeof nameOrPattern === 'string') {
+    for (var j = 0; j < sheets.length; j++) {
+      if (sheets[j].getName().toLowerCase().indexOf(nameOrPattern.toLowerCase()) !== -1) {
+        return sheets[j];
+      }
+    }
+  }
   return null;
 }
 
@@ -119,7 +157,7 @@ function getInitialData() {
 
     for (var i = 0; i < sheets.length; i++) {
       var name = sheets[i].getName().trim();
-      if (name === 'กรอกข้อมูล KSA') {
+      if (name === 'กรอกข้อมูล KSA' || /กรอกข้อมูล.*KSA/i.test(name)) {
         sheet1 = sheets[i];
       } else if (/ตาราง.*PLOs.*Knowledge/i.test(name) || name === 'ตาราง(PLOs)  กับ Knowledge/ Skill/ Attitude') {
         sheet2 = sheets[i];
@@ -146,10 +184,18 @@ function getInitialData() {
             instructors[instName] = true;
           }
 
+          var codeVal = row[1] !== undefined ? String(row[1]).trim() : '';
+          var category = 'หมวดวิชาเฉพาะ (เทคโนโลยีดิจิทัลและสื่อสารการศึกษา)';
+          if (codeVal.indexOf('260-') === 0 || codeVal.indexOf('261-') === 0) {
+            category = 'หมวดวิชาชีพครู';
+          } else if (codeVal.indexOf('000-') === 0) {
+            category = 'หมวดวิชาศึกษาทั่วไป';
+          }
+
           courses.push({
             rowIndex: r + 1, // 1-indexed สำหรับ Apps Script
-            order: row[0] !== undefined ? String(row[0]).trim() : '',
-            code: row[1] !== undefined ? String(row[1]).trim() : '',
+            order: row[0] !== undefined ? String(row[0]).trim() : String(r),
+            code: codeVal,
             name: row[2] !== undefined ? String(row[2]).trim() : '',
             credit: row[3] !== undefined ? String(row[3]).trim() : '',
             instructor: instName,
@@ -158,7 +204,8 @@ function getInitialData() {
             cloEn: row[7] !== undefined ? String(row[7]).trim() : '',
             k: row[8] !== undefined ? String(row[8]).trim() : '',
             s: row[9] !== undefined ? String(row[9]).trim() : '',
-            a: row[10] !== undefined ? String(row[10]).trim() : ''
+            a: row[10] !== undefined ? String(row[10]).trim() : '',
+            category: category
           });
         }
       }
@@ -236,6 +283,7 @@ function getInitialData() {
 /**
  * บันทึกข้อมูล KSA ของรายวิชา (แถบที่ 1)
  * พร้อมซิงค์เข้าชีตตาราง(PLOs) กับ Knowledge/ Skill/ Attitude (แถบที่ 2) แบบ 1 แถว 1 PLO (4 คอลัมน์)
+ * และชีตภาคผนวก ค - รายวิชากับ KSA (แถบที่ 4)
  */
 function saveCourseKSA(courseData) {
   try {
@@ -244,7 +292,7 @@ function saveCourseKSA(courseData) {
     
     var rowIndex = parseInt(courseData.rowIndex, 10);
     if (!rowIndex || rowIndex < 2) {
-      throw new Error('ไม่พบลำดับแถวที่ถูกต้องสำหรับบันทึกข้อมูล');
+      throw new Error('ไม่พบลำดับแถวที่ถูกต้องสำหรับบันทึกข้อมูล (rowIndex: ' + courseData.rowIndex + ')');
     }
 
     // อัปเดตคอลัมน์ F (6) ถึง K (11)
@@ -256,6 +304,11 @@ function saveCourseKSA(courseData) {
     sheet1.getRange(rowIndex, 10).setValue(courseData.s || '');
     sheet1.getRange(rowIndex, 11).setValue(courseData.a || '');
 
+    // หากมีการระบุอาจารย์ผู้สอน อัปเดตคอลัมน์ E (5)
+    if (courseData.instructor) {
+      sheet1.getRange(rowIndex, 5).setValue(courseData.instructor);
+    }
+
     // ซิงค์เข้าสู่ชีต แถบที่ 2 แบบ 1 แถว 1 PLO (4 คอลัมน์: PLOs, K, S, A)
     syncTab2Sheet(ss);
 
@@ -264,7 +317,7 @@ function saveCourseKSA(courseData) {
 
     return {
       success: true,
-      message: 'บันทึกข้อมูลเรียบร้อยแล้ว'
+      message: 'บันทึกข้อมูลและซิงค์เข้าตารางสรุปเรียบร้อยแล้ว'
     };
   } catch (error) {
     return {
@@ -302,26 +355,26 @@ function syncTab2Sheet(ss) {
       var sVal = row[9] ? String(row[9]).trim() : '';
       var aVal = row[10] ? String(row[10]).trim() : '';
 
-      for (var p = 1; p <= 7; p++) {
-        var pId = "PLO" + p;
-        var kText = extractPloContent(kVal, pId);
-        var sText = extractPloContent(sVal, pId);
-        var aText = extractPloContent(aVal, pId);
+      for (var p2 = 1; p2 <= 7; p2++) {
+        var pId2 = "PLO" + p2;
+        var kText = extractPloContent(kVal, pId2);
+        var sText = extractPloContent(sVal, pId2);
+        var aText = extractPloContent(aVal, pId2);
 
-        if (kText) ploMap[pId].k.push("[" + code + "] " + kText);
-        if (sText) ploMap[pId].s.push("[" + code + "] " + sText);
-        if (aText) ploMap[pId].a.push("[" + code + "] " + aText);
+        if (kText) ploMap[pId2].k.push("[" + code + "] " + kText);
+        if (sText) ploMap[pId2].s.push("[" + code + "] " + sText);
+        if (aText) ploMap[pId2].a.push("[" + code + "] " + aText);
       }
     }
 
     // เขียนหัวตาราง 4 คอลัมน์: PLOs, K:Knowledge, S: Skill, A:Attitude
-    sheet2.clear();
+    sheet2.clearContents();
     var outputRows = [
       ['PLOs', 'K:Knowledge', 'S: Skill', 'A:Attitude']
     ];
 
-    for (var p = 0; p < PLO_INFO.length; p++) {
-      var info = PLO_INFO[p];
+    for (var p3 = 0; p3 < PLO_INFO.length; p3++) {
+      var info = PLO_INFO[p3];
       var dataObj = ploMap[info.id];
       outputRows.push([
         info.title,
@@ -334,6 +387,7 @@ function syncTab2Sheet(ss) {
     sheet2.getRange(1, 1, outputRows.length, 4).setValues(outputRows);
     sheet2.getRange(1, 1, 1, 4).setFontWeight('bold').setBackground('#002b5c').setFontColor('#ffffff');
     sheet2.setFrozenRows(1);
+    sheet2.getRange(2, 1, outputRows.length - 1, 4).setWrap(true);
     sheet2.autoResizeColumns(1, 4);
   } catch (err) {
     Logger.log("Error syncing tab 2: " + err);
@@ -366,7 +420,7 @@ function syncTab4Sheet(ss) {
       sheet4 = ss.insertSheet('ภาคผนวก ค - รายวิชากับ KSA');
     }
 
-    sheet4.clear();
+    sheet4.clearContents();
 
     // หัวตารางตามรูปภาพ ภาคผนวก ค
     var outputRows = [
@@ -439,6 +493,7 @@ function syncTab4Sheet(ss) {
       headerRange.setFontColor('#0f172a');
       headerRange.setHorizontalAlignment('center');
       sheet4.setFrozenRows(1);
+      sheet4.getRange(2, 1, outputRows.length - 1, outputRows[0].length).setWrap(true);
     }
   } catch (err) {
     Logger.log('Error in syncTab4Sheet: ' + err.toString());
@@ -446,7 +501,7 @@ function syncTab4Sheet(ss) {
 }
 
 /**
- * เพิ่มรายวิชาใหม่ในชีต 1
+ * เพิ่มรายวิชาใหม่ในชีต 1 พร้อมซิงค์ตารางสรุป
  */
 function addNewCourse(newCourse) {
   try {
@@ -470,9 +525,13 @@ function addNewCourse(newCourse) {
       newCourse.a || ''
     ]);
 
+    // ซิงค์ตารางแถบ 2 และ 4
+    syncTab2Sheet(ss);
+    syncTab4Sheet(ss);
+
     return {
       success: true,
-      message: 'เพิ่มรายวิชาเรียบร้อยแล้ว'
+      message: 'เพิ่มรายวิชาและซิงค์ตารางเรียบร้อยแล้ว'
     };
   } catch (error) {
     return {
@@ -483,7 +542,7 @@ function addNewCourse(newCourse) {
 }
 
 /**
- * ลบรายวิชาในชีต 1
+ * ลบรายวิชาในชีต 1 พร้อมซิงค์ตารางสรุป
  */
 function deleteCourse(rowIndex) {
   try {
@@ -492,14 +551,18 @@ function deleteCourse(rowIndex) {
     
     var r = parseInt(rowIndex, 10);
     if (!r || r < 2) {
-      throw new Error('ไม่พบลำดับแถวที่ต้องการลบ');
+      throw new Error('ไม่พบลำดับแถวที่ต้องการลบ (rowIndex: ' + rowIndex + ')');
     }
 
     sheet1.deleteRow(r);
 
+    // ซิงค์ตารางแถบ 2 และ 4
+    syncTab2Sheet(ss);
+    syncTab4Sheet(ss);
+
     return {
       success: true,
-      message: 'ลบรายวิชาเรียบร้อยแล้ว'
+      message: 'ลบรายวิชาและซิงค์ตารางเรียบร้อยแล้ว'
     };
   } catch (error) {
     return {

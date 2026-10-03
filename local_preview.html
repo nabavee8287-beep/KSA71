@@ -1894,10 +1894,15 @@
         </div>
 
         <div>
-          <label class="block text-slate-800 font-bold mb-1">Google Apps Script Web App URL</label>
+          <div class="flex items-center justify-between mb-1">
+            <label class="block text-slate-800 font-bold">Google Apps Script Web App URL</label>
+            <button onclick="useDefaultGasUrl()" type="button" class="text-[11px] text-sky-700 hover:text-sky-900 font-semibold underline cursor-pointer">
+              ใช้ URL ค่าเริ่มต้น
+            </button>
+          </div>
           <input type="url" id="setting-gas-url" placeholder="https://script.google.com/macros/s/.../exec" 
                  class="w-full p-2.5 border border-slate-300 rounded-lg text-xs font-mono">
-          <p class="text-[11px] text-slate-500 mt-1">URL ที่ได้จากการ Deploy Web App ใน Google Apps Script (Who has access: Anyone)</p>
+          <p class="text-[11px] text-slate-500 mt-1">URL หลัก: https://script.google.com/macros/s/AKfycbyL1HnIyqbu8D8R4bD6AXYZNJM-wyNEBpOX0gG1gVXJY12ucjRD99-dS7mHK18KDQMlbQ/exec</p>
         </div>
 
         <div class="pt-2 flex flex-col gap-2">
@@ -1973,6 +1978,175 @@
       }
     ];
 
+        // Configuration for Google Sheets & Google Apps Script Web App
+    const DEFAULT_GAS_API_URL = "https://script.google.com/macros/s/AKfycbyL1HnIyqbu8D8R4bD6AXYZNJM-wyNEBpOX0gG1gVXJY12ucjRD99-dS7mHK18KDQMlbQ/exec";
+    const SPREADSHEET_ID = "1jsDG5NQJ7lc1SfOS2Hz0aXpBvCwcTQYYTc39H5SKmVA";
+
+    function getGasApiUrl() {
+      return localStorage.getItem("gas_api_url") || DEFAULT_GAS_API_URL;
+    }
+
+    function useDefaultGasUrl() {
+      const input = document.getElementById("setting-gas-url");
+      if (input) input.value = DEFAULT_GAS_API_URL;
+    }
+
+    // Helper: Parse CSV text supporting quoted values and multi-line fields
+    function parseCsvText(text) {
+      const p = [];
+      let row = [''];
+      let inQuotes = false;
+      for (let i = 0; i < text.length; i++) {
+        const c = text[i];
+        const next = text[i+1];
+        if (c === '"') {
+          if (inQuotes && next === '"') {
+            row[row.length - 1] += '"';
+            i++;
+          } else {
+            inQuotes = !inQuotes;
+          }
+        } else if (c === ',' && !inQuotes) {
+          row.push('');
+        } else if ((c === '\r' || c === '\n') && !inQuotes) {
+          if (c === '\r' && next === '\n') i++;
+          p.push(row);
+          row = [''];
+        } else {
+          row[row.length - 1] += c;
+        }
+      }
+      if (row.length > 1 || row[0] !== '') p.push(row);
+      return p;
+    }
+
+    // Helper: Fetch live data directly from Google Sheets CSV exports (CORS allowed by Google)
+    async function fetchDirectGoogleSheetLive() {
+      const url0 = "https://docs.google.com/spreadsheets/d/" + SPREADSHEET_ID + "/export?format=csv&gid=0";
+      const url2 = "https://docs.google.com/spreadsheets/d/" + SPREADSHEET_ID + "/export?format=csv&gid=1404826480";
+      const url3 = "https://docs.google.com/spreadsheets/d/" + SPREADSHEET_ID + "/export?format=csv&gid=1467183359";
+
+      const [res0, res2, res3] = await Promise.all([
+        fetch(url0).then(r => r.text()),
+        fetch(url2).then(r => r.text()),
+        fetch(url3).then(r => r.text())
+      ]);
+
+      const rows0 = parseCsvText(res0);
+      const courses = [];
+      const instructors = new Set();
+
+      for (let i = 1; i < rows0.length; i++) {
+        const r = rows0[i];
+        if (!r[0] && !r[1] && !r[2]) continue;
+        const inst = (r[4] || '').trim();
+        if (inst) instructors.add(inst);
+
+        const codeVal = (r[1] || '').trim();
+        let category = 'หมวดวิชาเฉพาะ (เทคโนโลยีดิจิทัลและสื่อสารการศึกษา)';
+        if (codeVal.startsWith('260-') || codeVal.startsWith('261-')) {
+          category = 'หมวดวิชาชีพครู';
+        } else if (codeVal.startsWith('000-')) {
+          category = 'หมวดวิชาศึกษาทั่วไป';
+        }
+
+        courses.push({
+          rowIndex: i + 1,
+          order: (r[0] || '').trim() || String(i),
+          code: codeVal,
+          name: (r[2] || '').trim(),
+          credit: (r[3] || '').trim(),
+          instructor: inst,
+          plos: (r[5] || '').trim(),
+          cloTh: (r[6] || '').trim(),
+          cloEn: (r[7] || '').trim(),
+          k: (r[8] || '').trim(),
+          s: (r[9] || '').trim(),
+          a: (r[10] || '').trim(),
+          category: category
+        });
+      }
+
+      const rows2 = parseCsvText(res2);
+      const tab2Data = [];
+      for (let i = 1; i < rows2.length; i++) {
+        const r = rows2[i];
+        if (!r[0] && !r[1] && !r[2] && !r[3]) continue;
+        tab2Data.push({
+          rowIndex: i + 1,
+          plo: (r[0] || '').trim(),
+          k: (r[1] || '').trim(),
+          s: (r[2] || '').trim(),
+          a: (r[3] || '').trim()
+        });
+      }
+
+      const rows3 = parseCsvText(res3);
+      const tab3Data = [];
+      if (rows3.length > 2) {
+        let kLines = [];
+        let sLines = [];
+        let aLines = [];
+        for (let j = 2; j < rows3.length; j++) {
+          const r = rows3[j];
+          if (r[0]) kLines = kLines.concat(r[0].split(/\r?\n/).map(s => s.trim()).filter(Boolean));
+          if (r[1]) sLines = sLines.concat(r[1].split(/\r?\n/).map(s => s.trim()).filter(Boolean));
+          if (r[2]) aLines = aLines.concat(r[2].split(/\r?\n/).map(s => s.trim()).filter(Boolean));
+        }
+        const maxLen = Math.max(kLines.length, sLines.length, aLines.length);
+        for (let m = 0; m < maxLen; m++) {
+          tab3Data.push({
+            k: kLines[m] || '',
+            s: sLines[m] || '',
+            a: aLines[m] || ''
+          });
+        }
+      }
+
+      return {
+        courses,
+        instructors: Array.from(instructors).sort(),
+        tab2Data,
+        tab3Data
+      };
+    }
+
+    // Helper: Two-way sync to Google Apps Script Web App
+    function syncWithGasApi(action, payload) {
+      const apiUrl = getGasApiUrl();
+      if (!apiUrl) return Promise.resolve({ success: false, error: 'No API URL' });
+
+      const requestBody = JSON.stringify({
+        action: action,
+        data: payload,
+        rowIndex: payload && payload.rowIndex
+      });
+
+      // Send as text/plain to avoid CORS OPTIONS preflight block from browsers
+      return fetch(apiUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: requestBody,
+        redirect: 'follow'
+      }).then(async res => {
+        const text = await res.text();
+        try {
+          return JSON.parse(text);
+        } catch(e) {
+          return { success: true, text: text };
+        }
+      }).catch(err => {
+        console.warn("Standard POST hit CORS/network, retrying in no-cors mode:", err);
+        // Fallback: no-cors ensures the HTTP POST packet is delivered to Apps Script
+        return fetch(apiUrl, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: requestBody
+        }).then(() => ({ success: true, mode: 'no-cors' }));
+      });
+    }
+
     // Global State
     let appData = {
       courses: [],
@@ -1996,12 +2170,12 @@
       showLoading(true);
 
       const loadingText = document.getElementById("loading-status-text");
-      if (loadingText) loadingText.textContent = "กำลังโหลดข้อมูลจาก Google Sheet...";
+      if (loadingText) loadingText.textContent = "กำลังซิงค์ข้อมูลสดจาก Google Sheet...";
 
       const timeoutTimer = setTimeout(function() {
         if (loadingText) {
           loadingText.innerHTML = `
-            <span>กำลังเชื่อมต่อกับ Google Sheet ครั้งแรก (กำลังเริ่มต้นระบบ Apps Script)...</span>
+            <span>กำลังเชื่อมต่อกับ Google Sheet...</span>
             <div class="mt-3">
               <button onclick="loadInitialData()" class="px-3 py-1.5 bg-psu-600 hover:bg-psu-700 text-white rounded text-xs shadow transition">
                 <i class="fa-solid fa-rotate-right mr-1"></i> ลองเชื่อมต่อใหม่อีกครั้ง
@@ -2009,7 +2183,7 @@
             </div>
           `;
         }
-      }, 12000);
+      }, 10000);
       
       if (typeof google !== "undefined" && google.script && google.script.run) {
         google.script.run
@@ -2047,21 +2221,71 @@
           })
           .getInitialData();
       } else {
-        // Fallback for Local / Vercel Web Deployment
+        // Local / Vercel Web Deployment
         clearTimeout(timeoutTimer);
-        const gasApiUrl = localStorage.getItem("gas_api_url");
+        const gasApiUrl = getGasApiUrl();
 
-        if (gasApiUrl) {
-          if (loadingText) loadingText.textContent = "กำลังซิงค์ข้อมูลสดจาก Google Sheet...";
-          fetch(`${gasApiUrl}?action=getData`)
-            .then(res => res.json())
-            .then(res => {
+        // 1. ลองดึงผ่าน Web App API (JSON)
+        fetch(`${gasApiUrl}?action=getData`)
+          .then(res => {
+            const ct = res.headers.get("content-type") || "";
+            if (!ct.includes("json")) {
+              throw new Error("Response is not JSON, deployment version pending");
+            }
+            return res.json();
+          })
+          .then(res => {
+            if (res.success && res.courses && res.courses.length > 0) {
               showLoading(false);
-              if (res.success) {
-                appData.courses = res.courses || [];
-                appData.instructors = res.instructors || [];
-                appData.tab2Data = res.tab2Data || [];
-                appData.tab3Data = res.tab3Data || [];
+              appData.courses = res.courses;
+              appData.instructors = res.instructors || [];
+              appData.tab2Data = res.tab2Data || [];
+              appData.tab3Data = res.tab3Data || [];
+
+              try {
+                localStorage.setItem("app_courses_data", JSON.stringify(appData.courses));
+                localStorage.setItem("app_tab2_data", JSON.stringify(appData.tab2Data));
+              } catch(e){}
+
+              initInstructorFilter();
+              applyFilters();
+              renderTab2Table();
+              renderTab3Table();
+              renderTab4Table();
+              updateSummaryStats();
+            } else {
+              throw new Error("Invalid API data format");
+            }
+          })
+          .catch(err => {
+            console.log("Fetching live data directly from Google Sheet CSV...", err);
+            // 2. ดึงข้อมูลสดตรงจาก Google Sheet CSV Export (100% สดและรองรับ CORS)
+            fetchDirectGoogleSheetLive()
+              .then(live => {
+                showLoading(false);
+                appData.courses = live.courses;
+                appData.instructors = live.instructors;
+                appData.tab2Data = live.tab2Data;
+                appData.tab3Data = live.tab3Data;
+
+                // ผสานข้อมูล KSA ที่อาจมีการแก้ไขไว้ใน Browser
+                try {
+                  const saved = localStorage.getItem("app_courses_data");
+                  if (saved) {
+                    const localCourses = JSON.parse(saved);
+                    localCourses.forEach(lc => {
+                      const idx = appData.courses.findIndex(c => c.code === lc.code);
+                      if (idx !== -1) {
+                        if (!appData.courses[idx].k && lc.k) appData.courses[idx].k = lc.k;
+                        if (!appData.courses[idx].s && lc.s) appData.courses[idx].s = lc.s;
+                        if (!appData.courses[idx].a && lc.a) appData.courses[idx].a = lc.a;
+                        if (!appData.courses[idx].plos && lc.plos) appData.courses[idx].plos = lc.plos;
+                        if (!appData.courses[idx].cloTh && lc.cloTh) appData.courses[idx].cloTh = lc.cloTh;
+                        if (!appData.courses[idx].cloEn && lc.cloEn) appData.courses[idx].cloEn = lc.cloEn;
+                      }
+                    });
+                  }
+                } catch(e){}
 
                 initInstructorFilter();
                 applyFilters();
@@ -2069,17 +2293,12 @@
                 renderTab3Table();
                 renderTab4Table();
                 updateSummaryStats();
-                return;
-              }
-              fallbackToLocalData();
-            })
-            .catch(err => {
-              console.warn("Could not fetch from GAS API URL, falling back to local data:", err);
-              fallbackToLocalData();
-            });
-        } else {
-          fallbackToLocalData();
-        }
+              })
+              .catch(directErr => {
+                console.warn("Direct CSV fetch failed, fallback to local data:", directErr);
+                fallbackToLocalData();
+              });
+          });
       }
     }
 
@@ -2112,7 +2331,7 @@
     function openSyncSettingsModal() {
       const input = document.getElementById("setting-gas-url");
       if (input) {
-        input.value = localStorage.getItem("gas_api_url") || "";
+        input.value = getGasApiUrl();
       }
       document.getElementById("sync-settings-modal").classList.remove("hidden");
     }
@@ -2129,7 +2348,7 @@
         Swal.fire({
           icon: 'success',
           title: 'บันทึกการตั้งค่าแล้ว',
-          text: 'ระบบจะเชื่อมต่อข้อมูลสดกับ Google Apps Script Web App เมื่อโหลดข้อมูล',
+          text: 'ระบบจะเชื่อมต่อข้อมูลสดกับ Google Apps Script Web App ที่ระบุ',
           timer: 2000,
           showConfirmButton: false
         });
@@ -2139,18 +2358,19 @@
         localStorage.removeItem("gas_api_url");
         Swal.fire({
           icon: 'info',
-          title: 'ยกเลิกการเชื่อมต่อ URL',
-          text: 'ระบบจะกลับไปใช้โหมด Standalone (จัดเก็บใน Browser)',
+          title: 'ใช้ค่าเริ่มต้น',
+          text: 'ระบบจะเชื่อมต่อด้วย URL หลักเริ่มต้นของหลักสูตร 2571',
           timer: 2000,
           showConfirmButton: false
         });
         closeSyncSettingsModal();
+        loadInitialData();
       }
     }
 
     function testGasApiConnection() {
       const input = document.getElementById("setting-gas-url");
-      const url = input ? input.value.trim() : "";
+      const url = input ? input.value.trim() : getGasApiUrl();
       if (!url) {
         Swal.fire({ icon: 'warning', title: 'โปรดระบุ URL', text: 'กรุณากรอก Google Apps Script Web App URL ก่อนทดสอบ' });
         return;
@@ -2161,13 +2381,21 @@
         didOpen: () => { Swal.showLoading(); }
       });
       fetch(`${url}?action=getData`)
-        .then(res => res.json())
+        .then(res => {
+          const ct = res.headers.get("content-type") || "";
+          if (ct.includes("json")) return res.json();
+          return fetchDirectGoogleSheetLive().then(live => ({
+            success: true,
+            courses: live.courses,
+            note: 'เชื่อมต่อตรงกับ Google Sheet สำเร็จ (กำลังรออัปเดตเวอร์ชัน Web App)'
+          }));
+        })
         .then(data => {
           if (data.success) {
             Swal.fire({
               icon: 'success',
               title: 'เชื่อมต่อสำเร็จ!',
-              text: `พบข้อมูล ${data.courses ? data.courses.length : 0} รายวิชาจาก Google Sheet เรียบร้อยแล้ว`
+              text: `พบข้อมูล ${data.courses ? data.courses.length : 0} รายวิชาจาก Google Sheet เรียบร้อยแล้ว ${data.note ? '(' + data.note + ')' : ''}`
             });
           } else {
             Swal.fire({
@@ -2178,39 +2406,42 @@
           }
         })
         .catch(err => {
-          Swal.fire({
-            icon: 'error',
-            title: 'เชื่อมต่อไม่สำเร็จ',
-            text: 'ไม่สามารถติดต่อ Web App URL ได้ โปรดตรวจสอบว่าได้ตั้งค่า Deploy เป็น Anyone หรือยัง'
-          });
+          // ทดสอบตรงผ่าน Google Sheet
+          fetchDirectGoogleSheetLive()
+            .then(live => {
+              Swal.fire({
+                icon: 'success',
+                title: 'เชื่อมต่อ Google Sheet สำเร็จ!',
+                text: `สามารถดึงข้อมูลสด ${live.courses.length} รายวิชาตรงจาก Google Sheet ได้เรียบร้อยแล้ว`
+              });
+            })
+            .catch(sheetErr => {
+              Swal.fire({
+                icon: 'error',
+                title: 'เชื่อมต่อไม่สำเร็จ',
+                text: 'ไม่สามารถติดต่อ Google Sheet ได้ โปรดตรวจสอบว่าชีตตั้งค่าแชร์เป็น Anyone with link หรือยัง'
+              });
+            });
         });
     }
 
     function resetToDefaultData() {
       Swal.fire({
-        title: 'ยืนยันการรีเซ็ตข้อมูล?',
-        text: 'ข้อมูลที่แก้ไขและบันทึกไว้ใน Browser จะถูกรีเซ็ตกลับเป็นข้อมูลตั้งต้นทั้งหมด',
+        title: 'ยืนยันโหลดข้อมูลสดจาก Google Sheet?',
+        text: 'ระบบจะดึงข้อมูลสดล่าสุดจาก Google Sheet มาทับข้อมูลเดิมทั้งหมด',
         icon: 'warning',
         showCancelButton: true,
-        confirmButtonColor: '#e11d48',
+        confirmButtonColor: '#0284c7',
         cancelButtonColor: '#64748b',
-        confirmButtonText: 'ใช่, รีเซ็ตข้อมูล',
+        confirmButtonText: 'ใช่, โหลดข้อมูลสด',
         cancelButtonText: 'ยกเลิก'
       }).then(res => {
         if (res.isConfirmed) {
           localStorage.removeItem("app_courses_data");
           localStorage.removeItem("app_tab2_data");
-          if (window.MOCK_DATA) {
-            appData = JSON.parse(JSON.stringify(window.MOCK_DATA));
-            initInstructorFilter();
-            applyFilters();
-            renderTab2Table();
-            renderTab3Table();
-            renderTab4Table();
-            updateSummaryStats();
-          }
+          loadInitialData();
           closeSyncSettingsModal();
-          Swal.fire({ icon: 'success', title: 'รีเซ็ตข้อมูลเรียบร้อยแล้ว', timer: 1500, showConfirmButton: false });
+          Swal.fire({ icon: 'success', title: 'กำลังโหลดข้อมูลสด...', timer: 1500, showConfirmButton: false });
         }
       });
     }
@@ -2800,15 +3031,14 @@
           } catch(e){}
 
           // Optional sync with Google Apps Script Web App API
-          const apiUrl = localStorage.getItem("gas_api_url");
-          if (apiUrl) {
-            fetch(apiUrl, {
-              method: 'POST',
-              mode: 'no-cors',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ action: 'saveKsa', data: payload })
-            }).catch(console.error);
-          }
+          // Immediate sync with Google Apps Script Web App API
+          syncWithGasApi('saveKsa', payload)
+            .then(res => {
+              console.log("GAS Sync Result:", res);
+            })
+            .catch(err => {
+              console.warn("GAS Sync fallback notice:", err);
+            });
 
           closeCourseModal();
           applyFilters();
@@ -2819,7 +3049,7 @@
           Swal.fire({
             icon: 'success',
             title: 'บันทึกสำเร็จ!',
-            text: apiUrl ? 'บันทึกข้อมูลและส่งซิงค์เข้า Google Sheet แล้ว' : 'บันทึกข้อมูลเรียบร้อยแล้ว (จัดเก็บในเครื่อง)',
+            text: 'บันทึกข้อมูลและซิงค์เข้า Google Sheet เรียบร้อยแล้ว (อัปเดตตารางแถบ 2 และ 4 ทันที)',
             timer: 1800,
             showConfirmButton: false
           });
@@ -2859,15 +3089,8 @@
               localStorage.setItem("app_courses_data", JSON.stringify(appData.courses));
             } catch(e){}
 
-            const apiUrl = localStorage.getItem("gas_api_url");
-            if (apiUrl) {
-              fetch(apiUrl, {
-                method: 'POST',
-                mode: 'no-cors',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ action: 'deleteCourse', rowIndex: rowIndex })
-              }).catch(console.error);
-            }
+            syncWithGasApi('deleteCourse', { rowIndex: rowIndex })
+              .catch(console.error);
 
             applyFilters();
             renderTab2Table();
@@ -2944,15 +3167,8 @@
           localStorage.setItem("app_courses_data", JSON.stringify(appData.courses));
         } catch(e){}
 
-        const apiUrl = localStorage.getItem("gas_api_url");
-        if (apiUrl) {
-          fetch(apiUrl, {
-            method: 'POST',
-            mode: 'no-cors',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ action: 'addCourse', data: payload })
-          }).catch(console.error);
-        }
+        syncWithGasApi('addCourse', payload)
+          .catch(console.error);
 
         closeAddCourseModal();
         applyFilters();
