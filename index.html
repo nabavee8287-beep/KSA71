@@ -4501,6 +4501,22 @@
     /**
      * จัดรูปแบบเนื้อหาคอลัมน์ K, S, A สำหรับแถบที่ 4
      */
+    /**
+     * ตัวช่วยจัดรูปแบบประโยค/ข้อความของ K, S, A ในแต่ละข้อความให้คั่นด้วยเครื่องหมายจุลภาค (, )
+     */
+    function formatKsaSentences(items, rawStr) {
+      let list = [];
+      if (Array.isArray(items) && items.length > 0) {
+        list = items.map(s => (s || '').replace(/^[0-9]+[\.\)]\s*/, '').replace(/,\s*$/, '').trim()).filter(Boolean);
+      } else if (rawStr && typeof rawStr === 'string' && rawStr.trim()) {
+        let cleanRaw = rawStr.replace(/PLO[1-7]\s*:\s*/gi, '').trim();
+        const parts = cleanRaw.split(/(?:\r?\n|(?<![0-9]),\s*|\s+(?=\d+[\.\)]))/g);
+        list = parts.map(s => (s || '').replace(/^[0-9]+[\.\)]\s*/, '').replace(/,\s*$/, '').trim()).filter(Boolean);
+      }
+
+      return list.join(', ');
+    }
+
     function formatTab4Ksa(course) {
       const parsedK = parseKsaString(course.k);
       const parsedS = parseKsaString(course.s);
@@ -4513,15 +4529,10 @@
       let allA = [];
       Object.values(parsedA).forEach(items => allA.push(...items));
 
-      // Fallback จากสตริงดิบถ้า parsed ว่าง
-      let strK = allK.length > 0 ? allK.join(' ') : (course.k || '').trim();
-      let strS = allS.length > 0 ? allS.join(' ') : (course.s || '').trim();
-      let strA = allA.length > 0 ? allA.join(' ') : (course.a || '').trim();
-
-      // ตัดคำนำหน้าเช่น PLO1: ออกเพื่อให้กระชับ
-      strK = strK.replace(/PLO[1-7]\s*:\s*/gi, '').replace(/\n+/g, ' ').trim();
-      strS = strS.replace(/PLO[1-7]\s*:\s*/gi, '').replace(/\n+/g, ' ').trim();
-      strA = strA.replace(/PLO[1-7]\s*:\s*/gi, '').replace(/\n+/g, ' ').trim();
+      // ใส่เครื่องหมาย , หลังแต่ละประโยคหรือหลังข้อความของแต่ละ KSA เพื่อแยกประโยคชัดเจน
+      let strK = formatKsaSentences(allK, course.k);
+      let strS = formatKsaSentences(allS, course.s);
+      let strA = formatKsaSentences(allA, course.a);
 
       if (!strK && !strS && !strA) {
         return '<span class="text-slate-400 italic text-[11px]">- ยังไม่ได้ระบุ KSA -</span>';
@@ -4790,9 +4801,12 @@
         let allK = []; Object.values(parsedK).forEach(it => allK.push(...it));
         let allS = []; Object.values(parsedS).forEach(it => allS.push(...it));
         let allA = []; Object.values(parsedA).forEach(it => allA.push(...it));
-        let strK = allK.length > 0 ? allK.join(' ') : (c.k || '').replace(/PLO[1-7]\s*:\s*/gi, '').trim();
-        let strS = allS.length > 0 ? allS.join(' ') : (c.s || '').replace(/PLO[1-7]\s*:\s*/gi, '').trim();
-        let strA = allA.length > 0 ? allA.join(' ') : (c.a || '').replace(/PLO[1-7]\s*:\s*/gi, '').trim();
+        let strK = formatKsaSentences(allK, c.k);
+        let strS = formatKsaSentences(allS, c.s);
+        let strA = formatKsaSentences(allA, c.a);
+        if (strK && !strK.startsWith('K:')) strK = 'K: ' + strK;
+        if (strS && !strS.startsWith('S:')) strS = 'S: ' + strS;
+        if (strA && !strA.startsWith('A:')) strA = 'A: ' + strA;
 
         const ksaText = [strK, strS, strA].filter(Boolean).join('\n');
 
