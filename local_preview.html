@@ -3153,7 +3153,8 @@
       const text = rawStr.trim();
       if (!text) return [];
 
-      const delimiterRegex = /(?:^|\r?\n)\s*(?:(?:CLO|clo)\s*(\d+)\s*[:\.\-]?|(\d+)[\.\)])\s*/g;
+      // รองรับทั้ง CLO1:, CLO1 (PLO1, PLO2):, CLO1 [PLO1, PLO2]:, 1., 1)
+      const delimiterRegex = /(?:^|\r?\n)\s*(?:(?:CLO|clo)\s*(\d+)\s*(?:\(([^)]+)\)|\[([^\]]+)\])?\s*[:.\-]?|(\d+)[\.\)])\s*/g;
       const matches = [...text.matchAll(delimiterRegex)];
 
       if (matches.length > 0) {
@@ -3162,36 +3163,124 @@
           const match = matches[i];
           const start = match.index + match[0].length;
           const end = (i + 1 < matches.length) ? matches[i + 1].index : text.length;
-          const content = text.slice(start, end).trim();
-          list.push(content);
+          let content = text.slice(start, end).trim();
+
+          const ploStr = match[2] || match[3] || "";
+          const plos = [];
+          if (ploStr) {
+            const pMatches = ploStr.match(/PLO[1-7]/gi);
+            if (pMatches) {
+              pMatches.forEach(p => plos.push(p.toUpperCase()));
+            }
+          }
+
+          if (plos.length === 0) {
+            const inlinePloMatch = content.match(/^(?:\(([^)]+)\)|\[([^\]]+)\])\s*[:.\-]?\s*/);
+            if (inlinePloMatch) {
+              const inlinePloStr = inlinePloMatch[1] || inlinePloMatch[2] || "";
+              const pMatches = inlinePloStr.match(/PLO[1-7]/gi);
+              if (pMatches) {
+                pMatches.forEach(p => plos.push(p.toUpperCase()));
+                content = content.slice(inlinePloMatch[0].length).trim();
+              }
+            }
+          }
+
+          list.push({ text: content, plos: plos });
         }
         return list;
       }
 
       const lines = text.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
-      return lines.length > 0 ? lines : [text];
+      return lines.map(line => {
+        let content = line;
+        const plos = [];
+        const inlinePloMatch = content.match(/^(?:\(([^)]+)\)|\[([^\]]+)\])\s*[:.\-]?\s*/);
+        if (inlinePloMatch) {
+          const inlinePloStr = inlinePloMatch[1] || inlinePloMatch[2] || "";
+          const pMatches = inlinePloStr.match(/PLO[1-7]/gi);
+          if (pMatches) {
+            pMatches.forEach(p => plos.push(p.toUpperCase()));
+            content = content.slice(inlinePloMatch[0].length).trim();
+          }
+        }
+        return { text: content, plos: plos };
+      });
     }
 
-    function parseCourseClos(cloTh, cloEn) {
+    function parseCourseClos(cloTh, cloEn, coursePlos = "") {
       const thList = parseCloStringToList(cloTh);
       const enList = parseCloStringToList(cloEn);
       const maxLen = Math.max(thList.length, enList.length);
 
+      const defaultCoursePlos = (coursePlos || "")
+        .split(/[\s,;\n]+/)
+        .filter(p => /^PLO[1-7]$/i.test(p))
+        .map(p => p.toUpperCase());
+
       if (maxLen === 0) {
-        return [{ th: '', en: '' }];
+        return [{ th: '', en: '', plos: defaultCoursePlos }];
       }
 
       const items = [];
       for (let i = 0; i < maxLen; i++) {
+        const thItem = thList[i] || { text: '', plos: [] };
+        const enItem = enList[i] || { text: '', plos: [] };
+        let combinedPlos = [...new Set([...thItem.plos, ...enItem.plos])];
+        if (combinedPlos.length === 0 && maxLen === 1 && defaultCoursePlos.length > 0) {
+          combinedPlos = defaultCoursePlos;
+        }
+
         items.push({
-          th: thList[i] || '',
-          en: enList[i] || ''
+          th: thItem.text || '',
+          en: enItem.text || '',
+          plos: combinedPlos
         });
       }
       return items;
     }
 
-    function createCloCardElement(cloNumber, thValue = '', enValue = '') {
+    function generateCloPloChipsHtml(cloNumber, selectedPlos = []) {
+      const selectedSet = new Set((selectedPlos || []).map(p => p.toUpperCase()));
+      return PLO_DEFINITIONS.map(plo => {
+        const isChecked = selectedSet.has(plo.id.toUpperCase());
+        const activeClass = isChecked 
+          ? 'bg-blue-600 text-white border-blue-600 shadow-xs' 
+          : 'bg-white text-slate-700 border-slate-300 hover:bg-blue-50/60 hover:border-blue-400';
+        return `
+          <label class="clo-plo-chip inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-xs font-bold cursor-pointer transition select-none ${activeClass}">
+            <input type="checkbox" value="${plo.id}" ${isChecked ? 'checked' : ''} 
+                   class="clo-plo-cb w-3.5 h-3.5 rounded text-blue-600 focus:ring-blue-500 border-slate-300 cursor-pointer accent-blue-600"
+                   onchange="handleCloPloToggle(this)">
+            <span>${plo.code}</span>
+          </label>
+        `;
+      }).join('');
+    }
+
+    function handleCloPloToggle(cb) {
+      const label = cb.closest('.clo-plo-chip');
+      if (label) {
+        if (cb.checked) {
+          label.classList.add('bg-blue-600', 'text-white', 'border-blue-600', 'shadow-xs');
+          label.classList.remove('bg-white', 'text-slate-700', 'border-slate-300', 'hover:bg-blue-50/60', 'hover:border-blue-400');
+        } else {
+          label.classList.remove('bg-blue-600', 'text-white', 'border-blue-600', 'shadow-xs');
+          label.classList.add('bg-white', 'text-slate-700', 'border-slate-300', 'hover:bg-blue-50/60', 'hover:border-blue-400');
+        }
+      }
+
+      // ซิงค์การเลือกไปยัง Section 1 อัตโนมัติ (หากติ๊กเลือก ให้เปิด/เลือก PLO นั้นใน Section 1 ด้วย)
+      if (cb.checked && cb.value) {
+        const sec1Cb = document.getElementById(`cb-${cb.value}`);
+        if (sec1Cb && !sec1Cb.checked) {
+          sec1Cb.checked = true;
+          handlePloToggle(cb.value, true);
+        }
+      }
+    }
+
+    function createCloCardElement(cloNumber, thValue = '', enValue = '', plos = []) {
       const card = document.createElement("div");
       card.className = "clo-item-card bg-slate-50/80 border border-slate-200 hover:border-indigo-300 rounded-xl p-3.5 space-y-3 transition duration-150";
       card.innerHTML = `
@@ -3230,6 +3319,23 @@
                       class="clo-input-en w-full text-xs font-body p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white leading-relaxed resize-y"></textarea>
           </div>
         </div>
+
+        <!-- PLO Alignment Checkboxes (ไม่มีข้อความอธิบายยาว แสดงเฉพาะ PLO1 - PLO7) -->
+        <div class="pt-2.5 border-t border-slate-200/80 space-y-1.5">
+          <div class="flex flex-wrap items-center justify-between gap-1.5">
+            <span class="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+              <i class="fa-solid fa-bullseye text-indigo-600 text-xs"></i>
+              ตรงกับ PLO (ติ๊กเลือก PLO ที่สอดคล้องกับข้อนี้):
+            </span>
+            <span class="text-[11px] text-slate-400">
+              (เลือกได้มากกว่า 1 PLO)
+            </span>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-1.5 pt-0.5">
+            ${generateCloPloChipsHtml(cloNumber, plos)}
+          </div>
+        </div>
       `;
 
       const thTextarea = card.querySelector(".clo-input-th");
@@ -3246,24 +3352,24 @@
       container.innerHTML = "";
 
       if (!items || items.length === 0) {
-        items = [{ th: '', en: '' }];
+        items = [{ th: '', en: '', plos: [] }];
       }
 
       items.forEach((item, index) => {
-        const card = createCloCardElement(index + 1, item.th, item.en);
+        const card = createCloCardElement(index + 1, item.th, item.en, item.plos);
         container.appendChild(card);
       });
 
       updateCloRemoveButtons();
     }
 
-    function addNewCloItem(th = '', en = '') {
+    function addNewCloItem(th = '', en = '', plos = []) {
       const container = document.getElementById("clo-items-container");
       if (!container) return;
 
       const currentCount = container.querySelectorAll(".clo-item-card").length;
       const newNum = currentCount + 1;
-      const card = createCloCardElement(newNum, th, en);
+      const card = createCloCardElement(newNum, th, en, plos);
       container.appendChild(card);
 
       updateCloRemoveButtons();
@@ -3287,6 +3393,10 @@
         const enInput = card.querySelector(".clo-input-en");
         if (thInput) thInput.value = "";
         if (enInput) enInput.value = "";
+        card.querySelectorAll(".clo-plo-cb").forEach(cb => {
+          cb.checked = false;
+          handleCloPloToggle(cb);
+        });
         return;
       }
 
@@ -3333,7 +3443,7 @@
 
     function collectCloStrings() {
       const container = document.getElementById("clo-items-container");
-      if (!container) return { cloTh: "", cloEn: "" };
+      if (!container) return { cloTh: "", cloEn: "", allCloPlos: [] };
 
       const cards = Array.from(container.querySelectorAll(".clo-item-card"));
       const activeCards = cards.filter(card => {
@@ -3347,11 +3457,12 @@
         const hiddenEn = document.getElementById("modal-input-clo-en");
         if (hiddenTh) hiddenTh.value = "";
         if (hiddenEn) hiddenEn.value = "";
-        return { cloTh: "", cloEn: "" };
+        return { cloTh: "", cloEn: "", allCloPlos: [] };
       }
 
       const thLines = [];
       const enLines = [];
+      const allCloPlosSet = new Set();
 
       activeCards.forEach((card, index) => {
         const cloNum = index + 1;
@@ -3362,11 +3473,30 @@
         let enVal = enInput ? enInput.value.trim() : "";
 
         // Strip duplicate prefix if user manually retyped it
-        thVal = thVal.replace(/^(?:(?:CLO|clo)\s*\d+\s*[:\.\-]?|\d+[\.\)])\s*/i, '').trim();
-        enVal = enVal.replace(/^(?:(?:CLO|clo)\s*\d+\s*[:\.\-]?|\d+[\.\)])\s*/i, '').trim();
+        thVal = thVal.replace(/^(?:(?:CLO|clo)\s*\d+\s*(?:\([^)]+\)|\[[^\]]+\])?\s*[:.\-]?|\d+[\.\)])\s*/i, '').trim();
+        enVal = enVal.replace(/^(?:(?:CLO|clo)\s*\d+\s*(?:\([^)]+\)|\[[^\]]+\])?\s*[:.\-]?|\d+[\.\)])\s*/i, '').trim();
 
-        if (thVal) thLines.push(`CLO${cloNum}: ${thVal}`);
-        if (enVal) enLines.push(`CLO${cloNum}: ${enVal}`);
+        // รวบรวม PLO ที่เลือกในข้อนี้
+        const cardPlos = [];
+        card.querySelectorAll(".clo-plo-cb:checked").forEach(cb => {
+          if (cb.value) {
+            const pVal = cb.value.toUpperCase().trim();
+            cardPlos.push(pVal);
+            allCloPlosSet.add(pVal);
+          }
+        });
+
+        // จัดเรียง PLO1, PLO2...
+        cardPlos.sort((a, b) => {
+          const numA = parseInt(a.replace(/\D/g, '') || '0', 10);
+          const numB = parseInt(b.replace(/\D/g, '') || '0', 10);
+          return numA - numB;
+        });
+
+        const ploTag = cardPlos.length > 0 ? ` (${cardPlos.join(', ')})` : '';
+
+        if (thVal) thLines.push(`CLO${cloNum}${ploTag}: ${thVal}`);
+        if (enVal) enLines.push(`CLO${cloNum}${ploTag}: ${enVal}`);
       });
 
       const cloThResult = thLines.join("\n");
@@ -3377,7 +3507,7 @@
       if (hiddenTh) hiddenTh.value = cloThResult;
       if (hiddenEn) hiddenEn.value = cloEnResult;
 
-      return { cloTh: cloThResult, cloEn: cloEnResult };
+      return { cloTh: cloThResult, cloEn: cloEnResult, allCloPlos: Array.from(allCloPlosSet) };
     }
 
     /**
@@ -3433,8 +3563,8 @@
         renderPloKsaItems(plo.id, 'a', aItems);
       });
 
-      // CLOs (เป็นข้อๆ ไดนามิก)
-      const cloItems = parseCourseClos(course.cloTh, course.cloEn);
+      // CLOs (เป็นข้อๆ ไดนามิก พร้อม PLO checkboxes)
+      const cloItems = parseCourseClos(course.cloTh, course.cloEn, course.plos);
       renderCloItems(cloItems);
 
       document.getElementById("course-modal").classList.remove("hidden");
@@ -3452,16 +3582,25 @@
       const course = appData.courses.find(c => c.rowIndex === rowIndex);
       if (!course) return;
 
-      const selectedPlos = [];
+      const { cloTh, cloEn, allCloPlos } = collectCloStrings();
+
+      // รวม PLOs จากทั้ง Section 1 และที่เลือกในแต่ละข้อ CLO
+      const allSelectedPloSet = new Set();
       PLO_DEFINITIONS.forEach(plo => {
         const cb = document.getElementById(`cb-${plo.id}`);
         if (cb && cb.checked) {
-          selectedPlos.push(plo.id);
+          allSelectedPloSet.add(plo.id);
         }
+      });
+      (allCloPlos || []).forEach(p => allSelectedPloSet.add(p));
+
+      const selectedPlos = Array.from(allSelectedPloSet).sort((a, b) => {
+        const numA = parseInt(a.replace(/\D/g, '') || '0', 10);
+        const numB = parseInt(b.replace(/\D/g, '') || '0', 10);
+        return numA - numB;
       });
 
       const plosStr = selectedPlos.join(", ");
-      const { cloTh, cloEn } = collectCloStrings();
 
       const kStr = buildFormattedKsaString('k');
       const sStr = buildFormattedKsaString('s');
