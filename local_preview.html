@@ -1512,112 +1512,64 @@
         </div>
       </div>
 
-      <!-- Tab 2 Printable Area: Two Separate Tables -->
-      <div id="tab2-printable-area" class="space-y-6">
+      <!-- Tab 2 Printable Area: ตารางแสดงผลลัพธ์การเรียนรู้ (PLOs) กับ รหัสวิชา รายวิชา และ KSA -->
+      <div id="tab2-printable-area" class="bg-white rounded-xl shadow-sm border border-slate-200/80 overflow-hidden">
         <!-- Print Header (Visible only when printed) -->
         <div class="print-only p-4 text-center border-b border-slate-300 mb-2">
-          <h2 class="text-base font-bold text-slate-900">ตารางแสดงผลลัพธ์การเรียนรู้ระดับหลักสูตร (PLOs) กับ Knowledge / Skill / Attitude</h2>
+          <h2 class="text-base font-bold text-slate-900">ตารางแสดงผลลัพธ์การเรียนรู้ระดับหลักสูตร (PLOs) กับรายวิชา และ Knowledge / Skill / Attitude</h2>
           <p class="text-xs text-slate-600 mt-1">สาขาวิชาเทคโนโลยีดิจิทัลและสื่อสารการศึกษา หลักสูตรปรับปรุง 2571 คณะศึกษาศาสตร์ มหาวิทยาลัยสงขลานครินทร์</p>
         </div>
 
-        <!-- ตารางที่ 1: ตารางรายวิชาและอาจารย์ผู้สอนที่รับผิดชอบ PLOs (แยกออกมาต่างหากตามที่ผู้ใช้ร้องขอ) -->
-        <div class="bg-white rounded-xl shadow-sm border border-slate-200/80 overflow-hidden">
-          <div class="p-4 bg-slate-50/80 border-b border-slate-200/80 flex items-center justify-between flex-wrap gap-2">
-            <div class="flex items-center gap-2.5">
-              <div class="w-8 h-8 rounded-lg bg-psu-100 text-psu-700 flex items-center justify-center text-sm font-bold shadow-2xs">
-                <i class="fa-solid fa-graduation-cap"></i>
-              </div>
-              <div>
-                <h3 class="font-bold text-sm text-slate-800">
-                  ตารางรายวิชาและอาจารย์ผู้สอนที่รับผิดชอบ PLOs
-                </h3>
-                <p class="text-[11px] text-slate-500">
-                  แสดงข้อมูลรหัสวิชา ชื่อรายวิชา หน่วยกิต อาจารย์ผู้สอน และ PLOs ที่รายวิชาแต่ละวิชารับผิดชอบ
-                </p>
-              </div>
-            </div>
-            <span id="tab2-course-count" class="text-xs bg-white text-slate-600 px-3 py-1 rounded-full border border-slate-200 font-medium shadow-2xs">
-              0 รายวิชา
-            </span>
-          </div>
-
-          <div class="overflow-x-auto custom-scrollbar">
-            <table class="w-full text-left text-sm text-slate-700 border-collapse">
-              <thead class="bg-slate-100/90 text-slate-700 text-xs font-semibold border-b border-slate-200">
-                <tr>
-                  <th scope="col" class="px-3 py-3 w-12 text-center">ลำดับ</th>
-                  <th scope="col" class="px-3 py-3 w-28 text-center">รหัสวิชา</th>
-                  <th scope="col" class="px-4 py-3 min-w-[260px]">ชื่อรายวิชา</th>
-                  <th scope="col" class="px-3 py-3 w-20 text-center">หน่วยกิต</th>
-                  <th scope="col" class="px-4 py-3 min-w-[180px]">อาจารย์ผู้สอน</th>
-                  <th scope="col" class="px-4 py-3 min-w-[220px]">PLOs ที่รับผิดชอบ</th>
-                  <th scope="col" class="px-3 py-3 w-20 text-center no-print">จัดการ</th>
-                </tr>
-              </thead>
-              <tbody id="tab2-courses-table-body" class="divide-y divide-slate-100 text-xs">
-                <!-- Populated by JS -->
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        <!-- ตารางที่ 2: ตารางแสดงผลลัพธ์การเรียนรู้ (PLOs) กับ Knowledge / Skill / Attitude (KSA) (แสดง KSA ล้วน ไม่แสดงรหัส/ชื่อวิชา/ผู้สอนในช่อง) -->
-        <div class="bg-white rounded-xl shadow-sm border border-slate-200/80 overflow-hidden">
-          <div class="p-4 bg-slate-50/80 border-b border-slate-200/80 flex items-center justify-between flex-wrap gap-2">
-            <div class="flex items-center gap-2.5">
-              <div class="w-8 h-8 rounded-lg bg-indigo-100 text-indigo-700 flex items-center justify-center text-sm font-bold shadow-2xs">
-                <i class="fa-solid fa-layer-group"></i>
-              </div>
-              <div>
-                <h3 class="font-bold text-sm text-slate-800">
-                  ตารางผลลัพธ์การเรียนรู้ (PLOs) กับ Knowledge / Skill / Attitude (KSA)
-                </h3>
-                <p class="text-[11px] text-slate-500">
-                  แสดงรายการผลลัพธ์การเรียนรู้ K (ความรู้), S (ทักษะ), A (เจตคติ) ภายใต้แต่ละ PLO แยกชัดเจนเป็นข้อๆ
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div class="overflow-x-auto custom-scrollbar">
-            <table class="w-full text-left text-sm text-slate-700 border-collapse">
-              <thead class="bg-psu-900 text-white text-xs font-semibold uppercase">
-                <tr>
-                  <th scope="col" class="px-4 py-3.5 w-64 border-r border-psu-800">
-                    <div class="flex items-center gap-1.5">
-                      <i class="fa-solid fa-bullseye text-blue-300"></i>
-                      <span>PLOs</span>
-                    </div>
-                    <span class="font-normal text-[11px] text-blue-200 block mt-0.5">ผลลัพธ์การเรียนรู้ระดับหลักสูตร</span>
-                  </th>
-                  <th scope="col" class="px-4 py-3.5 min-w-[280px] border-r border-psu-800 bg-blue-950/40">
-                    <div class="flex items-center gap-1.5">
-                      <i class="fa-solid fa-brain text-blue-300"></i>
-                      <span>K : Knowledge</span>
-                    </div>
-                    <span class="font-normal text-[11px] text-blue-200 block mt-0.5">ความรู้ที่ได้</span>
-                  </th>
-                  <th scope="col" class="px-4 py-3.5 min-w-[280px] border-r border-psu-800 bg-teal-950/40">
-                    <div class="flex items-center gap-1.5">
-                      <i class="fa-solid fa-hand-sparkles text-teal-300"></i>
-                      <span>S : Skill</span>
-                    </div>
-                    <span class="font-normal text-[11px] text-teal-200 block mt-0.5">ทักษะที่ได้</span>
-                  </th>
-                  <th scope="col" class="px-4 py-3.5 min-w-[280px] bg-amber-950/40">
-                    <div class="flex items-center gap-1.5">
-                      <i class="fa-solid fa-heart text-amber-300"></i>
-                      <span>A : Attitude</span>
-                    </div>
-                    <span class="font-normal text-[11px] text-amber-200 block mt-0.5">เจตคติ/คุณลักษณะที่ได้</span>
-                  </th>
-                </tr>
-              </thead>
-              <tbody id="tab2-table-body" class="divide-y divide-slate-200">
-                <!-- Populated by JS: Exactly 7 rows (PLO1 - PLO7) with pure K, S, A lists -->
-              </tbody>
-            </table>
-          </div>
+        <div class="overflow-x-auto custom-scrollbar">
+          <table class="w-full text-left text-sm text-slate-700 border-collapse">
+            <thead class="bg-psu-900 text-white text-xs font-semibold uppercase">
+              <tr>
+                <th scope="col" class="px-4 py-3.5 w-64 border-r border-psu-800">
+                  <div class="flex items-center gap-1.5">
+                    <i class="fa-solid fa-bullseye text-blue-300"></i>
+                    <span>PLOs</span>
+                  </div>
+                  <span class="font-normal text-[11px] text-blue-200 block mt-0.5">ผลลัพธ์การเรียนรู้ระดับหลักสูตร</span>
+                </th>
+                <th scope="col" class="px-3 py-3.5 w-28 text-center border-r border-psu-800 bg-slate-900/60">
+                  <div class="flex items-center justify-center gap-1.5">
+                    <i class="fa-solid fa-barcode text-blue-300"></i>
+                    <span>รหัสวิชา</span>
+                  </div>
+                </th>
+                <th scope="col" class="px-4 py-3.5 min-w-[220px] border-r border-psu-800 bg-slate-900/60">
+                  <div class="flex items-center gap-1.5">
+                    <i class="fa-solid fa-book-open text-blue-300"></i>
+                    <span>รายวิชา</span>
+                  </div>
+                </th>
+                <th scope="col" class="px-4 py-3.5 min-w-[260px] border-r border-psu-800 bg-blue-950/40">
+                  <div class="flex items-center gap-1.5">
+                    <i class="fa-solid fa-brain text-blue-300"></i>
+                    <span>K : Knowledge</span>
+                  </div>
+                  <span class="font-normal text-[11px] text-blue-200 block mt-0.5">ความรู้</span>
+                </th>
+                <th scope="col" class="px-4 py-3.5 min-w-[260px] border-r border-psu-800 bg-teal-950/40">
+                  <div class="flex items-center gap-1.5">
+                    <i class="fa-solid fa-hand-sparkles text-teal-300"></i>
+                    <span>S : Skill</span>
+                  </div>
+                  <span class="font-normal text-[11px] text-teal-200 block mt-0.5">ทักษะ</span>
+                </th>
+                <th scope="col" class="px-4 py-3.5 min-w-[260px] bg-amber-950/40">
+                  <div class="flex items-center gap-1.5">
+                    <i class="fa-solid fa-heart text-amber-300"></i>
+                    <span>A : Attitude</span>
+                  </div>
+                  <span class="font-normal text-[11px] text-amber-200 block mt-0.5">เจตคติ/คุณลักษณะ</span>
+                </th>
+              </tr>
+            </thead>
+            <tbody id="tab2-table-body" class="divide-y divide-slate-200">
+              <!-- Populated by JS: Each PLO with its filled courses and respective K, S, A -->
+            </tbody>
+          </table>
         </div>
       </div>
     </section>
@@ -3902,244 +3854,189 @@
     }
 
     /**
-     * วาดตาราง แถบที่ 2:
-     * 1. ตารางรายวิชาและอาจารย์ผู้สอนที่รับผิดชอบ PLOs (แยกออกมาต่างหากตามที่ผู้ใช้ร้องขอ)
-     * 2. ตาราง(PLOs) กับ Knowledge/ Skill/ Attitude ปี 71 (แสดง KSA ล้วนๆ ไม่แสดงรหัสวิชา ชื่อวิชา อาจารย์ในช่อง KSA)
-     * รองรับตัวกรอง PLO, อาจารย์ผู้สอน, และคำค้นหา
+     * วาดตาราง แถบที่ 2: ตารางแสดงผลลัพธ์การเรียนรู้ (PLOs) กับ รายวิชา และ KSA ปี 71
+     * คอลัมน์ที่ 1: PLO
+     * คอลัมน์ที่ 2: รหัสวิชา
+     * คอลัมน์ที่ 3: รายวิชา
+     * คอลัมน์ที่ 4: K (Knowledge)
+     * คอลัมน์ที่ 5: S (Skill)
+     * คอลัมน์ที่ 6: A (Attitude)
+     * แสดงข้อมูลของแต่ละรายวิชาที่กรอกแล้ว
      */
     function renderTab2Table() {
-      const coursesTbody = document.getElementById("tab2-courses-table-body");
-      const ksaTbody = document.getElementById("tab2-table-body");
-      if (!coursesTbody && !ksaTbody) return;
+      const tbody = document.getElementById("tab2-table-body");
+      if (!tbody) return;
+      tbody.innerHTML = "";
 
       const ploFilter = (document.getElementById("tab2-filter-plo") ? document.getElementById("tab2-filter-plo").value : "").trim().toUpperCase();
       const instructorFilter = (document.getElementById("tab2-filter-instructor") ? document.getElementById("tab2-filter-instructor").value : "").trim().toLowerCase();
       const keyword = (document.getElementById("tab2-search") ? document.getElementById("tab2-search").value : "").trim().toLowerCase();
 
-      // ================= PART 1: วาดตารางรายวิชาและอาจารย์ผู้สอน =================
-      if (coursesTbody) {
-        coursesTbody.innerHTML = "";
+      let visiblePloCount = 0;
 
-        // กรองรายวิชา
-        const filteredCourses = appData.courses.filter(c => {
-          if (instructorFilter && (c.instructor || '').toLowerCase() !== instructorFilter) {
-            return false;
-          }
-          if (ploFilter && !checkCourseLinkedPlo(c, ploFilter)) {
-            return false;
-          }
-          if (keyword) {
-            const combined = `${c.code || ''} ${c.name || ''} ${c.instructor || ''} ${c.credit || ''} ${c.k || ''} ${c.s || ''} ${c.a || ''} ${c.plos || ''}`.toLowerCase();
-            if (!combined.includes(keyword)) {
-              return false;
-            }
-          }
-          return true;
-        });
+      // รายวิชาที่นำมาตรวจสอบ (กรองตามอาจารย์ผู้สอน ถ้ามีการเลือก)
+      const eligibleCourses = appData.courses.filter(c => {
+        if (instructorFilter && (c.instructor || '').toLowerCase() !== instructorFilter) {
+          return false;
+        }
+        return true;
+      });
 
-        const courseCountEl = document.getElementById("tab2-course-count");
-        if (courseCountEl) {
-          courseCountEl.textContent = `${filteredCourses.length} รายวิชา`;
+      PLO_DEFINITIONS.forEach(plo => {
+        // กรองตาม PLO Dropdown
+        if (ploFilter && plo.id !== ploFilter) {
+          return;
         }
 
-        if (filteredCourses.length === 0) {
-          coursesTbody.innerHTML = `
-            <tr>
-              <td colspan="7" class="text-center py-8 text-slate-400 italic">
-                <i class="fa-solid fa-graduation-cap text-2xl mb-1.5 block opacity-40"></i>
-                ไม่พบรายวิชาที่ตรงกับเงื่อนไขการค้นหา
-              </td>
-            </tr>
-          `;
-        } else {
-          filteredCourses.forEach((c, idx) => {
-            const linkedPlos = [];
-            PLO_DEFINITIONS.forEach(p => {
-              if (checkCourseLinkedPlo(c, p.id)) {
-                linkedPlos.push(p.id);
+        // ค้นหารายวิชาที่ "กรอกข้อมูลแล้ว" ภายใต้ PLO นี้
+        const matchedCourses = [];
+
+        eligibleCourses.forEach(c => {
+          const parsedK = parseKsaString(c.k);
+          const parsedS = parseKsaString(c.s);
+          const parsedA = parseKsaString(c.a);
+
+          const kItems = (parsedK[plo.id] || []).filter(Boolean);
+          const sItems = (parsedS[plo.id] || []).filter(Boolean);
+          const aItems = (parsedA[plo.id] || []).filter(Boolean);
+
+          const isFilled = kItems.length > 0 || sItems.length > 0 || aItems.length > 0;
+
+          if (isFilled) {
+            // กรองตาม keyword หากมีการระบุคำค้นหา
+            if (keyword) {
+              const combined = `${c.code || ''} ${c.name || ''} ${c.instructor || ''} ${kItems.join(' ')} ${sItems.join(' ')} ${aItems.join(' ')} ${plo.code} ${plo.title}`.toLowerCase();
+              if (!combined.includes(keyword)) {
+                return;
               }
+            }
+            matchedCourses.push({
+              course: c,
+              kItems,
+              sItems,
+              aItems
             });
-
-            const ploBadges = linkedPlos.length > 0
-              ? linkedPlos.map(pid => `<span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-blue-50 text-psu-800 border border-blue-200/80 mr-1 mb-0.5">${pid}</span>`).join('')
-              : `<span class="text-slate-400 italic text-[11px]">- ยังไม่ได้ระบุ PLO -</span>`;
-
-            const tr = document.createElement("tr");
-            tr.className = "hover:bg-slate-50/70 transition border-b border-slate-100";
-            tr.innerHTML = `
-              <td class="px-3 py-2.5 text-center font-medium text-slate-400">${idx + 1}</td>
-              <td class="px-3 py-2.5 text-center">
-                <span class="font-mono font-bold text-psu-900 bg-psu-50 px-2 py-0.5 rounded border border-psu-200 text-xs">
-                  ${escapeHtml(c.code || '-')}
-                </span>
-              </td>
-              <td class="px-4 py-2.5 font-medium text-slate-800 text-xs">
-                ${escapeHtml(c.name || '-')}
-              </td>
-              <td class="px-3 py-2.5 text-center text-slate-500 font-mono text-xs">
-                ${escapeHtml(c.credit || '-')}
-              </td>
-              <td class="px-4 py-2.5 text-xs">
-                <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded bg-slate-100 text-slate-700 font-medium">
-                  <i class="fa-solid fa-chalkboard-user text-slate-400 text-[10px]"></i>
-                  ${escapeHtml(c.instructor || 'ยังไม่ได้ระบุ')}
-                </span>
-              </td>
-              <td class="px-4 py-2.5">
-                <div class="flex flex-wrap items-center">
-                  ${ploBadges}
-                </div>
-              </td>
-              <td class="px-3 py-2.5 text-center no-print">
-                <button onclick="editCourse(${c.id || c.rowIndex})" class="px-2 py-1 bg-white hover:bg-psu-50 text-psu-700 hover:text-psu-900 border border-slate-200 hover:border-psu-300 rounded text-[11px] font-medium transition shadow-2xs" title="แก้ไขรายวิชานี้">
-                  <i class="fa-solid fa-pen-to-square mr-1"></i>แก้ไข
-                </button>
-              </td>
-            `;
-            coursesTbody.appendChild(tr);
-          });
-        }
-      }
-
-      // ================= PART 2: วาดตาราง KSA (ไม่แสดงรหัสวิชา ชื่อวิชา และผู้สอนในช่อง) =================
-      if (ksaTbody) {
-        ksaTbody.innerHTML = "";
-        let visibleCount = 0;
-
-        // รายวิชาที่นำมาดึง KSA (กรองตามอาจารย์ผู้สอน ถ้ามีการเลือก)
-        const coursesForKsa = appData.courses.filter(c => {
-          if (instructorFilter && (c.instructor || '').toLowerCase() !== instructorFilter) {
-            return false;
           }
-          return true;
         });
 
-        PLO_DEFINITIONS.forEach(plo => {
-          // กรองตาม PLO Dropdown
-          if (ploFilter && plo.id !== ploFilter) {
+        // หากมีการค้นหา keyword และไม่มีวิชาที่ตรงเลย แต่ keyword อาจตรงกับชื่อหรือคำอธิบาย PLO
+        if (keyword && matchedCourses.length === 0) {
+          const ploMatch = `${plo.code} ${plo.title} ${plo.desc}`.toLowerCase().includes(keyword);
+          if (!ploMatch) {
             return;
           }
+        }
 
-          const kItems = [];
-          const sItems = [];
-          const aItems = [];
+        visiblePloCount++;
 
-          coursesForKsa.forEach(c => {
-            const parsedK = parseKsaString(c.k);
-            const parsedS = parseKsaString(c.s);
-            const parsedA = parseKsaString(c.a);
-
-            if (parsedK[plo.id] && parsedK[plo.id].length > 0) {
-              parsedK[plo.id].forEach(it => {
-                const clean = (it || '').trim();
-                if (clean && !kItems.includes(clean)) kItems.push(clean);
-              });
-            }
-            if (parsedS[plo.id] && parsedS[plo.id].length > 0) {
-              parsedS[plo.id].forEach(it => {
-                const clean = (it || '').trim();
-                if (clean && !sItems.includes(clean)) sItems.push(clean);
-              });
-            }
-            if (parsedA[plo.id] && parsedA[plo.id].length > 0) {
-              parsedA[plo.id].forEach(it => {
-                const clean = (it || '').trim();
-                if (clean && !aItems.includes(clean)) aItems.push(clean);
-              });
-            }
-          });
-
-          // Fallback จาก tab2Data หากยังไม่มีรายวิชาใน memory และไม่ได้กรองตามอาจารย์
-          let fallbackK = '';
-          let fallbackS = '';
-          let fallbackA = '';
-          if (!instructorFilter && kItems.length === 0 && sItems.length === 0 && aItems.length === 0 && appData.tab2Data && appData.tab2Data.length > 0) {
-            const tab2Row = appData.tab2Data.find(r => (r.plo && (r.plo.includes(plo.id) || r.plo === plo.id)));
-            if (tab2Row) {
-              fallbackK = tab2Row.k || '';
-              fallbackS = tab2Row.s || '';
-              fallbackA = tab2Row.a || '';
-            }
+        const renderKsaList = (items, theme) => {
+          if (!items || items.length === 0) {
+            return `<div class="text-slate-400 italic text-xs py-2 text-center">-</div>`;
           }
+          return `
+            <div class="p-2.5 ${theme.bg} rounded-lg border ${theme.border}">
+              <ol class="list-decimal list-outside ml-4 space-y-1.5 text-xs text-slate-700 font-body leading-relaxed">
+                ${items.map(it => `<li>${escapeHtml(it)}</li>`).join('')}
+              </ol>
+            </div>
+          `;
+        };
 
-          // กรองตามคำค้นหา
-          if (keyword) {
-            const kText = kItems.join(" ") + " " + fallbackK;
-            const sText = sItems.join(" ") + " " + fallbackS;
-            const aText = aItems.join(" ") + " " + fallbackA;
-            const combined = (plo.code + " " + plo.title + " " + plo.desc + " " + kText + " " + sText + " " + aText).toLowerCase();
-            if (!combined.includes(keyword)) {
-              return;
-            }
-          }
+        const themeK = { bg: 'bg-blue-50/50', border: 'border-blue-100' };
+        const themeS = { bg: 'bg-teal-50/50', border: 'border-teal-100' };
+        const themeA = { bg: 'bg-amber-50/50', border: 'border-amber-100' };
 
-          visibleCount++;
+        const renderPloCell = (rowspan) => `
+          <td rowspan="${rowspan}" class="px-4 py-4 w-64 bg-slate-50/80 border-r border-slate-200 align-top">
+            <div class="sticky top-20 space-y-2">
+              <div class="flex items-center gap-2">
+                <span class="badge-plo inline-flex items-center px-2.5 py-1 rounded text-xs font-bold border ${plo.color}">${escapeHtml(plo.code)}</span>
+                <span class="font-bold text-sm text-psu-900">${escapeHtml(plo.title)}</span>
+              </div>
+              <p class="text-xs text-slate-600 font-body leading-relaxed bg-white p-3 rounded-lg border border-slate-200/80 shadow-2xs">
+                ${escapeHtml(plo.desc)}
+              </p>
+            </div>
+          </td>
+        `;
 
-          const renderKsaCell = (items, fallbackText, theme) => {
-            if (items.length > 0) {
-              return `
-                <div class="p-3 ${theme.bg} rounded-lg border ${theme.border} shadow-2xs">
-                  <ol class="list-decimal list-outside ml-4 space-y-1.5 text-xs text-slate-800 font-body leading-relaxed">
-                    ${items.map(it => `<li>${escapeHtml(it)}</li>`).join('')}
-                  </ol>
+        if (matchedCourses.length > 0) {
+          matchedCourses.forEach((mc, cIdx) => {
+            const tr = document.createElement("tr");
+            tr.className = "hover:bg-slate-50/40 transition border-b border-slate-200 align-top";
+
+            const ploTdHtml = (cIdx === 0) ? renderPloCell(matchedCourses.length) : '';
+
+            tr.innerHTML = `
+              <!-- Col 1: PLO (Rowspan for all courses of this PLO) -->
+              ${ploTdHtml}
+
+              <!-- Col 2: รหัสวิชา -->
+              <td class="px-3 py-3 w-28 text-center border-r border-slate-200 align-top">
+                <span class="font-mono font-bold text-xs text-psu-900 bg-psu-50 px-2.5 py-1 rounded border border-psu-200 inline-block shadow-2xs">
+                  ${escapeHtml(mc.course.code || '-')}
+                </span>
+              </td>
+
+              <!-- Col 3: รายวิชา -->
+              <td class="px-4 py-3 min-w-[220px] border-r border-slate-200 align-top">
+                <div class="font-medium text-xs text-slate-800 leading-snug">
+                  ${escapeHtml(mc.course.name || '-')}
                 </div>
-              `;
-            } else if (fallbackText) {
-              return `<div class="text-xs text-slate-700 whitespace-pre-line leading-relaxed font-body p-2.5 bg-slate-50 rounded-lg border border-slate-200/60">${escapeHtml(fallbackText)}</div>`;
-            } else {
-              const emptyMsg = instructorFilter ? '- ไม่มีข้อมูล KSA ของผู้สอนนี้ใน PLO นี้ -' : '- ยังไม่มีข้อมูล -';
-              return `<div class="text-slate-400 italic text-xs py-3 px-3 text-center bg-slate-50/50 rounded-lg border border-dashed border-slate-200">${emptyMsg}</div>`;
-            }
-          };
+                ${mc.course.instructor ? `
+                  <div class="mt-1.5 text-[11px] text-slate-600 inline-flex items-center gap-1.5 bg-slate-100/90 px-2 py-0.5 rounded border border-slate-200/60 shadow-2xs">
+                    <i class="fa-solid fa-chalkboard-user text-slate-400 text-[10px]"></i>
+                    <span>${escapeHtml(mc.course.instructor)}</span>
+                  </div>
+                ` : ''}
+              </td>
 
-          const themeK = { bg: 'bg-blue-50/60', border: 'border-blue-100' };
-          const themeS = { bg: 'bg-teal-50/60', border: 'border-teal-100' };
-          const themeA = { bg: 'bg-amber-50/60', border: 'border-amber-100' };
+              <!-- Col 4: K (Knowledge) -->
+              <td class="px-3.5 py-3 min-w-[260px] border-r border-slate-200 align-top">
+                ${renderKsaList(mc.kItems, themeK)}
+              </td>
 
+              <!-- Col 5: S (Skill) -->
+              <td class="px-3.5 py-3 min-w-[260px] border-r border-slate-200 align-top">
+                ${renderKsaList(mc.sItems, themeS)}
+              </td>
+
+              <!-- Col 6: A (Attitude) -->
+              <td class="px-3.5 py-3 min-w-[260px] align-top">
+                ${renderKsaList(mc.aItems, themeA)}
+              </td>
+            `;
+            tbody.appendChild(tr);
+          });
+        } else {
+          // หากยังไม่มีรายวิชาที่กรอกข้อมูลใน PLO นี้
           const tr = document.createElement("tr");
           tr.className = "hover:bg-slate-50/40 transition border-b border-slate-200 align-top";
+
+          const emptyMessage = instructorFilter 
+            ? '- ยังไม่มีรายวิชาของอาจารย์ท่านนี้ที่กรอกข้อมูลใน PLO นี้ -' 
+            : '- ยังไม่มีรายวิชาที่กรอกข้อมูลใน PLO นี้ -';
+
           tr.innerHTML = `
-            <!-- คอลัมน์ 1: PLOs -->
-            <td class="px-4 py-4 w-64 bg-slate-50/70 border-r border-slate-200">
-              <div class="sticky top-20 space-y-2">
-                <div class="flex items-center gap-2">
-                  <span class="badge-plo inline-flex items-center px-2.5 py-1 rounded text-xs font-bold border ${plo.color}">${escapeHtml(plo.code)}</span>
-                  <span class="font-bold text-sm text-psu-900">${escapeHtml(plo.title)}</span>
-                </div>
-                <p class="text-xs text-slate-600 font-body leading-relaxed bg-white p-3 rounded-lg border border-slate-200/80 shadow-2xs">
-                  ${escapeHtml(plo.desc)}
-                </p>
-              </div>
-            </td>
-
-            <!-- คอลัมน์ 2: K (Knowledge) -->
-            <td class="px-4 py-4 min-w-[280px] border-r border-slate-200">
-              ${renderKsaCell(kItems, fallbackK, themeK)}
-            </td>
-
-            <!-- คอลัมน์ 3: S (Skill) -->
-            <td class="px-4 py-4 min-w-[280px] border-r border-slate-200">
-              ${renderKsaCell(sItems, fallbackS, themeS)}
-            </td>
-
-            <!-- คอลัมน์ 4: A (Attitude) -->
-            <td class="px-4 py-4 min-w-[280px]">
-              ${renderKsaCell(aItems, fallbackA, themeA)}
+            ${renderPloCell(1)}
+            <td colspan="5" class="px-4 py-8 text-center text-slate-400 italic text-xs bg-slate-50/30">
+              <i class="fa-solid fa-folder-open text-xl mb-1.5 block opacity-40"></i>
+              ${emptyMessage}
             </td>
           `;
-          ksaTbody.appendChild(tr);
-        });
-
-        if (visibleCount === 0) {
-          ksaTbody.innerHTML = `
-            <tr>
-              <td colspan="4" class="text-center py-12 text-slate-400 text-sm">
-                <i class="fa-solid fa-table-list text-3xl mb-2 block opacity-40"></i>
-                ไม่พบข้อมูล PLO ที่ตรงกับเงื่อนไขการค้นหา
-              </td>
-            </tr>
-          `;
+          tbody.appendChild(tr);
         }
+      });
+
+      if (visiblePloCount === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="6" class="text-center py-12 text-slate-400 text-sm">
+              <i class="fa-solid fa-table-list text-3xl mb-2 block opacity-40"></i>
+              ไม่พบข้อมูล PLO ที่ตรงกับเงื่อนไขการค้นหา
+            </td>
+          </tr>
+        `;
       }
     }
 
@@ -4238,21 +4135,13 @@
     }
 
     /**
-     * ส่งออกข้อมูล แถบที่ 2 เป็นไฟล์ Microsoft Word (.doc)
+     * ส่งออกข้อมูล แถบที่ 2 เป็นไฟล์ Microsoft Word (.doc) 6 คอลัมน์ (PLOs, รหัสวิชา, รายวิชา, K, S, A)
      */
     function exportTab2Word() {
       const ploFilter = (document.getElementById("tab2-filter-plo") ? document.getElementById("tab2-filter-plo").value : "").trim().toUpperCase();
       const instructorFilter = (document.getElementById("tab2-filter-instructor") ? document.getElementById("tab2-filter-instructor").value : "").trim().toLowerCase();
 
-      // รายวิชาสำหรับตารางที่ 1
-      const filteredCourses = appData.courses.filter(c => {
-        if (instructorFilter && (c.instructor || '').toLowerCase() !== instructorFilter) return false;
-        if (ploFilter && !checkCourseLinkedPlo(c, ploFilter)) return false;
-        return true;
-      });
-
-      // รายวิชาสำหรับดึง KSA
-      const coursesForKsa = appData.courses.filter(c => {
+      const eligibleCourses = appData.courses.filter(c => {
         if (instructorFilter && (c.instructor || '').toLowerCase() !== instructorFilter) return false;
         return true;
       });
@@ -4263,7 +4152,7 @@
               xmlns='http://www.w3.org/TR/REC-html40'>
         <head>
           <meta charset='utf-8'>
-          <title>ตารางแสดงผลลัพธ์การเรียนรู้ (PLOs) กับ KSA ปี 71</title>
+          <title>ตารางแสดงผลลัพธ์การเรียนรู้ (PLOs) กับรายวิชา และ KSA ปี 71</title>
           <!--[if gte mso 9]>
           <xml>
             <w:WordDocument>
@@ -4289,13 +4178,6 @@
               font-weight: bold;
               text-align: center;
               margin-bottom: 4px;
-              color: #0b3b60;
-            }
-            h3 {
-              font-size: 15pt;
-              font-weight: bold;
-              margin-top: 20px;
-              margin-bottom: 6px;
               color: #0b3b60;
             }
             p.sub {
@@ -4349,49 +4231,18 @@
           </style>
         </head>
         <body>
-          <h2>ตารางแสดงผลลัพธ์การเรียนรู้ระดับหลักสูตร (PLOs) กับ Knowledge / Skill / Attitude</h2>
+          <h2>ตารางแสดงผลลัพธ์การเรียนรู้ระดับหลักสูตร (PLOs) กับรายวิชา และ Knowledge / Skill / Attitude</h2>
           <p class="sub">สาขาวิชาเทคโนโลยีดิจิทัลและสื่อสารการศึกษา หลักสูตรปรับปรุง 2571 คณะศึกษาศาสตร์ มหาวิทยาลัยสงขลานครินทร์</p>
 
-          <h3>1. ตารางรายวิชาและอาจารย์ผู้สอนที่รับผิดชอบ PLOs</h3>
           <table>
             <thead>
               <tr>
-                <th style="width: 7%;">ลำดับ</th>
-                <th style="width: 14%;">รหัสวิชา</th>
-                <th style="width: 36%;">ชื่อรายวิชา</th>
-                <th style="width: 9%;">หน่วยกิต</th>
-                <th style="width: 18%;">อาจารย์ผู้สอน</th>
-                <th style="width: 16%;">PLOs ที่รับผิดชอบ</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${filteredCourses.length === 0 ? '<tr><td colspan="6" style="text-align:center; color:#888;">ไม่พบรายวิชาที่ตรงกับเงื่อนไข</td></tr>' : filteredCourses.map((c, idx) => {
-                const linkedPlos = [];
-                PLO_DEFINITIONS.forEach(p => {
-                  if (checkCourseLinkedPlo(c, p.id)) linkedPlos.push(p.id);
-                });
-                return `
-                  <tr>
-                    <td style="text-align: center;">${idx + 1}</td>
-                    <td style="text-align: center; font-weight: bold;">${escapeHtml(c.code || '-')}</td>
-                    <td>${escapeHtml(c.name || '-')}</td>
-                    <td style="text-align: center;">${escapeHtml(c.credit || '-')}</td>
-                    <td>${escapeHtml(c.instructor || '-')}</td>
-                    <td style="text-align: center;">${escapeHtml(linkedPlos.join(', ') || '-')}</td>
-                  </tr>
-                `;
-              }).join('')}
-            </tbody>
-          </table>
-
-          <h3>2. ตารางผลลัพธ์การเรียนรู้ (PLOs) กับ Knowledge / Skill / Attitude (KSA)</h3>
-          <table>
-            <thead>
-              <tr>
-                <th style="width: 22%;">PLOs</th>
-                <th style="width: 26%;">K : Knowledge (ความรู้)</th>
-                <th style="width: 26%;">S : Skill (ทักษะ)</th>
-                <th style="width: 26%;">A : Attitude (เจตคติ/คุณลักษณะ)</th>
+                <th style="width: 20%;">PLOs</th>
+                <th style="width: 10%;">รหัสวิชา</th>
+                <th style="width: 22%;">รายวิชา</th>
+                <th style="width: 16%;">K : Knowledge (ความรู้)</th>
+                <th style="width: 16%;">S : Skill (ทักษะ)</th>
+                <th style="width: 16%;">A : Attitude (เจตคติ/คุณลักษณะ)</th>
               </tr>
             </thead>
             <tbody>
@@ -4400,51 +4251,58 @@
       PLO_DEFINITIONS.forEach(plo => {
         if (ploFilter && plo.id !== ploFilter) return;
 
-        const kItems = [];
-        const sItems = [];
-        const aItems = [];
-
-        coursesForKsa.forEach(c => {
+        const matchedCourses = [];
+        eligibleCourses.forEach(c => {
           const parsedK = parseKsaString(c.k);
           const parsedS = parseKsaString(c.s);
           const parsedA = parseKsaString(c.a);
 
-          if (parsedK[plo.id] && parsedK[plo.id].length > 0) {
-            parsedK[plo.id].forEach(it => {
-              const clean = (it || '').trim();
-              if (clean && !kItems.includes(clean)) kItems.push(clean);
-            });
-          }
-          if (parsedS[plo.id] && parsedS[plo.id].length > 0) {
-            parsedS[plo.id].forEach(it => {
-              const clean = (it || '').trim();
-              if (clean && !sItems.includes(clean)) sItems.push(clean);
-            });
-          }
-          if (parsedA[plo.id] && parsedA[plo.id].length > 0) {
-            parsedA[plo.id].forEach(it => {
-              const clean = (it || '').trim();
-              if (clean && !aItems.includes(clean)) aItems.push(clean);
-            });
+          const kItems = (parsedK[plo.id] || []).filter(Boolean);
+          const sItems = (parsedS[plo.id] || []).filter(Boolean);
+          const aItems = (parsedA[plo.id] || []).filter(Boolean);
+
+          if (kItems.length > 0 || sItems.length > 0 || aItems.length > 0) {
+            matchedCourses.push({ course: c, kItems, sItems, aItems });
           }
         });
 
-        const formatWordCol = (items) => {
-          if (items.length === 0) return '<div class="empty-text">-</div>';
+        const formatWordList = (items) => {
+          if (!items || items.length === 0) return '<div class="empty-text">-</div>';
           return `<ol>${items.map(it => `<li>${escapeHtml(it)}</li>`).join('')}</ol>`;
         };
 
-        docContent += `
-          <tr>
-            <td>
-              <div class="plo-head">${escapeHtml(plo.code)}: ${escapeHtml(plo.title)}</div>
-              <div class="plo-desc">${escapeHtml(plo.desc)}</div>
-            </td>
-            <td>${formatWordCol(kItems)}</td>
-            <td>${formatWordCol(sItems)}</td>
-            <td>${formatWordCol(aItems)}</td>
-          </tr>
-        `;
+        if (matchedCourses.length > 0) {
+          matchedCourses.forEach((mc, idx) => {
+            docContent += `
+              <tr>
+                ${idx === 0 ? `
+                  <td rowspan="${matchedCourses.length}">
+                    <div class="plo-head">${escapeHtml(plo.code)}: ${escapeHtml(plo.title)}</div>
+                    <div class="plo-desc">${escapeHtml(plo.desc)}</div>
+                  </td>
+                ` : ''}
+                <td style="text-align: center; font-weight: bold;">${escapeHtml(mc.course.code || '-')}</td>
+                <td>
+                  <div>${escapeHtml(mc.course.name || '-')}</div>
+                  ${mc.course.instructor ? `<div style="font-size: 11pt; color: #555; margin-top: 3px;">(${escapeHtml(mc.course.instructor)})</div>` : ''}
+                </td>
+                <td>${formatWordList(mc.kItems)}</td>
+                <td>${formatWordList(mc.sItems)}</td>
+                <td>${formatWordList(mc.aItems)}</td>
+              </tr>
+            `;
+          });
+        } else {
+          docContent += `
+            <tr>
+              <td>
+                <div class="plo-head">${escapeHtml(plo.code)}: ${escapeHtml(plo.title)}</div>
+                <div class="plo-desc">${escapeHtml(plo.desc)}</div>
+              </td>
+              <td colspan="5" class="empty-text">- ยังไม่มีรายวิชาที่กรอกข้อมูลใน PLO นี้ -</td>
+            </tr>
+          `;
+        }
       });
 
       docContent += `
@@ -4458,7 +4316,7 @@
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `ตาราง_PLOs_KSA_ปี71_${new Date().toISOString().slice(0, 10)}.doc`;
+      a.download = `ตาราง_PLOs_รายวิชา_KSA_ปี71_${new Date().toISOString().slice(0, 10)}.doc`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
@@ -4493,71 +4351,76 @@
     }
 
     /**
-     * ส่งออกข้อมูล แถบที่ 2 เป็นไฟล์ CSV 4 คอลัมน์ (PLOs, K, S, A)
+     * ส่งออกข้อมูล แถบที่ 2 เป็นไฟล์ CSV 6 คอลัมน์ (PLOs, รหัสวิชา, รายวิชา, K, S, A)
      */
     function exportTab2CSV() {
       const ploFilter = (document.getElementById("tab2-filter-plo") ? document.getElementById("tab2-filter-plo").value : "").trim().toUpperCase();
       const instructorFilter = (document.getElementById("tab2-filter-instructor") ? document.getElementById("tab2-filter-instructor").value : "").trim().toLowerCase();
 
-      const coursesForKsa = appData.courses.filter(c => {
+      const eligibleCourses = appData.courses.filter(c => {
         if (instructorFilter && (c.instructor || '').toLowerCase() !== instructorFilter) return false;
         return true;
       });
 
       let csv = "\uFEFF"; // UTF-8 BOM for Thai Excel
-      csv += "PLOs,K:Knowledge,S: Skill,A:Attitude\n";
+      csv += "PLOs,รหัสวิชา,รายวิชา,อาจารย์ผู้สอน,K:Knowledge,S: Skill,A:Attitude\n";
+
+      const clean = (val) => '"' + (String(val || '')).replace(/"/g, '""') + '"';
 
       PLO_DEFINITIONS.forEach(plo => {
         if (ploFilter && plo.id !== ploFilter) return;
 
-        const kItems = [];
-        const sItems = [];
-        const aItems = [];
-
-        coursesForKsa.forEach(c => {
+        const matchedCourses = [];
+        eligibleCourses.forEach(c => {
           const parsedK = parseKsaString(c.k);
           const parsedS = parseKsaString(c.s);
           const parsedA = parseKsaString(c.a);
 
-          if (parsedK[plo.id] && parsedK[plo.id].length > 0) {
-            parsedK[plo.id].forEach(it => {
-              const clean = (it || '').trim();
-              if (clean && !kItems.includes(clean)) kItems.push(clean);
-            });
-          }
-          if (parsedS[plo.id] && parsedS[plo.id].length > 0) {
-            parsedS[plo.id].forEach(it => {
-              const clean = (it || '').trim();
-              if (clean && !sItems.includes(clean)) sItems.push(clean);
-            });
-          }
-          if (parsedA[plo.id] && parsedA[plo.id].length > 0) {
-            parsedA[plo.id].forEach(it => {
-              const clean = (it || '').trim();
-              if (clean && !aItems.includes(clean)) aItems.push(clean);
-            });
+          const kItems = (parsedK[plo.id] || []).filter(Boolean);
+          const sItems = (parsedS[plo.id] || []).filter(Boolean);
+          const aItems = (parsedA[plo.id] || []).filter(Boolean);
+
+          if (kItems.length > 0 || sItems.length > 0 || aItems.length > 0) {
+            matchedCourses.push({ course: c, kItems, sItems, aItems });
           }
         });
 
-        const clean = (val) => '"' + (String(val || '')).replace(/"/g, '""') + '"';
         const ploText = `${plo.code} : ${plo.desc}`;
-        const kText = kItems.map((it, idx) => `${idx + 1}. ${it}`).join('\n');
-        const sText = sItems.map((it, idx) => `${idx + 1}. ${it}`).join('\n');
-        const aText = aItems.map((it, idx) => `${idx + 1}. ${it}`).join('\n');
 
-        csv += [
-          clean(ploText),
-          clean(kText),
-          clean(sText),
-          clean(aText)
-        ].join(",") + "\n";
+        if (matchedCourses.length > 0) {
+          matchedCourses.forEach(mc => {
+            const kText = mc.kItems.map((it, idx) => `${idx + 1}. ${it}`).join('\n');
+            const sText = mc.sItems.map((it, idx) => `${idx + 1}. ${it}`).join('\n');
+            const aText = mc.aItems.map((it, idx) => `${idx + 1}. ${it}`).join('\n');
+
+            csv += [
+              clean(ploText),
+              clean(mc.course.code || ''),
+              clean(mc.course.name || ''),
+              clean(mc.course.instructor || ''),
+              clean(kText),
+              clean(sText),
+              clean(aText)
+            ].join(",") + "\n";
+          });
+        } else {
+          csv += [
+            clean(ploText),
+            clean("-"),
+            clean("ยังไม่มีรายวิชาที่กรอกข้อมูล"),
+            clean("-"),
+            clean("-"),
+            clean("-"),
+            clean("-")
+          ].join(",") + "\n";
+        }
       });
 
       const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.setAttribute("href", url);
-      link.setAttribute("download", `ตาราง_PLOs_KSA_ปี71_${new Date().toISOString().slice(0, 10)}.csv`);
+      link.setAttribute("download", `ตาราง_PLOs_รายวิชา_KSA_ปี71_${new Date().toISOString().slice(0, 10)}.csv`);
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
